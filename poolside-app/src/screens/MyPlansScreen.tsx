@@ -1,12 +1,16 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const MyPlansScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.title}>My Plans</Text>
+        <Image
+          source={require('../../assets/myplans-icon.png')}
+          style={styles.titleImage}
+          resizeMode="contain"
+        />
       </View>
       <View style={styles.content}>
         <Text style={styles.emoji}>📅</Text>
@@ -22,8 +26,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#0a0a0f',
   },
   header: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: 5,
+    paddingVertical: 6,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255,255,255,0.1)',
   },
@@ -32,6 +36,12 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#fff',
     letterSpacing: -1,
+  },
+  titleImage: {
+    width: 280,
+    height: 80,
+    marginVertical: -15,
+    marginLeft: -70,
   },
   content: {
     flex: 1,

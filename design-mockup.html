@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=375, initial-scale=1.0">
+  <title>Poolside - Design Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(180deg,
+        #E8B4F8 0%,
+        #B8A4F8 20%,
+        #A8D4F8 40%,
+        #F8C8E8 60%,
+        #E8B4F8 80%,
+        #D8A4E8 100%
+      );
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Phone Frame */
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      margin: 20px auto;
+      background: linear-gradient(180deg,
+        #E8B4F8 0%,
+        #B8A4F8 25%,
+        #A8D4F8 50%,
+        #F8C8E8 75%,
+        #E8B4F8 100%
+      );
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.3);
+    }
+
+    /* Floating 3D Emojis */
+    .floating-emoji {
+      position: absolute;
+      font-size: 40px;
+      filter: drop-shadow(0 8px 16px rgba(0,0,0,0.2));
+      animation: float 3s ease-in-out infinite;
+      z-index: 10;
+    }
+
+    .emoji-1 { top: 80px; right: 20px; animation-delay: 0s; }
+    .emoji-2 { top: 200px; left: 15px; animation-delay: 0.5s; font-size: 32px; }
+    .emoji-3 { top: 450px; right: 25px; animation-delay: 1s; font-size: 36px; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(-5deg); }
+      50% { transform: translateY(-10px) rotate(5deg); }
+    }
+
+    /* Header */
+    .header {
+      padding: 60px 20px 20px;
+      text-align: center;
+    }
+
+    .logo {
+      font-size: 36px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #C0C0C0, #FFFFFF, #C0C0C0, #E8E8E8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+      letter-spacing: -1px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: rgba(255,255,255,0.8);
+      font-weight: 600;
+      margin-top: 4px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    /* Scrolling Ticker */
+    .ticker-container {
+      background: #000;
+      padding: 10px 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .ticker {
+      display: flex;
+      animation: scroll 15s linear infinite;
+    }
+
+    .ticker-text {
+      color: #FF3B3B;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      white-space: nowrap;
+      padding: 0 30px;
+    }
+
+    @keyframes scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* Feed Container */
+    .feed {
+      padding: 16px;
+      height: calc(100% - 200px);
+      overflow-y: auto;
+    }
+
+    /* Glassmorphism Event Card */
+    .event-card {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    }
+
+    .card-image {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+    }
+
+    .card-content {
+      padding: 16px;
+    }
+
+    .location-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(10px);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .event-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #1a1a2e;
+      margin-bottom: 4px;
+    }
+
+    .event-time {
+      font-size: 13px;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 8px;
+    }
+
+    .event-description {
+      font-size: 13px;
+      color: #555;
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .hosts {
+      display: flex;
+      align-items: center;
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.8);
+      margin-right: -10px;
+    }
+
+    .avatar:last-of-type {
+      margin-right: 10px;
+    }
+
+    .host-info {
+      font-size: 11px;
+    }
+
+    .hosted-by {
+      color: #666;
+    }
+
+    .host-name {
+      color: #333;
+      font-weight: 700;
+    }
+
+    .rsvp-btn {
+      background: linear-gradient(135deg, #C0C0C0, #E8E8E8, #FFFFFF, #C0C0C0);
+      border: none;
+      padding: 10px 24px;
+      border-radius: 25px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: #1a1a2e;
+      cursor: pointer;
+      box-shadow:
+        0 4px 15px rgba(0,0,0,0.15),
+        inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+
+    /* Tab Bar */
+    .tab-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 12px 20px 30px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0.6;
+    }
+
+    .tab-item.active {
+      opacity: 1;
+    }
+
+    .tab-icon {
+      font-size: 22px;
+      margin-bottom: 4px;
+    }
+
+    .tab-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .create-btn {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #C0C0C0, #FFFFFF, #E8E8E8);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: -30px;
+      box-shadow:
+        0 8px 25px rgba(0,0,0,0.2),
+        inset 0 2px 0 rgba(255,255,255,0.8);
+    }
+
+    .create-btn span {
+      font-size: 32px;
+      color: #333;
+      font-weight: 300;
+    }
+
+    /* Design Notes */
+    .notes {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .notes h2 {
+      font-size: 20px;
+      margin-bottom: 16px;
+      color: #333;
+    }
+
+    .notes ul {
+      list-style: none;
+    }
+
+    .notes li {
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .notes li:last-child {
+      border-bottom: none;
+    }
+
+    .color-swatch {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="phone-frame">
+    <!-- Floating 3D Emojis -->
+    <div class="floating-emoji emoji-1">🌴</div>
+    <div class="floating-emoji emoji-2">✨</div>
+    <div class="floating-emoji emoji-3">🍹</div>
+
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">Poolside</div>
+      <div class="subtitle">Caribbean Cruise</div>
+    </div>
+
+    <!-- Scrolling Ticker -->
+    <div class="ticker-container">
+      <div class="ticker">
+        <span class="ticker-text">🔥 HOT EVENTS TODAY • SUNSET DRINKS @ 6PM • POOL PARTY @ 2PM • KARAOKE NIGHT • </span>
+        <span class="ticker-text">🔥 HOT EVENTS TODAY • SUNSET DRINKS @ 6PM • POOL PARTY @ 2PM • KARAOKE NIGHT • </span>
+      </div>
+    </div>
+
+    <!-- Feed -->
+    <div class="feed">
+      <!-- Event Card 1 -->
+      <div class="event-card">
+        <img class="card-image" src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800" alt="Sky Bar">
+        <div class="card-content">
+          <div class="location-badge">📍 Deck 14 - Sky Bar</div>
+          <div class="event-title">Sunset Drinks at the Sky Bar</div>
+          <div class="event-time">Today at 6:00 PM</div>
+          <div class="event-description">Join us for cocktails and good vibes as we watch the sunset together!</div>
+          <div class="card-footer">
+            <div class="hosts">
+              <img class="avatar" src="https://i.pravatar.cc/150?img=1" alt="Host">
+              <img class="avatar" src="https://i.pravatar.cc/150?img=2" alt="Host">
+              <div class="host-info">
+                <div class="hosted-by">Hosted by</div>
+                <div class="host-name">Sarah & Jake</div>
+              </div>
+            </div>
+            <button class="rsvp-btn">RSVP</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Event Card 2 -->
+      <div class="event-card">
+        <img class="card-image" src="https://images.unsplash.com/photo-1575429198097-0414ec08e8cd?w=800" alt="Pool">
+        <div class="card-content">
+          <div class="location-badge">📍 Deck 11 - Main Pool</div>
+          <div class="event-title">Pool Party Hangout</div>
+          <div class="event-time">Tomorrow at 2:00 PM</div>
+          <div class="event-description">Chill by the pool, music, snacks, and great company!</div>
+          <div class="card-footer">
+            <div class="hosts">
+              <img class="avatar" src="https://i.pravatar.cc/150?img=3" alt="Host">
+              <div class="host-info">
+                <div class="hosted-by">Hosted by</div>
+                <div class="host-name">Emma</div>
+              </div>
+            </div>
+            <button class="rsvp-btn">RSVP</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <div class="tab-item active">
+        <span class="tab-icon">🏠</span>
+        <span class="tab-label">Feed</span>
+      </div>
+      <div class="tab-item">
+        <span class="tab-icon">📅</span>
+        <span class="tab-label">Plans</span>
+      </div>
+      <div class="create-btn">
+        <span>+</span>
+      </div>
+      <div class="tab-item">
+        <span class="tab-icon">👥</span>
+        <span class="tab-label">Friends</span>
+      </div>
+      <div class="tab-item">
+        <span class="tab-icon">👤</span>
+        <span class="tab-label">Profile</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Design Notes -->
+  <div class="notes">
+    <h2>Design Elements</h2>
+    <ul>
+      <li><span class="color-swatch" style="background: linear-gradient(135deg, #E8B4F8, #A8D4F8);"></span><strong>Background:</strong> Dreamy pink/purple/blue gradient</li>
+      <li><span class="color-swatch" style="background: linear-gradient(135deg, #C0C0C0, #FFFFFF);"></span><strong>Metallic Accents:</strong> Chrome/silver gradients on logo, buttons</li>
+      <li><span class="color-swatch" style="background: #FF3B3B;"></span><strong>Ticker:</strong> Red scrolling text on black band</li>
+      <li><span class="color-swatch" style="background: rgba(255,255,255,0.3);"></span><strong>Glassmorphism:</strong> Frosted glass cards with blur + white borders</li>
+      <li><strong>Font:</strong> Nunito (playful, rounded)</li>
+      <li><strong>Emojis:</strong> Floating 3D-style decorations</li>
+    </ul>
+  </div>
+
+</body>
+</html>

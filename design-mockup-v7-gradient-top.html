@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=375, initial-scale=1.0">
+  <title>Poolside - Gradient Top Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: #0a0a0f;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .title {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      color: white;
+      font-size: 16px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    /* Phone Frame */
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: #18181b;
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.8);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* Gradient only at top, fading to solid dark */
+    .gradient-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 350px;
+      background: linear-gradient(
+        180deg,
+        rgba(138, 92, 246, 0.4) 0%,
+        rgba(168, 120, 255, 0.3) 15%,
+        rgba(99, 102, 241, 0.25) 30%,
+        rgba(59, 130, 246, 0.15) 50%,
+        rgba(30, 30, 40, 0.1) 70%,
+        transparent 100%
+      );
+    }
+
+    /* Solid dark background */
+    .solid-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #18181b;
+      z-index: -1;
+    }
+
+    /* Content Layer */
+    .content {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      padding: 55px 20px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo-image {
+      height: 45px;
+      width: auto;
+    }
+
+    .header-icons {
+      display: flex;
+      gap: 16px;
+    }
+
+    .header-icon {
+      font-size: 20px;
+      opacity: 0.7;
+    }
+
+    /* Page Title */
+    .section-title {
+      padding: 8px 20px 16px;
+    }
+
+    .section-title h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    /* Filter Tabs */
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 0 20px 16px;
+    }
+
+    .filter-tab {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .filter-tab.active {
+      background: #ffffff;
+      color: #0a0a0f;
+    }
+
+    .filter-tab.inactive {
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.6);
+    }
+
+    /* Feed Container - for scroll fade effect */
+    .feed-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Fade overlay at top of feed - content blends into this */
+    .scroll-fade-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 40px;
+      background: linear-gradient(
+        180deg,
+        rgba(24, 24, 27, 1) 0%,
+        rgba(24, 24, 27, 0.8) 40%,
+        rgba(24, 24, 27, 0) 100%
+      );
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* Feed */
+    .feed {
+      flex: 1;
+      padding: 0 16px;
+      overflow-y: auto;
+    }
+
+    /* Event Card */
+    .event-card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .card-photos {
+      display: flex;
+      gap: 2px;
+      padding: 12px 12px 0;
+    }
+
+    .card-photo {
+      flex: 1;
+      height: 100px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .card-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .card-content {
+      padding: 14px;
+    }
+
+    .event-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+
+    .event-meta {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 4px;
+    }
+
+    .event-location {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 12px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .rsvp-btn {
+      background: #ffffff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #0a0a0f;
+      cursor: pointer;
+    }
+
+    .interested-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.8);
+      cursor: pointer;
+    }
+
+    /* Tab Bar */
+    .tab-bar {
+      background: rgba(24, 24, 27, 0.95);
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding: 12px 30px 30px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .tab-item {
+      font-size: 24px;
+      opacity: 0.4;
+    }
+
+    .tab-item.active {
+      opacity: 1;
+    }
+
+    /* Notes */
+    .notes {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 24px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      color: white;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .notes h2 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #8b5cf6;
+    }
+
+    .notes ul {
+      list-style: none;
+    }
+
+    .notes li {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    .notes li:last-child {
+      border-bottom: none;
+    }
+
+    .notes strong {
+      color: #ec4899;
+    }
+
+    .gradient-preview {
+      height: 100px;
+      border-radius: 12px;
+      margin-top: 16px;
+      background: linear-gradient(
+        180deg,
+        rgba(138, 92, 246, 0.4) 0%,
+        rgba(168, 120, 255, 0.3) 20%,
+        rgba(59, 130, 246, 0.2) 40%,
+        #18181b 100%
+      );
+    }
+  </style>
+</head>
+<body>
+
+  <div class="title">POOLSIDE - GRADIENT TOP + SCROLL FADE (V7.1)</div>
+
+  <div class="phone-frame">
+    <!-- Solid dark background -->
+    <div class="solid-bg"></div>
+
+    <!-- Gradient only at top -->
+    <div class="gradient-top"></div>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- Header -->
+      <div class="header">
+        <img src="poolside-logo.png" alt="Poolside" class="logo-image">
+        <div class="header-icons">
+          <span class="header-icon">🔔</span>
+          <span class="header-icon">⚙️</span>
+        </div>
+      </div>
+
+      <!-- Page Title -->
+      <div class="section-title">
+        <h1>Cruise Feed</h1>
+      </div>
+
+      <!-- Filter Tabs -->
+      <div class="filter-tabs">
+        <button class="filter-tab active">Upcoming</button>
+        <button class="filter-tab inactive">Saved</button>
+      </div>
+
+      <!-- Feed Container with scroll fade -->
+      <div class="feed-container">
+        <!-- Fade overlay - content fades into this when scrolling -->
+        <div class="scroll-fade-top"></div>
+
+        <!-- Feed -->
+        <div class="feed">
+          <!-- Event Card 1 -->
+          <div class="event-card">
+            <div class="card-photos">
+              <div class="card-photo">
+                <img src="https://images.unsplash.com/photo-1575429198097-0414ec08e8cd?w=400" alt="Pool">
+              </div>
+              <div class="card-photo">
+                <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400" alt="Bar">
+              </div>
+            </div>
+            <div class="card-content">
+              <div class="event-title">Pick Up Basketball</div>
+              <div class="event-meta">Tomorrow 11 am</div>
+              <div class="event-location">📍 Basketball Court</div>
+              <div class="button-row">
+                <button class="rsvp-btn">✓ Going</button>
+                <button class="interested-btn">☆ Interested</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Event Card 2 -->
+          <div class="event-card">
+            <div class="card-photos">
+              <div class="card-photo">
+                <img src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400" alt="Karaoke">
+              </div>
+              <div class="card-photo">
+                <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=400" alt="Sunset">
+              </div>
+            </div>
+            <div class="card-content">
+              <div class="event-title">Sunset Karaoke Night</div>
+              <div class="event-meta">Friday 8 pm</div>
+              <div class="event-location">📍 Deck 7 Lounge</div>
+              <div class="button-row">
+                <button class="rsvp-btn">✓ Going</button>
+                <button class="interested-btn">☆ Interested</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Event Card 3 -->
+          <div class="event-card">
+            <div class="card-photos">
+              <div class="card-photo">
+                <img src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400" alt="Ocean">
+              </div>
+              <div class="card-photo">
+                <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400" alt="Beach">
+              </div>
+            </div>
+            <div class="card-content">
+              <div class="event-title">Morning Yoga on Deck</div>
+              <div class="event-meta">Saturday 7 am</div>
+              <div class="event-location">📍 Sun Deck</div>
+              <div class="button-row">
+                <button class="rsvp-btn">✓ Going</button>
+                <button class="interested-btn">☆ Interested</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Event Card 4 -->
+          <div class="event-card">
+            <div class="card-photos">
+              <div class="card-photo">
+                <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400" alt="Food">
+              </div>
+              <div class="card-photo">
+                <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400" alt="Dining">
+              </div>
+            </div>
+            <div class="card-content">
+              <div class="event-title">Captain's Dinner</div>
+              <div class="event-meta">Sunday 7 pm</div>
+              <div class="event-location">📍 Grand Dining Hall</div>
+              <div class="button-row">
+                <button class="rsvp-btn">✓ Going</button>
+                <button class="interested-btn">☆ Interested</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="height: 100px;"></div>
+        </div>
+      </div>
+
+      <!-- Tab Bar -->
+      <div class="tab-bar">
+        <span class="tab-item active">🏠</span>
+        <span class="tab-item">📅</span>
+        <span class="tab-item">👥</span>
+        <span class="tab-item">👤</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notes -->
+  <div class="notes">
+    <h2>V7 - Gradient at Top + Scroll Fade</h2>
+    <ul>
+      <li><strong>Top:</strong> Purple/blue gradient in header area</li>
+      <li><strong>Fade:</strong> Smoothly transitions to solid dark</li>
+      <li><strong>Bottom:</strong> Solid dark gray (#18181b)</li>
+      <li><strong>Scroll Fade:</strong> Content blends/fades into the background as it scrolls past the top</li>
+      <li><strong>Try it:</strong> Scroll the feed to see content fade out at the top!</li>
+    </ul>
+
+    <p style="margin-top: 16px; color: #888; font-size: 12px;">Gradient preview:</p>
+    <div class="gradient-preview"></div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=375, initial-scale=1.0">
+  <title>Poolside - Design Mockup V4</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .page-title {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      color: white;
+      font-size: 16px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    /* Phone Frame */
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: #F8F4FF;
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.4);
+    }
+
+    /* Gradient Blobs Background */
+    .gradient-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow: hidden;
+    }
+
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.7;
+    }
+
+    .blob-1 {
+      width: 300px;
+      height: 300px;
+      background: linear-gradient(180deg, #D8B4F8 0%, #B8A4FF 100%);
+      top: -50px;
+      left: -50px;
+    }
+
+    .blob-2 {
+      width: 250px;
+      height: 250px;
+      background: linear-gradient(180deg, #F8B4E8 0%, #E8A4D8 100%);
+      top: 150px;
+      right: -80px;
+    }
+
+    .blob-3 {
+      width: 350px;
+      height: 350px;
+      background: linear-gradient(180deg, #A4E8E8 0%, #7DD4D4 100%);
+      bottom: -100px;
+      left: -100px;
+    }
+
+    .blob-4 {
+      width: 200px;
+      height: 200px;
+      background: linear-gradient(180deg, #C8A4F8 0%, #A890E8 100%);
+      bottom: 200px;
+      right: -50px;
+    }
+
+    /* Content Layer */
+    .content {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header - Compact */
+    .header {
+      padding: 55px 20px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Metallic Balloon Letter Logo */
+    .logo-metallic {
+      font-family: 'Baloo 2', cursive;
+      font-size: 28px;
+      font-weight: 800;
+      position: relative;
+      display: inline-block;
+      letter-spacing: -0.5px;
+
+      /* Base metallic gradient */
+      background: linear-gradient(
+        180deg,
+        #e8e8e8 0%,
+        #f5f5f5 15%,
+        #ffffff 25%,
+        #d0d0d0 35%,
+        #a8a8a8 45%,
+        #c0c0c0 55%,
+        #e0e0e0 65%,
+        #f8f8f8 75%,
+        #d8d8d8 85%,
+        #b0b0b0 100%
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+
+      /* 3D puffy effect with shadows */
+      filter: drop-shadow(0 1px 0 rgba(255,255,255,0.8))
+              drop-shadow(0 2px 1px rgba(0,0,0,0.1))
+              drop-shadow(0 3px 2px rgba(0,0,0,0.08))
+              drop-shadow(0 4px 4px rgba(0,0,0,0.06))
+              drop-shadow(1px 6px 8px rgba(0,0,0,0.15));
+    }
+
+    /* Highlight overlay effect */
+    .logo-metallic::before {
+      content: 'Poolside';
+      position: absolute;
+      left: 0;
+      top: 0;
+      background: linear-gradient(
+        135deg,
+        rgba(255,255,255,0.9) 0%,
+        rgba(255,255,255,0.4) 20%,
+        transparent 40%,
+        transparent 60%,
+        rgba(255,255,255,0.2) 80%,
+        rgba(255,255,255,0.5) 100%
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      opacity: 0.6;
+    }
+
+    .header-icons {
+      display: flex;
+      gap: 16px;
+    }
+
+    .header-icon {
+      font-size: 18px;
+      opacity: 0.7;
+    }
+
+    /* Page Title - Gotham Bold (Montserrat) */
+    .section-title {
+      padding: 8px 20px 16px;
+    }
+
+    .section-title h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+
+    /* Filter Tabs */
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 0 20px 16px;
+    }
+
+    .filter-tab {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .filter-tab.active {
+      background: #1a1a2e;
+      color: white;
+    }
+
+    .filter-tab.inactive {
+      background: rgba(255,255,255,0.5);
+      color: #666;
+    }
+
+    /* Feed */
+    .feed {
+      flex: 1;
+      padding: 0 16px;
+      overflow-y: auto;
+    }
+
+    /* Event Card - Glassmorphism */
+    .event-card {
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-photos {
+      display: flex;
+      gap: 2px;
+      padding: 12px 12px 0;
+    }
+
+    .card-photo {
+      flex: 1;
+      height: 100px;
+      background: rgba(200, 200, 200, 0.3);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+      font-size: 12px;
+      overflow: hidden;
+    }
+
+    .card-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .card-content {
+      padding: 14px;
+    }
+
+    .event-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
+    .event-meta {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      margin-bottom: 4px;
+    }
+
+    .event-location {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: #888;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: flex-start;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .rsvp-btn {
+      background: #1a1a2e;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .interested-btn {
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(0,0,0,0.1);
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: #1a1a2e;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Floating Action Button */
+    .fab {
+      position: absolute;
+      bottom: 100px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      background: #1a1a2e;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      z-index: 10;
+    }
+
+    .fab span {
+      color: white;
+      font-size: 24px;
+      font-weight: 300;
+    }
+
+    /* Tab Bar */
+    .tab-bar {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.8);
+      padding: 12px 30px 30px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0.4;
+    }
+
+    .tab-item.active {
+      opacity: 1;
+    }
+
+    .tab-icon {
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+
+    /* Design Notes */
+    .notes {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 24px;
+      background: #2a2a3e;
+      border-radius: 16px;
+      color: white;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .notes h2 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #A4E8E8;
+    }
+
+    .notes ul {
+      list-style: none;
+    }
+
+    .notes li {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    .notes li:last-child {
+      border-bottom: none;
+    }
+
+    .notes strong {
+      color: #F8B4E8;
+    }
+
+    /* Logo demo in notes */
+    .logo-demo {
+      background: linear-gradient(180deg, #E8B4F8, #A8D4F8);
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      margin-top: 16px;
+    }
+
+    .logo-demo .logo-metallic {
+      font-size: 36px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-title">POOLSIDE DESIGN V4</div>
+
+  <div class="phone-frame">
+    <!-- Gradient Blobs Background -->
+    <div class="gradient-bg">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+      <div class="blob blob-4"></div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- Header - Metallic Balloon Logo -->
+      <div class="header">
+        <div class="logo-metallic">Poolside</div>
+        <div class="header-icons">
+          <span class="header-icon">🔔</span>
+          <span class="header-icon">⚙️</span>
+        </div>
+      </div>
+
+      <!-- Page Title - Gotham Bold style -->
+      <div class="section-title">
+        <h1>Cruise Feed</h1>
+      </div>
+
+      <!-- Filter Tabs -->
+      <div class="filter-tabs">
+        <button class="filter-tab active">Upcoming</button>
+        <button class="filter-tab inactive">Saved</button>
+      </div>
+
+      <!-- Feed -->
+      <div class="feed">
+        <!-- Event Card 1 -->
+        <div class="event-card">
+          <div class="card-photos">
+            <div class="card-photo">
+              <img src="https://images.unsplash.com/photo-1575429198097-0414ec08e8cd?w=400" alt="Pool">
+            </div>
+            <div class="card-photo">
+              <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400" alt="Bar">
+            </div>
+          </div>
+          <div class="card-content">
+            <div class="event-title">Pick Up Basketball</div>
+            <div class="event-meta">Tomorrow 11 am</div>
+            <div class="event-location">📍 Basketball Court</div>
+            <div class="card-footer">
+              <button class="rsvp-btn">✓ Going</button>
+              <button class="interested-btn">☆ Interested</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Event Card 2 -->
+        <div class="event-card">
+          <div class="card-photos">
+            <div class="card-photo">
+              <img src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400" alt="Karaoke">
+            </div>
+            <div class="card-photo">
+              <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=400" alt="Sunset">
+            </div>
+          </div>
+          <div class="card-content">
+            <div class="event-title">Sunset Karaoke Night</div>
+            <div class="event-meta">Friday 8 pm</div>
+            <div class="event-location">📍 Deck 7 Lounge</div>
+            <div class="card-footer">
+              <button class="rsvp-btn">✓ Going</button>
+              <button class="interested-btn">☆ Interested</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Action Button -->
+      <div class="fab">
+        <span>+</span>
+      </div>
+
+      <!-- Tab Bar -->
+      <div class="tab-bar">
+        <div class="tab-item active">
+          <span class="tab-icon">🏠</span>
+        </div>
+        <div class="tab-item">
+          <span class="tab-icon">👥</span>
+        </div>
+        <div class="tab-item">
+          <span class="tab-icon">👤</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Design Notes -->
+  <div class="notes">
+    <h2>V4 Changes</h2>
+    <ul>
+      <li><strong>All text:</strong> Montserrat Bold (closest to Gotham Bold)</li>
+      <li><strong>Poolside logo:</strong> Metallic silver balloon letters with chrome gradient + 3D shadow</li>
+      <li><strong>Layout:</strong> Kept exactly the same as V3</li>
+    </ul>
+
+    <div class="logo-demo">
+      <div class="logo-metallic">Poolside</div>
+      <p style="margin-top: 12px; font-size: 12px; color: #666;">Metallic balloon letter effect</p>
+    </div>
+  </div>
+
+</body>
+</html>

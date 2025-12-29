@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {
   FeedScreen,
@@ -13,14 +13,12 @@ const Tab = createBottomTabNavigator();
 
 interface TabIconProps {
   icon: string;
-  label: string;
   focused: boolean;
 }
 
-const TabIcon: React.FC<TabIconProps> = ({ icon, label, focused }) => (
+const TabIcon: React.FC<TabIconProps> = ({ icon, focused }) => (
   <View style={styles.tabIconContainer}>
     <Text style={[styles.tabIcon, focused && styles.tabIconFocused]}>{icon}</Text>
-    <Text style={[styles.tabLabel, focused && styles.tabLabelFocused]}>{label}</Text>
   </View>
 );
 
@@ -38,7 +36,13 @@ export const TabNavigator: React.FC = () => {
         component={FeedScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="🏠" label="Feed" focused={focused} />
+            <View style={styles.tabIconContainer}>
+              <Image
+                source={require('../../assets/home-icon.png')}
+                style={[styles.homeIcon, focused && styles.homeIconFocused]}
+                resizeMode="contain"
+              />
+            </View>
           ),
         }}
       />
@@ -47,7 +51,13 @@ export const TabNavigator: React.FC = () => {
         component={MyPlansScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="📅" label="Plans" focused={focused} />
+            <View style={styles.tabIconContainer}>
+              <Image
+                source={require('../../assets/calendar-icon.png')}
+                style={[styles.iconImage, focused && styles.iconImageFocused]}
+                resizeMode="contain"
+              />
+            </View>
           ),
         }}
       />
@@ -57,9 +67,11 @@ export const TabNavigator: React.FC = () => {
         options={{
           tabBarIcon: ({ focused }) => (
             <View style={styles.createButtonContainer}>
-              <View style={styles.createButton}>
-                <Text style={styles.createButtonIcon}>+</Text>
-              </View>
+              <Image
+                source={require('../../assets/create-icon.png')}
+                style={[styles.createButtonImage, focused && styles.createButtonImageFocused]}
+                resizeMode="contain"
+              />
             </View>
           ),
         }}
@@ -69,7 +81,13 @@ export const TabNavigator: React.FC = () => {
         component={FriendsScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="👥" label="Friends" focused={focused} />
+            <View style={styles.tabIconContainer}>
+              <Image
+                source={require('../../assets/friends-icon.png')}
+                style={[styles.friendsIcon, focused && styles.friendsIconFocused]}
+                resizeMode="contain"
+              />
+            </View>
           ),
         }}
       />
@@ -78,7 +96,13 @@ export const TabNavigator: React.FC = () => {
         component={ProfileScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="👤" label="Profile" focused={focused} />
+            <View style={styles.tabIconContainer}>
+              <Image
+                source={require('../../assets/profile-icon.png')}
+                style={[styles.profileIcon, focused && styles.profileIconFocused]}
+                resizeMode="contain"
+              />
+            </View>
           ),
         }}
       />
@@ -88,9 +112,10 @@ export const TabNavigator: React.FC = () => {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: '#0a0a0f',
+    position: 'absolute',
+    backgroundColor: 'rgba(20, 20, 30, 0.9)',
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.1)',
+    borderTopColor: 'rgba(255, 255, 255, 0.1)',
     height: 85,
     paddingTop: 10,
     paddingBottom: 25,
@@ -101,41 +126,53 @@ const styles = StyleSheet.create({
   },
   tabIcon: {
     fontSize: 24,
-    opacity: 0.5,
+    opacity: 0.4,
   },
   tabIconFocused: {
     opacity: 1,
   },
-  tabLabel: {
-    fontSize: 10,
-    color: 'rgba(255,255,255,0.5)',
-    marginTop: 4,
+  homeIcon: {
+    width: 28,
+    height: 28,
+    opacity: 0.4,
   },
-  tabLabelFocused: {
-    color: '#fff',
+  homeIconFocused: {
+    opacity: 1,
+  },
+  iconImage: {
+    width: 28,
+    height: 28,
+    opacity: 0.4,
+  },
+  iconImageFocused: {
+    opacity: 1,
   },
   createButtonContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: -20,
   },
-  createButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#fff',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 5,
+  createButtonImage: {
+    width: 40,
+    height: 30,
+    opacity: 0.4,
   },
-  createButtonIcon: {
-    fontSize: 32,
-    color: '#0a0a0f',
-    fontWeight: '300',
-    marginTop: -2,
+  createButtonImageFocused: {
+    opacity: 1,
+  },
+  profileIcon: {
+    width: 32,
+    height: 50,
+    opacity: 0.4,
+  },
+  profileIconFocused: {
+    opacity: 1,
+  },
+  friendsIcon: {
+    width: 32,
+    height: 50,
+    opacity: 0.4,
+  },
+  friendsIconFocused: {
+    opacity: 1,
   },
 });
