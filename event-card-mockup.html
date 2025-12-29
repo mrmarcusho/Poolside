@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Card Mockup</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0a0a0f;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      padding: 20px;
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .section {
+      max-width: 380px;
+    }
+
+    .section-title {
+      color: rgba(255,255,255,0.5);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    /* ============ FEED EVENT CARD ============ */
+    .event-card {
+      background: linear-gradient(135deg, rgba(30, 30, 45, 0.9) 0%, rgba(20, 20, 35, 0.95) 100%);
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .event-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    /* Host header */
+    .card-host {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+    }
+
+    .host-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .host-info {
+      flex: 1;
+    }
+
+    .host-name {
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .host-label {
+      color: rgba(255,255,255,0.5);
+      font-size: 11px;
+    }
+
+    .more-btn {
+      color: rgba(255,255,255,0.4);
+      font-size: 18px;
+      padding: 4px 8px;
+    }
+
+    /* Event image */
+    .card-image {
+      width: 100%;
+      height: 200px;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .card-image-placeholder {
+      font-size: 48px;
+    }
+
+    /* Event details */
+    .card-content {
+      padding: 16px;
+    }
+
+    .card-title {
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .card-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.6);
+      font-size: 13px;
+    }
+
+    .meta-icon {
+      font-size: 14px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .card-description {
+      color: rgba(255,255,255,0.7);
+      font-size: 14px;
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Card footer */
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .attendees {
+      display: flex;
+      align-items: center;
+    }
+
+    .attendee-avatars {
+      display: flex;
+    }
+
+    .attendee {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: 2px solid #1a1a2e;
+      margin-left: -8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .attendee:first-child {
+      margin-left: 0;
+    }
+
+    .attendee-count {
+      color: rgba(255,255,255,0.6);
+      font-size: 12px;
+      margin-left: 8px;
+    }
+
+    .rsvp-btn {
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      color: #fff;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* ============ EXPANDED EVENT CARD ============ */
+    .expanded-card {
+      background: #0a0a0f;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+      max-width: 380px;
+    }
+
+    .expanded-image {
+      width: 100%;
+      height: 280px;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .expanded-image-placeholder {
+      font-size: 64px;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .share-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .expanded-content {
+      padding: 20px;
+    }
+
+    .expanded-title {
+      color: #fff;
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    /* Host section in expanded */
+    .expanded-host {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+
+    .expanded-host-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .expanded-host-info {
+      flex: 1;
+    }
+
+    .expanded-host-name {
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .expanded-host-label {
+      color: rgba(255,255,255,0.5);
+      font-size: 12px;
+    }
+
+    .follow-btn {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Date/time/location section */
+    .expanded-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .expanded-meta-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .expanded-meta-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .expanded-meta-text {
+      flex: 1;
+    }
+
+    .expanded-meta-label {
+      color: rgba(255,255,255,0.5);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+
+    .expanded-meta-value {
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .expanded-meta-sub {
+      color: rgba(255,255,255,0.5);
+      font-size: 12px;
+    }
+
+    /* Location preview */
+    .location-preview {
+      width: 60px;
+      height: 40px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    /* Full description */
+    .expanded-description {
+      margin-bottom: 20px;
+    }
+
+    .description-label {
+      color: rgba(255,255,255,0.5);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .description-text {
+      color: rgba(255,255,255,0.8);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* Attendees section */
+    .expanded-attendees {
+      margin-bottom: 20px;
+    }
+
+    .attendees-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .attendees-label {
+      color: rgba(255,255,255,0.5);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .see-all {
+      color: #3b82f6;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .attendee-list {
+      display: flex;
+      gap: 8px;
+    }
+
+    .attendee-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .attendee-large {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .attendee-name {
+      color: rgba(255,255,255,0.6);
+      font-size: 10px;
+    }
+
+    /* RSVP button */
+    .expanded-rsvp {
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      color: #fff;
+      border: none;
+      padding: 16px;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      width: 100%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .click-hint {
+      text-align: center;
+      color: rgba(255,255,255,0.3);
+      font-size: 11px;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- FEED VIEW - Compact Card -->
+  <div class="section">
+    <div class="section-title">Feed View (Compact)</div>
+
+    <div class="event-card">
+      <!-- Host header -->
+      <div class="card-host">
+        <div class="host-avatar">👩</div>
+        <div class="host-info">
+          <div class="host-name">Sarah Johnson</div>
+          <div class="host-label">Host</div>
+        </div>
+        <div class="more-btn">...</div>
+      </div>
+
+      <!-- Event image -->
+      <div class="card-image">
+        <div class="card-image-placeholder">🏊‍♀️</div>
+      </div>
+
+      <!-- Event details -->
+      <div class="card-content">
+        <div class="card-title">Pool Party at Deck 7</div>
+        <div class="card-meta">
+          <div class="meta-item">
+            <span class="meta-icon">📅</span>
+            <span>Today at 3:00 PM</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-icon">📍</span>
+            <span>Main Pool - Deck 7</span>
+          </div>
+        </div>
+        <div class="card-description">
+          Join us for a fun afternoon pool party! We'll have music, drinks, and games. Everyone is welcome to come hang out...
+        </div>
+      </div>
+
+      <!-- Footer with attendees and RSVP -->
+      <div class="card-footer">
+        <div class="attendees">
+          <div class="attendee-avatars">
+            <div class="attendee">👨</div>
+            <div class="attendee">👩</div>
+            <div class="attendee">🧔</div>
+          </div>
+          <span class="attendee-count">+12 going</span>
+        </div>
+        <button class="rsvp-btn">RSVP</button>
+      </div>
+    </div>
+
+    <div class="click-hint">Click card to expand</div>
+  </div>
+
+  <!-- EXPANDED VIEW - Detail Card -->
+  <div class="section">
+    <div class="section-title">Expanded View (Detail)</div>
+
+    <div class="expanded-card">
+      <!-- Large image -->
+      <div class="expanded-image">
+        <div class="back-btn">←</div>
+        <div class="share-btn">↗</div>
+        <div class="expanded-image-placeholder">🏊‍♀️</div>
+      </div>
+
+      <div class="expanded-content">
+        <!-- Title -->
+        <div class="expanded-title">Pool Party at Deck 7</div>
+
+        <!-- Host section -->
+        <div class="expanded-host">
+          <div class="expanded-host-avatar">👩</div>
+          <div class="expanded-host-info">
+            <div class="expanded-host-name">Sarah Johnson</div>
+            <div class="expanded-host-label">Event Host</div>
+          </div>
+          <button class="follow-btn">Follow</button>
+        </div>
+
+        <!-- Date/Time/Location -->
+        <div class="expanded-meta">
+          <div class="expanded-meta-item">
+            <div class="expanded-meta-icon">📅</div>
+            <div class="expanded-meta-text">
+              <div class="expanded-meta-label">Date & Time</div>
+              <div class="expanded-meta-value">Today, December 29</div>
+              <div class="expanded-meta-sub">3:00 PM - 6:00 PM</div>
+            </div>
+          </div>
+          <div class="expanded-meta-item">
+            <div class="expanded-meta-icon">📍</div>
+            <div class="expanded-meta-text">
+              <div class="expanded-meta-label">Location</div>
+              <div class="expanded-meta-value">Main Pool</div>
+              <div class="expanded-meta-sub">Deck 7, Aft Section</div>
+            </div>
+            <div class="location-preview">🗺️</div>
+          </div>
+        </div>
+
+        <!-- Full description -->
+        <div class="expanded-description">
+          <div class="description-label">About This Event</div>
+          <div class="description-text">
+            Join us for a fun afternoon pool party! We'll have music, drinks, and games. Everyone is welcome to come hang out and meet new friends.
+            <br><br>
+            The ship's DJ will be playing tropical house music, and there will be a poolside bar serving cocktails and mocktails. Don't forget your sunscreen! 🌴☀️
+          </div>
+        </div>
+
+        <!-- Attendees -->
+        <div class="expanded-attendees">
+          <div class="attendees-header">
+            <span class="attendees-label">Going (15)</span>
+            <span class="see-all">See all</span>
+          </div>
+          <div class="attendee-list">
+            <div class="attendee-item">
+              <div class="attendee-large">👨</div>
+              <div class="attendee-name">Mike</div>
+            </div>
+            <div class="attendee-item">
+              <div class="attendee-large">👩</div>
+              <div class="attendee-name">Emma</div>
+            </div>
+            <div class="attendee-item">
+              <div class="attendee-large">🧔</div>
+              <div class="attendee-name">Ryan</div>
+            </div>
+            <div class="attendee-item">
+              <div class="attendee-large">👧</div>
+              <div class="attendee-name">Olivia</div>
+            </div>
+            <div class="attendee-item">
+              <div class="attendee-large" style="background: rgba(255,255,255,0.1); font-size: 14px; color: #fff;">+11</div>
+              <div class="attendee-name">more</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RSVP Button -->
+        <button class="expanded-rsvp">
+          <span>🎉</span>
+          <span>I'm Going!</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
