@@ -259,6 +259,7 @@ export const CreateEventScreen: React.FC = () => {
         description: eventDescription,
         locationName: location.trim(),
         dateTime: dateTime.toISOString(),
+        eventImage: coverImage || undefined,
       };
       console.log('Creating event with data:', JSON.stringify(eventData, null, 2));
 
