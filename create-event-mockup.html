@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=375, initial-scale=1.0">
+  <title>Poolside - Create Event Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0a0a0f;
+      min-height: 100vh;
+      color: white;
+      max-width: 375px;
+      margin: 0 auto;
+      position: relative;
+      overflow-x: hidden;
+      padding-bottom: 40px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 50px 20px 16px;
+      position: sticky;
+      top: 0;
+      background: #0a0a0f;
+      z-index: 100;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .cancel-btn {
+      font-size: 15px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+    }
+
+    .header-title {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .post-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .post-btn.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Form Content */
+    .form-content {
+      padding: 20px;
+    }
+
+    /* Event Image Upload */
+    .image-upload {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: rgba(255, 255, 255, 0.04);
+      border: 2px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      margin-bottom: 24px;
+      transition: all 0.2s;
+    }
+
+    .image-upload:hover {
+      border-color: rgba(102, 126, 234, 0.4);
+      background: rgba(102, 126, 234, 0.05);
+    }
+
+    .image-upload .icon {
+      font-size: 32px;
+      opacity: 0.4;
+    }
+
+    .image-upload .text {
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .image-upload .hint {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.25);
+    }
+
+    /* With image preview */
+    .image-upload.has-image {
+      border: none;
+      background: url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800') center/cover;
+      position: relative;
+    }
+
+    .image-upload.has-image::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 50%);
+      border-radius: 16px;
+    }
+
+    .image-upload.has-image .change-photo {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      z-index: 1;
+    }
+
+    /* Form Groups */
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .form-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 12px 0;
+      font-size: 16px;
+      color: #fff;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .form-input::placeholder {
+      color: rgba(255, 255, 255, 0.25);
+    }
+
+    .form-input:focus {
+      border-bottom-color: #667eea;
+    }
+
+    .form-textarea {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 15px;
+      color: #fff;
+      font-family: inherit;
+      outline: none;
+      resize: none;
+      min-height: 100px;
+      line-height: 1.5;
+    }
+
+    .form-textarea::placeholder {
+      color: rgba(255, 255, 255, 0.25);
+    }
+
+    .form-textarea:focus {
+      border-color: rgba(102, 126, 234, 0.5);
+    }
+
+    .char-count {
+      text-align: right;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.3);
+      margin-top: 6px;
+    }
+
+    /* Date Time Row */
+    .datetime-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .datetime-row .form-group {
+      flex: 1;
+    }
+
+    .datetime-picker {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .datetime-picker .icon {
+      font-size: 18px;
+      opacity: 0.5;
+    }
+
+    .datetime-picker .value {
+      font-size: 14px;
+      color: #fff;
+    }
+
+    .datetime-picker .placeholder {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Location Section */
+    .location-section {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+
+    .location-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .location-header .icon {
+      font-size: 20px;
+    }
+
+    .location-header .title {
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .location-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .location-chip {
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 25px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .location-chip:hover {
+      background: rgba(102, 126, 234, 0.1);
+      border-color: rgba(102, 126, 234, 0.3);
+    }
+
+    .location-chip.selected {
+      background: rgba(102, 126, 234, 0.2);
+      border-color: rgba(102, 126, 234, 0.4);
+      color: #a5b4fc;
+    }
+
+    .location-input-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .location-input-row .form-input {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+
+    .deck-input {
+      width: 80px !important;
+      flex: none !important;
+      text-align: center;
+    }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.08);
+      margin: 8px 0 24px;
+    }
+
+    /* Toggle Row */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+    }
+
+    .toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toggle-label .icon {
+      font-size: 18px;
+      opacity: 0.6;
+    }
+
+    .toggle-label .text {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .toggle-label .hint {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-top: 2px;
+    }
+
+    .toggle-switch {
+      width: 50px;
+      height: 30px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 15px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .toggle-switch.active {
+      background: #667eea;
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 26px;
+      height: 26px;
+      background: #fff;
+      border-radius: 13px;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.2s;
+    }
+
+    .toggle-switch.active::after {
+      transform: translateX(20px);
+    }
+
+    /* Preview Section */
+    .preview-section {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .preview-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+
+    /* Event Preview Card */
+    .event-preview {
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .event-preview-image {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800') center/cover;
+      position: relative;
+    }
+
+    .event-preview-image::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%);
+    }
+
+    .event-preview-date {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(10px);
+      padding: 8px 12px;
+      border-radius: 10px;
+      text-align: center;
+      z-index: 1;
+    }
+
+    .event-preview-date .day {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .event-preview-date .month {
+      font-size: 10px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.7);
+      text-transform: uppercase;
+    }
+
+    .event-preview-content {
+      padding: 16px;
+    }
+
+    .event-preview-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .event-preview-location {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 8px;
+    }
+
+    .event-preview-time {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .event-preview-host {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .host-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .host-info {
+      flex: 1;
+    }
+
+    .host-name {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .host-label {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <span class="cancel-btn">Cancel</span>
+    <span class="header-title">Create Event</span>
+    <span class="post-btn">Post</span>
+  </div>
+
+  <!-- Form Content -->
+  <div class="form-content">
+
+    <!-- Event Image Upload -->
+    <div class="image-upload">
+      <span class="icon">📷</span>
+      <span class="text">Add Cover Photo</span>
+      <span class="hint">Recommended: 16:9 ratio</span>
+    </div>
+
+    <!-- Alternative: With image -->
+    <!--
+    <div class="image-upload has-image">
+      <span class="change-photo">📷 Change</span>
+    </div>
+    -->
+
+    <!-- Title -->
+    <div class="form-group">
+      <label class="form-label">Event Title</label>
+      <input type="text" class="form-input" placeholder="What's happening?" value="Pool Party on Deck 12">
+    </div>
+
+    <!-- Description -->
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea class="form-textarea" placeholder="Tell people what this event is about...">Join us for a sunset pool party! We'll have music, drinks, and good vibes. Everyone's welcome!</textarea>
+      <div class="char-count">87 / 500</div>
+    </div>
+
+    <!-- Date & Time -->
+    <div class="datetime-row">
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <div class="datetime-picker">
+          <span class="icon">📅</span>
+          <span class="value">Jan 15, 2025</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Start Time</label>
+        <div class="datetime-picker">
+          <span class="icon">🕐</span>
+          <span class="value">6:00 PM</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- End Time (Optional) -->
+    <div class="form-group">
+      <label class="form-label">End Time (Optional)</label>
+      <div class="datetime-picker" style="width: fit-content;">
+        <span class="icon">🕐</span>
+        <span class="placeholder">Add end time</span>
+      </div>
+    </div>
+
+    <!-- Location Section -->
+    <div class="location-section">
+      <div class="location-header">
+        <span class="icon">📍</span>
+        <span class="title">Location</span>
+      </div>
+
+      <!-- Quick Location Chips -->
+      <div class="location-chips">
+        <div class="location-chip selected">🏊 Pool Deck</div>
+        <div class="location-chip">🍽 Restaurant</div>
+        <div class="location-chip">🎰 Casino</div>
+        <div class="location-chip">🎭 Theater</div>
+        <div class="location-chip">🏋️ Gym</div>
+        <div class="location-chip">🍸 Bar</div>
+      </div>
+
+      <!-- Custom Location Input -->
+      <div class="location-input-row">
+        <input type="text" class="form-input" placeholder="Location name" value="Main Pool">
+        <input type="text" class="form-input deck-input" placeholder="Deck" value="12">
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Toggle Options -->
+    <div class="toggle-row">
+      <div class="toggle-label">
+        <span class="icon">🔔</span>
+        <div>
+          <div class="text">Send Reminders</div>
+          <div class="hint">Notify attendees before event</div>
+        </div>
+      </div>
+      <div class="toggle-switch active"></div>
+    </div>
+
+    <div class="toggle-row">
+      <div class="toggle-label">
+        <span class="icon">👥</span>
+        <div>
+          <div class="text">Friends Only</div>
+          <div class="hint">Only friends can see this event</div>
+        </div>
+      </div>
+      <div class="toggle-switch"></div>
+    </div>
+
+    <div class="toggle-row">
+      <div class="toggle-label">
+        <span class="icon">✅</span>
+        <div>
+          <div class="text">Require Approval</div>
+          <div class="hint">Approve who can attend</div>
+        </div>
+      </div>
+      <div class="toggle-switch"></div>
+    </div>
+
+    <!-- Preview Section -->
+    <div class="preview-section">
+      <div class="preview-title">Preview</div>
+
+      <div class="event-preview">
+        <div class="event-preview-image">
+          <div class="event-preview-date">
+            <div class="day">15</div>
+            <div class="month">Jan</div>
+          </div>
+        </div>
+        <div class="event-preview-content">
+          <div class="event-preview-title">Pool Party on Deck 12</div>
+          <div class="event-preview-location">
+            <span>📍</span>
+            <span>Main Pool · Deck 12</span>
+          </div>
+          <div class="event-preview-time">
+            <span>🕐</span>
+            <span>6:00 PM</span>
+          </div>
+          <div class="event-preview-host">
+            <div class="host-avatar">👤</div>
+            <div class="host-info">
+              <div class="host-name">Marcus Ho</div>
+              <div class="host-label">Hosting</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

@@ -12,6 +12,6 @@ export const GradientBackground: React.FC<{ children: React.ReactNode }> = ({ ch
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#18181b',
+    backgroundColor: '#0a0a12',
   },
 });

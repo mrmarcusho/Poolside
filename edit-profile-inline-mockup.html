@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=375, initial-scale=1.0">
+  <title>Poolside - Edit Profile Inline Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0a0a0f;
+      min-height: 100vh;
+      color: white;
+      max-width: 375px;
+      margin: 0 auto;
+      position: relative;
+      overflow-x: hidden;
+      padding-bottom: 100px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 50px 20px 12px;
+      position: sticky;
+      top: 0;
+      background: rgba(10, 10, 15, 0.95);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 100;
+    }
+
+    .header-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .header-btn {
+      font-size: 22px;
+      opacity: 0.7;
+      cursor: pointer;
+    }
+
+    /* Floating Save Bar */
+    .save-bar {
+      position: fixed;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      padding: 12px 20px;
+      background: rgba(20, 20, 30, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      z-index: 200;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .save-bar-btn {
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .save-bar-btn.cancel {
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .save-bar-btn.save {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    /* Edit Mode Indicator */
+    .edit-mode-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #a5b4fc;
+    }
+
+    .edit-mode-badge .dot {
+      width: 8px;
+      height: 8px;
+      background: #667eea;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Photo Gallery */
+    .photo-gallery {
+      display: flex;
+      gap: 3px;
+      padding: 0 16px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .photo-gallery::-webkit-scrollbar {
+      display: none;
+    }
+
+    .photo-item {
+      flex: 0 0 calc(100% - 40px);
+      scroll-snap-align: center;
+      aspect-ratio: 3/4;
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .photo-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Photo Edit Overlay */
+    .photo-item.editable::after {
+      content: '📷 Tap to change';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px;
+      background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+      font-size: 13px;
+      color: white;
+      text-align: center;
+    }
+
+    .photo-item.editable {
+      border: 2px solid rgba(102, 126, 234, 0.5);
+      box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .photo-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px 0;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .dot.active {
+      background: white;
+      width: 20px;
+      border-radius: 3px;
+    }
+
+    /* Profile Content */
+    .profile-content {
+      padding: 0 20px;
+    }
+
+    /* Editable Field Wrapper */
+    .editable-field {
+      position: relative;
+      background: rgba(102, 126, 234, 0.08);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(102, 126, 234, 0.3);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: -12px -14px;
+      cursor: text;
+      transition: all 0.2s;
+    }
+
+    .editable-field:hover {
+      background: rgba(102, 126, 234, 0.12);
+      border-color: rgba(102, 126, 234, 0.5);
+    }
+
+    .editable-field:focus-within {
+      background: rgba(102, 126, 234, 0.15);
+      border-color: rgba(102, 126, 234, 0.6);
+      box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
+    }
+
+    .editable-field .edit-hint {
+      position: absolute;
+      top: -8px;
+      right: 10px;
+      font-size: 10px;
+      color: #667eea;
+      background: #0a0a0f;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    /* Name Row */
+    .name-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .name-info {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .name-info.editable-field {
+      padding: 8px 12px;
+      margin: -8px -12px;
+    }
+
+    .user-name {
+      font-size: 28px;
+      font-weight: 700;
+      background: transparent;
+      border: none;
+      color: white;
+      outline: none;
+      width: 120px;
+      font-family: inherit;
+    }
+
+    .user-age {
+      font-size: 24px;
+      font-weight: 400;
+      opacity: 0.8;
+    }
+
+    .user-emoji {
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    /* Action buttons hidden in edit mode */
+    .action-buttons {
+      display: none;
+    }
+
+    /* Info Rows */
+    .info-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .info-row.editable-field {
+      padding: 10px 12px;
+      margin-left: -12px;
+      margin-right: -12px;
+      margin-bottom: 8px;
+    }
+
+    .info-icon {
+      font-size: 14px;
+      opacity: 0.6;
+    }
+
+    .info-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .info-input:focus {
+      color: white;
+    }
+
+    /* Bio */
+    .bio-wrapper {
+      margin: 16px 0;
+    }
+
+    .bio-wrapper.editable-field {
+      padding: 12px 14px;
+      margin: 16px -14px;
+    }
+
+    .bio {
+      font-size: 15px;
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.9);
+      background: transparent;
+      border: none;
+      width: 100%;
+      resize: none;
+      font-family: inherit;
+      outline: none;
+      min-height: 80px;
+    }
+
+    .char-count {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.4);
+      text-align: right;
+      margin-top: 8px;
+    }
+
+    /* Tags */
+    .tags-wrapper {
+      margin: 16px 0;
+    }
+
+    .tags-wrapper.editable-field {
+      padding: 12px 14px;
+      margin: 16px -14px;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: rgba(102, 126, 234, 0.15);
+      border: 1px solid rgba(102, 126, 234, 0.3);
+      border-radius: 20px;
+      font-size: 13px;
+      color: #a5b4fc;
+    }
+
+    .tag .remove {
+      cursor: pointer;
+      opacity: 0.7;
+      font-size: 14px;
+      margin-left: 2px;
+    }
+
+    .tag .remove:hover {
+      opacity: 1;
+    }
+
+    .add-tag {
+      padding: 8px 14px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px dashed rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+    }
+
+    .add-tag:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* Stats - Not editable */
+    .stats-inline {
+      display: flex;
+      gap: 24px;
+      margin: 20px 0;
+      padding: 16px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Past Events Section */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 20px 0 14px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    /* Privacy Toggle in Edit Mode */
+    .privacy-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: rgba(102, 126, 234, 0.1);
+      border: 1px solid rgba(102, 126, 234, 0.3);
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .privacy-toggle .toggle-label {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .toggle-switch {
+      width: 36px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      position: relative;
+      transition: background 0.3s;
+    }
+
+    .toggle-switch.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.3s;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle-switch.active::after {
+      transform: translateX(16px);
+    }
+
+    /* Past Events */
+    .past-events {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      opacity: 1;
+      transition: opacity 0.3s;
+    }
+
+    .past-events.hidden {
+      opacity: 0.4;
+    }
+
+    .past-event {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .past-event-image {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      object-fit: cover;
+    }
+
+    .past-event-info {
+      flex: 1;
+    }
+
+    .past-event-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .past-event-date {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .past-event-badge {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge-hosted {
+      background: rgba(139, 92, 246, 0.2);
+      color: #a78bfa;
+    }
+
+    .badge-attended {
+      background: rgba(34, 197, 94, 0.2);
+      color: #4ade80;
+    }
+
+    /* Tab Bar */
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 375px;
+      padding: 12px 20px 30px;
+      background: rgba(10, 10, 15, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      opacity: 0.5;
+    }
+
+    .tab-item.active {
+      opacity: 1;
+    }
+
+    .tab-icon {
+      font-size: 24px;
+    }
+
+    .tab-label {
+      font-size: 10px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <span class="header-btn">&#9881;</span>
+    <div class="edit-mode-badge">
+      <span class="dot"></span>
+      <span>Editing</span>
+    </div>
+    <span class="header-btn" style="opacity: 0.3;">&#9998;</span>
+  </div>
+
+  <!-- Floating Save Bar -->
+  <div class="save-bar">
+    <button class="save-bar-btn cancel">Cancel</button>
+    <button class="save-bar-btn save">Save Changes</button>
+  </div>
+
+  <!-- Photo Gallery -->
+  <div class="photo-gallery">
+    <div class="photo-item editable">
+      <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=533&fit=crop" alt="Photo 1">
+    </div>
+  </div>
+
+  <div class="photo-dots">
+    <div class="dot active"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  </div>
+
+  <!-- Profile Content -->
+  <div class="profile-content">
+
+    <!-- Name Row -->
+    <div class="name-row">
+      <div class="name-info editable-field">
+        <span class="edit-hint">tap to edit</span>
+        <input type="text" class="user-name" value="Sarah">
+        <span class="user-age">22</span>
+        <span class="user-emoji" title="Change emoji">&#127946;</span>
+      </div>
+    </div>
+
+    <!-- Location -->
+    <div class="info-row editable-field">
+      <span class="edit-hint">tap to edit</span>
+      <span class="info-icon">&#128205;</span>
+      <input type="text" class="info-input" value="San Diego, California" placeholder="Your location">
+    </div>
+
+    <!-- School -->
+    <div class="info-row editable-field">
+      <span class="edit-hint">tap to edit</span>
+      <span class="info-icon">&#127891;</span>
+      <input type="text" class="info-input" value="UCLA '25 - Communications" placeholder="Your school">
+    </div>
+
+    <!-- Bio -->
+    <div class="bio-wrapper editable-field">
+      <span class="edit-hint">tap to edit</span>
+      <textarea class="bio" placeholder="Write something about yourself...">Here for a good time not a long time! Love meeting new people, sunset cocktails, and spontaneous adventures. Always down for karaoke - warning: I will sing Taylor Swift.</textarea>
+      <div class="char-count">156 / 300</div>
+    </div>
+
+    <!-- Interest Tags -->
+    <div class="tags-wrapper editable-field">
+      <span class="edit-hint">tap to edit</span>
+      <div class="tags">
+        <div class="tag">
+          <span>&#127926; Live Music</span>
+          <span class="remove">&times;</span>
+        </div>
+        <div class="tag">
+          <span>&#127946; Swimming</span>
+          <span class="remove">&times;</span>
+        </div>
+        <div class="tag">
+          <span>&#127860; Foodie</span>
+          <span class="remove">&times;</span>
+        </div>
+        <div class="tag">
+          <span>&#128247; Photography</span>
+          <span class="remove">&times;</span>
+        </div>
+        <div class="add-tag">+ Add</div>
+      </div>
+    </div>
+
+    <!-- Stats (not editable) -->
+    <div class="stats-inline">
+      <div class="stat">
+        <span class="stat-value">128</span>
+        <span class="stat-label">Followers</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value">89</span>
+        <span class="stat-label">Following</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value">5</span>
+        <span class="stat-label">Events Hosted</span>
+      </div>
+    </div>
+
+    <!-- Past Events with Privacy Toggle -->
+    <div class="section-header">
+      <span class="section-title">&#128467; Past Events</span>
+      <div class="privacy-toggle">
+        <span class="toggle-label">Show</span>
+        <div class="toggle-switch active"></div>
+      </div>
+    </div>
+
+    <div class="past-events">
+      <div class="past-event">
+        <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200" class="past-event-image" alt="">
+        <div class="past-event-info">
+          <div class="past-event-title">Sunset Drinks at Sky Bar</div>
+          <div class="past-event-date">Dec 28, 2025</div>
+        </div>
+        <span class="past-event-badge badge-hosted">Hosted</span>
+      </div>
+
+      <div class="past-event">
+        <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200" class="past-event-image" alt="">
+        <div class="past-event-info">
+          <div class="past-event-title">Late Night Karaoke</div>
+          <div class="past-event-date">Dec 27, 2025</div>
+        </div>
+        <span class="past-event-badge badge-attended">Went</span>
+      </div>
+
+      <div class="past-event">
+        <img src="https://images.unsplash.com/photo-1530549387789-4c1017266635?w=200" class="past-event-image" alt="">
+        <div class="past-event-info">
+          <div class="past-event-title">Pool Party Deck 7</div>
+          <div class="past-event-date">Dec 26, 2025</div>
+        </div>
+        <span class="past-event-badge badge-attended">Went</span>
+      </div>
+    </div>
+
+    <div style="height: 120px;"></div>
+
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item">
+      <span class="tab-icon">&#127968;</span>
+      <span class="tab-label">Feed</span>
+    </div>
+    <div class="tab-item">
+      <span class="tab-icon">&#128197;</span>
+      <span class="tab-label">My Plans</span>
+    </div>
+    <div class="tab-item">
+      <span class="tab-icon">&#10133;</span>
+      <span class="tab-label">Create</span>
+    </div>
+    <div class="tab-item">
+      <span class="tab-icon">&#128172;</span>
+      <span class="tab-label">Friends</span>
+    </div>
+    <div class="tab-item active">
+      <span class="tab-icon">&#128100;</span>
+      <span class="tab-label">Profile</span>
+    </div>
+  </div>
+
+</body>
+</html>

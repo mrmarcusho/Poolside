@@ -1,125 +1,155 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Image,
+  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
+import { useConversations } from '../hooks';
+import { Conversation } from '../api';
 
-// Mock friends data
-const mockFriends = [
+// Mock conversations data (fallback when API unavailable)
+const mockConversations: DisplayConversation[] = [
   {
     id: '1',
     name: 'Sarah Johnson',
-    avatar: '👩‍🦰',
+    emoji: '👩‍🦰',
     lastMessage: 'See you at the pool party!',
     time: '2m ago',
-    online: true,
-    unread: 2,
+    isOnline: true,
+    unreadCount: 2,
   },
   {
     id: '2',
     name: 'Mike Chen',
-    avatar: '👨‍🦱',
+    emoji: '👨‍🦱',
     lastMessage: 'That sunset was amazing 🌅',
     time: '15m ago',
-    online: true,
-    unread: 0,
+    isOnline: true,
+    unreadCount: 0,
   },
   {
     id: '3',
     name: 'Emma Wilson',
-    avatar: '👩',
+    emoji: '👩',
     lastMessage: 'Thanks for the drink recommendation!',
     time: '1h ago',
-    online: false,
-    unread: 0,
+    isOnline: false,
+    unreadCount: 0,
   },
   {
     id: '4',
     name: 'David Park',
-    avatar: '👨',
+    emoji: '👨',
     lastMessage: 'Are you going to trivia tonight?',
     time: '2h ago',
-    online: true,
-    unread: 1,
+    isOnline: true,
+    unreadCount: 1,
   },
   {
     id: '5',
     name: 'Jessica Miller',
-    avatar: '👩‍🦳',
+    emoji: '👩‍🦳',
     lastMessage: 'Great meeting you at yoga!',
     time: '3h ago',
-    online: false,
-    unread: 0,
+    isOnline: false,
+    unreadCount: 0,
   },
   {
     id: '6',
     name: 'Ryan Thompson',
-    avatar: '🧔',
-    lastMessage: 'Let\'s grab dinner later',
+    emoji: '🧔',
+    lastMessage: "Let's grab dinner later",
     time: '5h ago',
-    online: false,
-    unread: 0,
+    isOnline: false,
+    unreadCount: 0,
   },
   {
     id: '7',
     name: 'Olivia Davis',
-    avatar: '👧',
+    emoji: '👧',
     lastMessage: 'The karaoke was so fun! 🎤',
     time: 'Yesterday',
-    online: true,
-    unread: 0,
+    isOnline: true,
+    unreadCount: 0,
   },
   {
     id: '8',
     name: 'James Rodriguez',
-    avatar: '👦',
+    emoji: '👦',
     lastMessage: 'Thanks for the photos!',
     time: 'Yesterday',
-    online: false,
-    unread: 0,
+    isOnline: false,
+    unreadCount: 0,
   },
 ];
 
-interface Friend {
+interface DisplayConversation {
   id: string;
   name: string;
-  avatar: string;
+  emoji: string;
   lastMessage: string;
   time: string;
-  online: boolean;
-  unread: number;
+  isOnline: boolean;
+  unreadCount: number;
 }
 
-const FriendCard: React.FC<{ friend: Friend; onPress: () => void }> = ({
-  friend,
+// Convert API conversation to display format
+const mapApiConversation = (conv: Conversation): DisplayConversation => {
+  const formatTime = (dateStr: string | undefined) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays === 1) return 'Yesterday';
+    return date.toLocaleDateString();
+  };
+
+  return {
+    id: conv.id,
+    name: conv.participant.name,
+    emoji: conv.participant.emoji || '👤',
+    lastMessage: conv.lastMessage?.text || 'No messages yet',
+    time: conv.lastMessage ? formatTime(conv.lastMessage.sentAt) : '',
+    isOnline: conv.participant.isOnline,
+    unreadCount: conv.unreadCount,
+  };
+};
+
+const ConversationCard: React.FC<{ conversation: DisplayConversation; onPress: () => void }> = ({
+  conversation,
   onPress,
 }) => {
   return (
     <TouchableOpacity style={styles.friendCard} onPress={onPress}>
       <View style={styles.avatarContainer}>
         <View style={styles.avatar}>
-          <Text style={styles.avatarEmoji}>{friend.avatar}</Text>
+          <Text style={styles.avatarEmoji}>{conversation.emoji}</Text>
         </View>
-        {friend.online && <View style={styles.onlineIndicator} />}
+        {conversation.isOnline && <View style={styles.onlineIndicator} />}
       </View>
       <View style={styles.friendInfo}>
         <View style={styles.friendHeader}>
-          <Text style={styles.friendName}>{friend.name}</Text>
-          <Text style={styles.messageTime}>{friend.time}</Text>
+          <Text style={styles.friendName}>{conversation.name}</Text>
+          <Text style={styles.messageTime}>{conversation.time}</Text>
         </View>
         <View style={styles.messageRow}>
           <Text style={styles.lastMessage} numberOfLines={1}>
-            {friend.lastMessage}
+            {conversation.lastMessage}
           </Text>
-          {friend.unread > 0 && (
+          {conversation.unreadCount > 0 && (
             <View style={styles.unreadBadge}>
-              <Text style={styles.unreadText}>{friend.unread}</Text>
+              <Text style={styles.unreadText}>{conversation.unreadCount}</Text>
             </View>
           )}
         </View>
@@ -129,25 +159,53 @@ const FriendCard: React.FC<{ friend: Friend; onPress: () => void }> = ({
 };
 
 export const FriendsScreen: React.FC = () => {
+  const [refreshing, setRefreshing] = useState(false);
+  const { conversations: apiConversations, isLoading, error, refresh } = useConversations();
+
+  // Map API conversations or use mock data as fallback
+  const conversations: DisplayConversation[] = error || apiConversations.length === 0
+    ? mockConversations
+    : apiConversations.map(mapApiConversation);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await refresh();
+    setRefreshing(false);
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.title}>Messages</Text>
       </View>
-      <ScrollView
-        style={styles.friendsList}
-        contentContainerStyle={styles.friendsListContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {mockFriends.map((friend) => (
-          <FriendCard
-            key={friend.id}
-            friend={friend}
-            onPress={() => console.log('Open chat with', friend.name)}
-          />
-        ))}
-        <View style={{ height: 100 }} />
-      </ScrollView>
+
+      {isLoading && !refreshing ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#667eea" />
+        </View>
+      ) : (
+        <ScrollView
+          style={styles.friendsList}
+          contentContainerStyle={styles.friendsListContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              tintColor="#667eea"
+            />
+          }
+        >
+          {conversations.map((conversation) => (
+            <ConversationCard
+              key={conversation.id}
+              conversation={conversation}
+              onPress={() => console.log('Open chat with', conversation.name)}
+            />
+          ))}
+          <View style={{ height: 100 }} />
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 };
@@ -168,6 +226,11 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#fff',
     letterSpacing: -1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   friendsList: {
     flex: 1,

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=375, initial-scale=1.0">
+  <title>Poolside - New User Profile Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0a0a0f;
+      min-height: 100vh;
+      color: white;
+      max-width: 375px;
+      margin: 0 auto;
+      position: relative;
+      overflow-x: hidden;
+      padding-bottom: 100px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 50px 20px 12px;
+    }
+
+    .header-btn {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      opacity: 0.7;
+    }
+
+    .header-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    /* Empty Photo Section */
+    .photo-section {
+      padding: 0 16px;
+    }
+
+    .empty-photo {
+      width: 100%;
+      aspect-ratio: 3/4;
+      background: rgba(255, 255, 255, 0.04);
+      border: 2px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .empty-photo:hover {
+      border-color: rgba(102, 126, 234, 0.4);
+      background: rgba(102, 126, 234, 0.05);
+    }
+
+    .empty-photo .plus-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .empty-photo .add-text {
+      font-size: 15px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .empty-photo .hint-text {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Photo Dots */
+    .photo-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px 0;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .dot.active {
+      width: 20px;
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Profile Content */
+    .profile-content {
+      padding: 0 20px;
+    }
+
+    /* Name Row */
+    .name-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .name-info {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .user-name {
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .user-emoji {
+      font-size: 24px;
+    }
+
+    .action-buttons {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-add-friend {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: white;
+    }
+
+    .btn-message {
+      width: 36px;
+      height: 36px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    /* Add Info Buttons */
+    .add-info-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .add-info-btn:hover {
+      opacity: 0.8;
+    }
+
+    .add-info-btn .icon {
+      font-size: 14px;
+      opacity: 0.5;
+    }
+
+    .add-info-btn .btn-text {
+      font-size: 14px;
+      color: #667eea;
+      font-weight: 500;
+    }
+
+    /* Bio Section */
+    .bio-section {
+      margin: 16px 0;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .bio-section:hover {
+      border-color: rgba(102, 126, 234, 0.3);
+      background: rgba(102, 126, 234, 0.03);
+    }
+
+    .bio-placeholder {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bio-placeholder .icon {
+      font-size: 16px;
+      opacity: 0.4;
+    }
+
+    .bio-placeholder .text {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    .bio-placeholder .add-btn {
+      margin-left: auto;
+      font-size: 13px;
+      color: #667eea;
+      font-weight: 500;
+    }
+
+    /* Empty Interests */
+    .interests-section {
+      margin-bottom: 20px;
+    }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    .empty-interests {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .add-interest-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      background: transparent;
+      border: 1px dashed rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.4);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .add-interest-btn:hover {
+      border-color: rgba(102, 126, 234, 0.4);
+      color: #667eea;
+    }
+
+    /* Stats Row */
+    .stats-row {
+      display: flex;
+      gap: 24px;
+      padding: 16px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Empty Past Events */
+    .past-events-section {
+      margin-top: 8px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .empty-events {
+      padding: 32px 20px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 16px;
+      text-align: center;
+    }
+
+    .empty-events .icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+      opacity: 0.3;
+    }
+
+    .empty-events .title {
+      font-size: 15px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 4px;
+    }
+
+    .empty-events .subtitle {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Tab Bar */
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 375px;
+      padding: 12px 20px 30px;
+      background: rgba(10, 10, 15, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      opacity: 0.5;
+    }
+
+    .tab-item.active {
+      opacity: 1;
+    }
+
+    .tab-icon {
+      font-size: 24px;
+    }
+
+    .tab-label {
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <span class="header-btn">&#9881;</span>
+    <span class="header-title">Profile</span>
+    <span class="header-btn">&#9998;</span>
+  </div>
+
+  <!-- Empty Photo Section -->
+  <div class="photo-section">
+    <div class="empty-photo">
+      <div class="plus-icon">+</div>
+      <span class="add-text">Add Photos</span>
+      <span class="hint-text">Add some photos for your profile</span>
+    </div>
+  </div>
+
+  <!-- Photo Dots (empty state) -->
+  <div class="photo-dots">
+    <div class="dot active"></div>
+  </div>
+
+  <!-- Profile Content -->
+  <div class="profile-content">
+    <!-- Name Row -->
+    <div class="name-row">
+      <div class="name-info">
+        <span class="user-name">Marcus</span>
+        <span class="user-emoji">&#128100;</span>
+      </div>
+      <div class="action-buttons">
+        <div class="btn-add-friend">Add Friend</div>
+        <div class="btn-message">&#128172;</div>
+      </div>
+    </div>
+
+    <!-- Add Location -->
+    <div class="add-info-btn">
+      <span class="icon">&#128205;</span>
+      <span class="btn-text">+ Add location</span>
+    </div>
+
+    <!-- Add College -->
+    <div class="add-info-btn">
+      <span class="icon">&#127891;</span>
+      <span class="btn-text">+ Add college</span>
+    </div>
+
+    <!-- Empty Bio -->
+    <div class="bio-section">
+      <div class="bio-placeholder">
+        <span class="icon">&#128221;</span>
+        <span class="text">Tell others about yourself...</span>
+        <span class="add-btn">Add bio</span>
+      </div>
+    </div>
+
+    <!-- Empty Interests -->
+    <div class="interests-section">
+      <div class="section-label">Interests</div>
+      <div class="empty-interests">
+        <div class="add-interest-btn">
+          <span>+</span>
+          <span>Add interests</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Row (all zeros) -->
+    <div class="stats-row">
+      <div class="stat">
+        <span class="stat-value">0</span>
+        <span class="stat-label">Followers</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value">0</span>
+        <span class="stat-label">Following</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value">0</span>
+        <span class="stat-label">Events Hosted</span>
+      </div>
+    </div>
+
+    <!-- Empty Past Events -->
+    <div class="past-events-section">
+      <div class="section-header">
+        <span class="section-title">&#128197; Past Events</span>
+      </div>
+      <div class="empty-events">
+        <div class="icon">&#127881;</div>
+        <div class="title">No events yet</div>
+        <div class="subtitle">Events you host or attend will appear here</div>
+      </div>
+    </div>
+
+    <div style="height: 100px;"></div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item">
+      <span class="tab-icon">&#127968;</span>
+      <span class="tab-label">Feed</span>
+    </div>
+    <div class="tab-item">
+      <span class="tab-icon">&#128197;</span>
+      <span class="tab-label">My Plans</span>
+    </div>
+    <div class="tab-item">
+      <span class="tab-icon">&#10133;</span>
+      <span class="tab-label">Create</span>
+    </div>
+    <div class="tab-item">
+      <span class="tab-icon">&#128172;</span>
+      <span class="tab-label">Friends</span>
+    </div>
+    <div class="tab-item active">
+      <span class="tab-icon">&#128100;</span>
+      <span class="tab-label">Profile</span>
+    </div>
+  </div>
+
+</body>
+</html>

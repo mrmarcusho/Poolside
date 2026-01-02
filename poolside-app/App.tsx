@@ -1,5 +1,5 @@
 import { useCallback, useState, useEffect, useRef } from 'react';
-import { View, Animated } from 'react-native';
+import { View, Animated, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -17,10 +17,44 @@ import {
 } from '@expo-google-fonts/baloo-2';
 import * as ExpoSplashScreen from 'expo-splash-screen';
 import { TabNavigator } from './src/navigation/TabNavigator';
+import { AuthNavigator } from './src/navigation/AuthNavigator';
 import { CustomSplashScreen } from './src/screens';
+import { RsvpProvider } from './src/context/RsvpContext';
+import { AuthProvider, useAuth } from './src/context/AuthContext';
+import { EventCreationAnimationProvider } from './src/context/EventCreationAnimationContext';
+import { EventCreationOverlay } from './src/components/EventCreationOverlay';
 
 // Keep native splash screen visible while loading fonts
 ExpoSplashScreen.preventAutoHideAsync();
+
+// Main app content that switches between auth and main app
+const AppContent = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0a0a0f' }}>
+        <ActivityIndicator size="large" color="#667eea" />
+      </View>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <AuthNavigator />;
+  }
+
+  return (
+    <RsvpProvider>
+      <EventCreationAnimationProvider>
+        <NavigationContainer>
+          <StatusBar style="light" />
+          <TabNavigator />
+          <EventCreationOverlay />
+        </NavigationContainer>
+      </EventCreationAnimationProvider>
+    </RsvpProvider>
+  );
+};
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -77,12 +111,13 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <View style={{ flex: 1 }}>
-        <NavigationContainer>
+      <AuthProvider>
+        <View style={{ flex: 1 }}>
           <StatusBar style="light" />
-          <TabNavigator />
-        </NavigationContainer>
-      </View>
+          <AppContent />
+        </View>
+        {/* TEST: Removed <Toast /> */}
+      </AuthProvider>
     </SafeAreaProvider>
   );
 }

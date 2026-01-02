@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=375, initial-scale=1.0">
+  <title>Poolside - Create Event Mockup v3</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(165deg, #0a0a1a 0%, #0d1528 40%, #111d35 100%);
+      min-height: 100vh;
+      color: white;
+      max-width: 375px;
+      margin: 0 auto;
+      position: relative;
+      overflow-x: hidden;
+      padding-bottom: 120px;
+    }
+
+    /* Sparkles */
+    .sparkle {
+      position: absolute;
+      font-size: 14px;
+      opacity: 0.6;
+      animation: twinkle 2s ease-in-out infinite;
+    }
+
+    .sparkle:nth-child(1) { top: 80px; right: 30px; animation-delay: 0s; }
+    .sparkle:nth-child(2) { top: 320px; right: 40px; animation-delay: 0.5s; }
+    .sparkle:nth-child(3) { top: 500px; right: 25px; animation-delay: 1s; }
+    .sparkle:nth-child(4) { top: 620px; left: 40px; animation-delay: 1.5s; }
+    .sparkle:nth-child(5) { top: 200px; left: 20px; animation-delay: 0.3s; }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.2); }
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 55px 20px 20px;
+    }
+
+    .cancel-btn {
+      font-size: 15px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+    }
+
+    .post-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 10px 24px;
+      border-radius: 25px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Content */
+    .content {
+      padding: 0 20px;
+    }
+
+    /* Title Input */
+    .title-input {
+      font-size: 38px;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.25);
+      margin-bottom: 16px;
+      outline: none;
+      border: none;
+      background: transparent;
+      width: 100%;
+      letter-spacing: -1px;
+    }
+
+    .title-input::placeholder {
+      color: rgba(255, 255, 255, 0.25);
+    }
+
+    .title-input:focus {
+      color: #fff;
+    }
+
+    /* Add Photo Section - Large */
+    .add-photo-section {
+      width: 100%;
+      aspect-ratio: 16/9;
+      margin-bottom: 20px;
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 2px dashed rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .add-photo-section:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(102, 126, 234, 0.4);
+    }
+
+    .add-photo-section .icon {
+      font-size: 32px;
+      opacity: 0.35;
+    }
+
+    .add-photo-section .text {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.35);
+      font-weight: 500;
+    }
+
+    .add-photo-section .hint {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Date Time Button */
+    .datetime-btn {
+      font-size: 20px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.3);
+      margin-bottom: 20px;
+      cursor: pointer;
+      display: inline-block;
+    }
+
+    .datetime-btn:hover {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .datetime-btn.filled {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* Frosted Glass Input Rows */
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 18px;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .input-row:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .input-row .icon {
+      font-size: 18px;
+      opacity: 0.5;
+      width: 24px;
+      text-align: center;
+    }
+
+    .input-row .text {
+      flex: 1;
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    .input-row .text .highlight {
+      color: rgba(140, 160, 255, 0.6);
+      text-decoration: underline;
+      text-decoration-color: rgba(140, 160, 255, 0.3);
+    }
+
+    .input-row .text.filled {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .input-row .arrow {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Description Area */
+    .description-area {
+      margin-top: 4px;
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      min-height: 100px;
+    }
+
+    .description-area textarea {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.35);
+      font-family: inherit;
+      resize: none;
+      line-height: 1.6;
+      min-height: 70px;
+    }
+
+    .description-area textarea::placeholder {
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    .description-area textarea:focus {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    /* Tab Bar */
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 375px;
+      padding: 12px 20px 30px;
+      background: rgba(10, 10, 20, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      opacity: 0.5;
+    }
+
+    .tab-item.active {
+      opacity: 1;
+    }
+
+    .tab-icon {
+      font-size: 24px;
+    }
+
+    .tab-label {
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Sparkles -->
+  <div class="sparkle">✦</div>
+  <div class="sparkle">✦</div>
+  <div class="sparkle">✦</div>
+  <div class="sparkle">✦</div>
+  <div class="sparkle">✦</div>
+
+  <!-- Header -->
+  <div class="header">
+    <span class="cancel-btn">Cancel</span>
+    <span class="post-btn">Create</span>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Title -->
+    <input type="text" class="title-input" placeholder="Pool Party on Deck 12">
+
+    <!-- Add Photo - Large Box -->
+    <div class="add-photo-section">
+      <span class="icon">🖼</span>
+      <span class="text">Add cover photo</span>
+      <span class="hint">Tap to upload an image</span>
+    </div>
+
+    <!-- Date & Time -->
+    <div class="datetime-btn">Date & Time TBD</div>
+
+    <!-- Input Rows -->
+    <div class="input-row">
+      <span class="icon">📍</span>
+      <span class="text">Main Pool, Deck 12</span>
+      <span class="arrow">›</span>
+    </div>
+
+    <div class="input-row">
+      <span class="icon">👥</span>
+      <span class="text"><span class="highlight">Unlimited</span> spots</span>
+      <span class="arrow">›</span>
+    </div>
+
+    <div class="input-row">
+      <span class="icon">🎫</span>
+      <span class="text">+ Add entry requirement</span>
+    </div>
+
+    <!-- Description -->
+    <div class="description-area">
+      <textarea placeholder="Add a description of your event..."></textarea>
+    </div>
+
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item">
+      <span class="tab-icon">🏠</span>
+      <span class="tab-label">Feed</span>
+    </div>
+    <div class="tab-item">
+      <span class="tab-icon">📅</span>
+      <span class="tab-label">My Plans</span>
+    </div>
+    <div class="tab-item active">
+      <span class="tab-icon">➕</span>
+      <span class="tab-label">Create</span>
+    </div>
+    <div class="tab-item">
+      <span class="tab-icon">💬</span>
+      <span class="tab-label">Friends</span>
+    </div>
+    <div class="tab-item">
+      <span class="tab-icon">👤</span>
+      <span class="tab-label">Profile</span>
+    </div>
+  </div>
+
+</body>
+</html>

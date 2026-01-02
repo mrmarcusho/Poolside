@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=375, initial-scale=1.0">
+  <title>Poolside - Edit Profile Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0a0a0f;
+      min-height: 100vh;
+      color: white;
+      max-width: 375px;
+      margin: 0 auto;
+      position: relative;
+      overflow-x: hidden;
+      padding-bottom: 40px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 50px 20px 16px;
+      position: sticky;
+      top: 0;
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 100;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header-btn {
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 8px 4px;
+    }
+
+    .header-btn.cancel {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .header-btn.save {
+      color: #667eea;
+    }
+
+    .header-title {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    /* Content */
+    .content {
+      padding: 20px;
+    }
+
+    /* Section */
+    .section {
+      margin-bottom: 28px;
+    }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    /* Input Field */
+    .input-field {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 15px;
+      color: #fff;
+      width: 100%;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .input-field:focus {
+      border-color: rgba(102, 126, 234, 0.5);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .input-field::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Textarea */
+    .textarea-field {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 15px;
+      color: #fff;
+      width: 100%;
+      outline: none;
+      font-family: inherit;
+      resize: none;
+      min-height: 100px;
+      line-height: 1.5;
+    }
+
+    .textarea-field:focus {
+      border-color: rgba(102, 126, 234, 0.5);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .char-count {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+      text-align: right;
+      margin-top: 6px;
+    }
+
+    /* Interest Tags */
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 14px;
+      background: rgba(102, 126, 234, 0.15);
+      border: 1px solid rgba(102, 126, 234, 0.3);
+      border-radius: 20px;
+      font-size: 13px;
+      color: #a5b4fc;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tag .remove {
+      font-size: 14px;
+      opacity: 0.7;
+    }
+
+    .tag:hover {
+      background: rgba(102, 126, 234, 0.25);
+    }
+
+    .add-tag-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px dashed rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .add-tag-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* Toggle Row */
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      margin-bottom: 10px;
+    }
+
+    .toggle-info {
+      flex: 1;
+    }
+
+    .toggle-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+
+    .toggle-subtitle {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Toggle Switch */
+    .toggle-switch {
+      width: 50px;
+      height: 28px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 14px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .toggle-switch.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      background: white;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.3s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle-switch.active::after {
+      transform: translateX(22px);
+    }
+
+    /* Photos Section */
+    .photos-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .photo-item {
+      aspect-ratio: 1;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .photo-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .photo-item .edit-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .photo-item:hover .edit-overlay {
+      opacity: 1;
+    }
+
+    .photo-item .edit-icon {
+      font-size: 24px;
+    }
+
+    .photo-add {
+      aspect-ratio: 1;
+      border-radius: 12px;
+      border: 2px dashed rgba(255, 255, 255, 0.2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .photo-add:hover {
+      border-color: rgba(102, 126, 234, 0.5);
+      background: rgba(102, 126, 234, 0.1);
+    }
+
+    .photo-add .plus {
+      font-size: 24px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .photo-add .label {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 24px 0;
+    }
+
+    /* Delete Account */
+    .danger-btn {
+      width: 100%;
+      padding: 14px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 12px;
+      color: #ef4444;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .danger-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <span class="header-btn cancel">Cancel</span>
+    <span class="header-title">Edit Profile</span>
+    <span class="header-btn save">Save</span>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Photos Section -->
+    <div class="section">
+      <div class="section-label">Photos</div>
+      <div class="photos-grid">
+        <div class="photo-item">
+          <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop" alt="">
+          <div class="edit-overlay">
+            <span class="edit-icon">&#128247;</span>
+          </div>
+        </div>
+        <div class="photo-item">
+          <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=200&h=200&fit=crop" alt="">
+          <div class="edit-overlay">
+            <span class="edit-icon">&#128247;</span>
+          </div>
+        </div>
+        <div class="photo-item">
+          <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&h=200&fit=crop" alt="">
+          <div class="edit-overlay">
+            <span class="edit-icon">&#128247;</span>
+          </div>
+        </div>
+        <div class="photo-add">
+          <span class="plus">+</span>
+          <span class="label">Add</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Name -->
+    <div class="section">
+      <div class="section-label">Name</div>
+      <input type="text" class="input-field" value="Sarah" placeholder="Your name">
+    </div>
+
+    <!-- Location -->
+    <div class="section">
+      <div class="section-label">Location</div>
+      <input type="text" class="input-field" value="San Diego, California" placeholder="Where are you from?">
+    </div>
+
+    <!-- School -->
+    <div class="section">
+      <div class="section-label">School</div>
+      <input type="text" class="input-field" value="UCLA '25 - Communications" placeholder="Your school and major">
+    </div>
+
+    <!-- Bio -->
+    <div class="section">
+      <div class="section-label">Bio</div>
+      <textarea class="textarea-field" placeholder="Tell people about yourself...">Here for a good time not a long time! Love meeting new people, sunset cocktails, and spontaneous adventures. Always down for karaoke - warning: I will sing Taylor Swift.</textarea>
+      <div class="char-count">156 / 300</div>
+    </div>
+
+    <!-- Interests -->
+    <div class="section">
+      <div class="section-label">Interests</div>
+      <div class="tags-container">
+        <div class="tag">
+          <span>&#127926; Live Music</span>
+          <span class="remove">&times;</span>
+        </div>
+        <div class="tag">
+          <span>&#127946; Swimming</span>
+          <span class="remove">&times;</span>
+        </div>
+        <div class="tag">
+          <span>&#127860; Foodie</span>
+          <span class="remove">&times;</span>
+        </div>
+        <div class="tag">
+          <span>&#128247; Photography</span>
+          <span class="remove">&times;</span>
+        </div>
+        <div class="add-tag-btn">
+          <span>+</span>
+          <span>Add Interest</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Privacy Settings -->
+    <div class="section">
+      <div class="section-label">Privacy</div>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-title">Show Events Hosted</div>
+          <div class="toggle-subtitle">Display events you've created</div>
+        </div>
+        <div class="toggle-switch active"></div>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-title">Show Events Attended</div>
+          <div class="toggle-subtitle">Display events you've gone to</div>
+        </div>
+        <div class="toggle-switch active"></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Danger Zone -->
+    <div class="section">
+      <button class="danger-btn">Log Out</button>
+    </div>
+
+  </div>
+
+</body>
+</html>

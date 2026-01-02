@@ -3,4 +3,7 @@ export { MyPlansScreen } from './MyPlansScreen';
 export { CreateEventScreen } from './CreateEventScreen';
 export { FriendsScreen } from './FriendsScreen';
 export { ProfileScreen } from './ProfileScreen';
+export { EditProfileScreen } from './EditProfileScreen';
 export { CustomSplashScreen } from './SplashScreen';
+export { LoginScreen } from './LoginScreen';
+export { RegisterScreen } from './RegisterScreen';

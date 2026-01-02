@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=375, initial-scale=1.0">
+  <title>Poolside - Create Event Mockup v6</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(165deg, #0a0a1a 0%, #0d1528 40%, #111d35 100%);
+      min-height: 100vh;
+      color: white;
+      max-width: 375px;
+      margin: 0 auto;
+      position: relative;
+      overflow-x: hidden;
+      padding-bottom: 120px;
+    }
+
+    /* Sparkles */
+    .sparkle {
+      position: absolute;
+      font-size: 14px;
+      opacity: 0.6;
+      animation: twinkle 2s ease-in-out infinite;
+    }
+
+    .sparkle:nth-child(1) { top: 80px; right: 30px; animation-delay: 0s; }
+    .sparkle:nth-child(2) { top: 320px; right: 40px; animation-delay: 0.5s; }
+    .sparkle:nth-child(3) { top: 480px; right: 25px; animation-delay: 1s; }
+    .sparkle:nth-child(4) { top: 580px; left: 40px; animation-delay: 1.5s; }
+    .sparkle:nth-child(5) { top: 200px; left: 20px; animation-delay: 0.3s; }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.2); }
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 55px 20px 20px;
+    }
+
+    .cancel-btn {
+      font-size: 15px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+    }
+
+    .post-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 10px 24px;
+      border-radius: 25px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Content */
+    .content {
+      padding: 0 20px;
+    }
+
+    /* Title Input */
+    .title-input {
+      font-size: 38px;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.25);
+      margin-bottom: 16px;
+      outline: none;
+      border: none;
+      background: transparent;
+      width: 100%;
+      letter-spacing: -1px;
+    }
+
+    .title-input::placeholder {
+      color: rgba(255, 255, 255, 0.25);
+    }
+
+    .title-input:focus {
+      color: #fff;
+    }
+
+    /* Add Photo Section - Large */
+    .add-photo-section {
+      width: 100%;
+      aspect-ratio: 16/9;
+      margin-bottom: 20px;
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 2px dashed rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .add-photo-section:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(102, 126, 234, 0.4);
+    }
+
+    .add-photo-section .icon {
+      font-size: 32px;
+      opacity: 0.35;
+    }
+
+    .add-photo-section .text {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.35);
+      font-weight: 500;
+    }
+
+    .add-photo-section .hint {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Frosted Glass Input Rows */
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 18px;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .input-row:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .input-row:focus-within {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(102, 126, 234, 0.4);
+    }
+
+    .input-row .icon {
+      font-size: 18px;
+      opacity: 0.5;
+      width: 24px;
+      text-align: center;
+    }
+
+    .input-row input {
+      flex: 1;
+      font-size: 15px;
+      color: #fff;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .input-row input::placeholder {
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    /* Date Time Row - Special Styling */
+    .datetime-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .datetime-row:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .datetime-row .icon {
+      font-size: 20px;
+      opacity: 0.5;
+    }
+
+    .datetime-row .datetime-text {
+      flex: 1;
+    }
+
+    .datetime-row .datetime-text .label {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.35);
+      font-weight: 500;
+    }
+
+    .datetime-row .datetime-text .value {
+      font-size: 17px;
+      color: rgba(255, 255, 255, 0.35);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    .datetime-row .arrow {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Description Area */
+    .description-area {
+      margin-top: 4px;
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      min-height: 100px;
+    }
+
+    .description-area textarea {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.35);
+      font-family: inherit;
+      resize: none;
+      line-height: 1.6;
+      min-height: 70px;
+    }
+
+    .description-area textarea::placeholder {
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    .description-area textarea:focus {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    /* Tab Bar */
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 375px;
+      padding: 12px 20px 30px;
+      background: rgba(10, 10, 20, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      opacity: 0.5;
+    }
+
+    .tab-item.active {
+      opacity: 1;
+    }
+
+    .tab-icon {
+      font-size: 24px;
+    }
+
+    .tab-label {
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    /* Modal Overlay */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 1000;
+      justify-content: center;
+      align-items: flex-end;
+    }
+
+    /* Frosted Glass Modal */
+    .modal-content {
+      width: 375px;
+      background: rgba(20, 20, 40, 0.85);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px 24px 0 0;
+      max-height: 90vh;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .modal-header .clear-btn {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+    }
+
+    .modal-header .title {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    /* Selected DateTime Display */
+    .selected-datetime {
+      margin: 20px;
+      padding: 18px 24px;
+      background: rgba(102, 126, 234, 0.12);
+      border: 1px solid rgba(102, 126, 234, 0.25);
+      border-radius: 16px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .selected-datetime .date {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 500;
+    }
+
+    .selected-datetime .time {
+      font-size: 28px;
+      color: #fff;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    /* Calendar Section */
+    .calendar-section {
+      padding: 0 20px;
+    }
+
+    .month-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .month-header .month-name {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .month-header .month-name .arrow {
+      color: #667eea;
+    }
+
+    .month-header .nav-arrows {
+      display: flex;
+      gap: 20px;
+    }
+
+    .month-header .nav-arrows span {
+      color: #667eea;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+
+    .month-header .nav-arrows span:hover {
+      background: rgba(102, 126, 234, 0.2);
+    }
+
+    .days-header {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .days-header span {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.4);
+      font-weight: 600;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      gap: 6px 0;
+    }
+
+    .calendar-grid .day {
+      padding: 10px;
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+
+    .calendar-grid .day:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .calendar-grid .day.selected {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+    }
+
+    .calendar-grid .day.empty {
+      pointer-events: none;
+    }
+
+    /* Time Picker */
+    .time-picker {
+      margin-top: 24px;
+      padding: 0 20px;
+    }
+
+    .time-option {
+      text-align: center;
+      padding: 12px;
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.35);
+      cursor: pointer;
+      transition: all 0.2s;
+      border-radius: 10px;
+    }
+
+    .time-option:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .time-option.selected {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-weight: 600;
+      font-size: 17px;
+    }
+
+    .time-option.faded {
+      color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Modal Footer */
+    .modal-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      margin-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .modal-footer .timezone {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .modal-footer .timezone .icon {
+      font-size: 16px;
+    }
+
+    .modal-footer .done-btn {
+      background: #fff;
+      color: #000;
+      border: none;
+      padding: 14px 40px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .modal-footer .done-btn:hover {
+      transform: scale(1.02);
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Sparkles -->
+  <div class="sparkle">✦</div>
+  <div class="sparkle">✦</div>
+  <div class="sparkle">✦</div>
+  <div class="sparkle">✦</div>
+  <div class="sparkle">✦</div>
+
+  <!-- Header -->
+  <div class="header">
+    <span class="cancel-btn">Cancel</span>
+    <span class="post-btn">Create</span>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Title -->
+    <input type="text" class="title-input" placeholder="Pool Party on Deck 12">
+
+    <!-- Add Photo - Large Box -->
+    <div class="add-photo-section">
+      <span class="icon">🖼</span>
+      <span class="text">Add cover photo</span>
+      <span class="hint">Tap to upload an image</span>
+    </div>
+
+    <!-- Date & Time - Frosted Glass -->
+    <div class="datetime-row" onclick="document.getElementById('datePickerModal').style.display='flex'">
+      <span class="icon">📅</span>
+      <div class="datetime-text">
+        <div class="label">Date & Time</div>
+        <div class="value">Select date and time</div>
+      </div>
+      <span class="arrow">›</span>
+    </div>
+
+    <!-- Location - Editable -->
+    <div class="input-row">
+      <span class="icon">📍</span>
+      <input type="text" placeholder="Main Pool, Deck 12">
+    </div>
+
+    <!-- Spots - Numbers Only (no arrows) -->
+    <div class="input-row">
+      <span class="icon">👥</span>
+      <input type="text" placeholder="Unlimited spots" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+    </div>
+
+    <!-- Description -->
+    <div class="description-area">
+      <textarea placeholder="Add a description of your event..."></textarea>
+    </div>
+
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item">
+      <span class="tab-icon">🏠</span>
+      <span class="tab-label">Feed</span>
+    </div>
+    <div class="tab-item">
+      <span class="tab-icon">📅</span>
+      <span class="tab-label">My Plans</span>
+    </div>
+    <div class="tab-item active">
+      <span class="tab-icon">➕</span>
+      <span class="tab-label">Create</span>
+    </div>
+    <div class="tab-item">
+      <span class="tab-icon">💬</span>
+      <span class="tab-label">Friends</span>
+    </div>
+    <div class="tab-item">
+      <span class="tab-icon">👤</span>
+      <span class="tab-label">Profile</span>
+    </div>
+  </div>
+
+  <!-- Date Picker Modal - Frosted Glass -->
+  <div id="datePickerModal" class="modal-overlay">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <span class="clear-btn" onclick="document.getElementById('datePickerModal').style.display='none'">Clear</span>
+        <span class="title">Date & Time</span>
+        <span style="width: 40px;"></span>
+      </div>
+
+      <!-- Selected DateTime Display -->
+      <div class="selected-datetime">
+        <div class="date">January 15, 2025</div>
+        <div class="time">6:00 PM</div>
+      </div>
+
+      <!-- Calendar Section -->
+      <div class="calendar-section">
+        <!-- Month Header -->
+        <div class="month-header">
+          <div class="month-name">
+            <span>January 2025</span>
+            <span class="arrow">›</span>
+          </div>
+          <div class="nav-arrows">
+            <span>‹</span>
+            <span>›</span>
+          </div>
+        </div>
+
+        <!-- Days Header -->
+        <div class="days-header">
+          <span>SUN</span>
+          <span>MON</span>
+          <span>TUE</span>
+          <span>WED</span>
+          <span>THU</span>
+          <span>FRI</span>
+          <span>SAT</span>
+        </div>
+
+        <!-- Calendar Grid -->
+        <div class="calendar-grid">
+          <span class="day empty"></span>
+          <span class="day empty"></span>
+          <span class="day empty"></span>
+          <span class="day">1</span>
+          <span class="day">2</span>
+          <span class="day">3</span>
+          <span class="day">4</span>
+          <span class="day">5</span>
+          <span class="day">6</span>
+          <span class="day">7</span>
+          <span class="day">8</span>
+          <span class="day">9</span>
+          <span class="day">10</span>
+          <span class="day">11</span>
+          <span class="day">12</span>
+          <span class="day">13</span>
+          <span class="day">14</span>
+          <span class="day selected">15</span>
+          <span class="day">16</span>
+          <span class="day">17</span>
+          <span class="day">18</span>
+          <span class="day">19</span>
+          <span class="day">20</span>
+          <span class="day">21</span>
+          <span class="day">22</span>
+          <span class="day">23</span>
+          <span class="day">24</span>
+          <span class="day">25</span>
+          <span class="day">26</span>
+          <span class="day">27</span>
+          <span class="day">28</span>
+          <span class="day">29</span>
+          <span class="day">30</span>
+          <span class="day">31</span>
+          <span class="day empty"></span>
+        </div>
+      </div>
+
+      <!-- Time Picker -->
+      <div class="time-picker">
+        <div class="time-option faded">5:30 PM</div>
+        <div class="time-option">5:45 PM</div>
+        <div class="time-option selected">6:00 PM</div>
+        <div class="time-option">6:15 PM</div>
+        <div class="time-option faded">6:30 PM</div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <div class="timezone">
+          <span class="icon">🌐</span>
+          <span>Ship Time</span>
+        </div>
+        <button class="done-btn" onclick="document.getElementById('datePickerModal').style.display='none'">Done</button>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

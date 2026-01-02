@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Poolside Event Card – Frosted Glass Mock</title>
+    <style>
+      :root {
+        --radius: 22px;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: radial-gradient(1200px 800px at 20% 10%, #1a1f3b 0%, #0b0f1f 55%, #070a14 100%);
+        color: rgba(255,255,255,0.9);
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      }
+
+      .frame {
+        width: min(420px, 92vw);
+        padding: 22px;
+      }
+
+      .hint {
+        opacity: 0.75;
+        font-size: 12px;
+        margin-top: 14px;
+        text-align: center;
+      }
+
+      .card {
+        position: relative;
+        border-radius: var(--radius);
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.18);
+        box-shadow:
+          0 18px 50px rgba(0,0,0,0.45),
+          inset 0 1px 0 rgba(255,255,255,0.12);
+      }
+
+      /* Blob layer */
+      .blobs {
+        position: absolute;
+        inset: 0;
+        filter: blur(26px) saturate(1.25);
+        transform: translateZ(0);
+      }
+
+      .blob {
+        position: absolute;
+        width: 220px;
+        height: 220px;
+        border-radius: 999px;
+        opacity: 0.9;
+        mix-blend-mode: screen;
+      }
+
+      .blob.pink {
+        left: -70px;
+        top: -60px;
+        background: radial-gradient(circle at 30% 30%, rgba(255, 80, 180, 0.95), rgba(255, 80, 180, 0) 62%);
+      }
+
+      .blob.cyan {
+        right: -90px;
+        bottom: -80px;
+        width: 280px;
+        height: 280px;
+        background: radial-gradient(circle at 30% 30%, rgba(0, 220, 255, 0.85), rgba(0, 220, 255, 0) 62%);
+      }
+
+      .blob.sun {
+        right: 60px;
+        top: 40px;
+        width: 160px;
+        height: 160px;
+        background: radial-gradient(circle at 35% 35%, rgba(255, 210, 90, 0.75), rgba(255, 210, 90, 0) 65%);
+      }
+
+      /* Frosted glass layer */
+      .glass {
+        position: relative;
+        padding: 18px 18px 16px;
+        background: rgba(255,255,255,0.08);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+      }
+
+      /* Extra "milky" film + subtle noise */
+      .glass::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.03));
+        opacity: 0.6;
+        pointer-events: none;
+      }
+
+      .glass::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.12'/%3E%3C/svg%3E");
+        opacity: 0.18;
+        mix-blend-mode: overlay;
+        pointer-events: none;
+      }
+
+      .content {
+        position: relative;
+        display: grid;
+        gap: 10px;
+      }
+
+      .topRow {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .pill {
+        font-size: 12px;
+        padding: 7px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,0.22);
+        background: rgba(0,0,0,0.18);
+        color: rgba(255,255,255,0.85);
+        white-space: nowrap;
+      }
+
+      .title {
+        font-size: 18px;
+        letter-spacing: 0.2px;
+        font-weight: 750;
+        line-height: 1.15;
+        margin: 0;
+      }
+
+      .meta {
+        margin: 0;
+        font-size: 13px;
+        opacity: 0.78;
+      }
+
+      .row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 2px;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.18);
+        background: rgba(0,0,0,0.14);
+        font-size: 12px;
+        opacity: 0.92;
+      }
+
+      .dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.75);
+        box-shadow: 0 0 0 4px rgba(255,255,255,0.08);
+      }
+
+      .footer {
+        margin-top: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .btn {
+        appearance: none;
+        border: 1px solid rgba(255,255,255,0.22);
+        background: rgba(255,255,255,0.12);
+        color: rgba(255,255,255,0.92);
+        padding: 10px 12px;
+        border-radius: 14px;
+        font-weight: 650;
+        font-size: 13px;
+        cursor: pointer;
+      }
+
+      .btn:hover {
+        background: rgba(255,255,255,0.16);
+      }
+
+      .ghost {
+        background: rgba(0,0,0,0.18);
+      }
+
+      .count {
+        font-size: 13px;
+        opacity: 0.78;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="frame">
+      <div class="card">
+        <div class="blobs" aria-hidden="true">
+          <div class="blob pink"></div>
+          <div class="blob cyan"></div>
+          <div class="blob sun"></div>
+        </div>
+
+        <div class="glass">
+          <div class="content">
+            <div class="topRow">
+              <div>
+                <p class="title">Meet by the pool</p>
+                <p class="meta">Today • 4:00 PM • Deck 12</p>
+              </div>
+              <div class="pill">Ages 18–24</div>
+            </div>
+
+            <div class="row">
+              <div class="chip"><span class="dot"></span> Chill</div>
+              <div class="chip"><span class="dot"></span> 10 spots</div>
+              <div class="chip"><span class="dot"></span> Casual</div>
+            </div>
+
+            <div class="footer">
+              <button class="btn">RSVP</button>
+              <button class="btn ghost">Details</button>
+              <div class="count">23 going</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hint">Tip: tweak <code>backdrop-filter: blur(18px)</code> and the blob positions to match your vibe.</div>
+    </div>
+  </body>
+</html>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,14 +7,82 @@ import {
   StatusBar,
   TouchableOpacity,
   Image,
+  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { EventCard, GradientBackground } from '../components';
+import { useFocusEffect } from '@react-navigation/native';
+import { EventCard, EventDetailModal, GradientBackground } from '../components';
 import { mockEvents } from '../data/mockEvents';
+import { Event } from '../types';
+import { useEvents } from '../hooks';
+import { mapApiEventsToEvents } from '../utils';
 
 export const FeedScreen: React.FC = () => {
-  const [activeFilter, setActiveFilter] = React.useState<'upcoming' | 'saved'>('upcoming');
+  const [activeFilter, setActiveFilter] = useState<'upcoming' | 'saved'>('upcoming');
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Fetch events from API
+  const { events: apiEvents, isLoading, error, refresh } = useEvents();
+
+  // Track if initial load has completed
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+
+  // Mark as loaded once we finish loading for the first time
+  useEffect(() => {
+    if (!isLoading && !hasLoadedOnce) {
+      setHasLoadedOnce(true);
+    }
+  }, [isLoading, hasLoadedOnce]);
+
+  // Refresh events when screen comes into focus (but not on initial mount)
+  useFocusEffect(
+    useCallback(() => {
+      // Only refresh if we've already loaded once (to avoid double-fetch on mount)
+      if (hasLoadedOnce) {
+        refresh();
+      }
+    }, [refresh, hasLoadedOnce])
+  );
+
+  // Debug logging
+  useEffect(() => {
+    console.log('[FeedScreen] API state:', {
+      isLoading,
+      error: error?.message,
+      eventCount: apiEvents.length,
+      hasLoadedOnce,
+    });
+  }, [isLoading, error, apiEvents.length, hasLoadedOnce]);
+
+  // Map API events to frontend format
+  // Only fallback to mock data if there's an error, not just empty data
+  const events: Event[] = error
+    ? mockEvents
+    : apiEvents.length > 0
+      ? mapApiEventsToEvents(apiEvents)
+      : hasLoadedOnce
+        ? [] // API returned no events
+        : mockEvents; // Still loading, show mock as placeholder
+
+  const handleEventPress = (event: Event) => {
+    setSelectedEvent(event);
+    setModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    setSelectedEvent(null);
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await refresh();
+    setRefreshing(false);
+  };
 
   return (
     <GradientBackground>
@@ -95,23 +163,56 @@ export const FeedScreen: React.FC = () => {
             pointerEvents="none"
           />
 
-          <ScrollView
-            style={styles.feed}
-            contentContainerStyle={styles.feedContent}
-            showsVerticalScrollIndicator={false}
-          >
-            {mockEvents.map((event) => (
-              <EventCard
-                key={event.id}
-                event={event}
-                onPress={() => console.log('Event pressed:', event.id)}
-              />
-            ))}
+          {isLoading && !refreshing ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#667eea" />
+            </View>
+          ) : (
+            <ScrollView
+              style={styles.feed}
+              contentContainerStyle={[
+                styles.feedContent,
+                events.length === 0 && styles.emptyFeedContent,
+              ]}
+              showsVerticalScrollIndicator={false}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={handleRefresh}
+                  tintColor="#667eea"
+                />
+              }
+            >
+              {events.length === 0 && hasLoadedOnce ? (
+                <View style={styles.emptyState}>
+                  <Text style={styles.emptyStateEmoji}>🌊</Text>
+                  <Text style={styles.emptyStateTitle}>No Events Yet</Text>
+                  <Text style={styles.emptyStateText}>
+                    Be the first to create an event for this cruise!
+                  </Text>
+                </View>
+              ) : (
+                events.map((event) => (
+                  <EventCard
+                    key={event.id}
+                    event={event}
+                    onPress={() => handleEventPress(event)}
+                  />
+                ))
+              )}
 
-            {/* Bottom padding for tab bar */}
-            <View style={{ height: 100 }} />
-          </ScrollView>
+              {/* Bottom padding for tab bar */}
+              <View style={{ height: 100 }} />
+            </ScrollView>
+          )}
         </View>
+
+        {/* Event Detail Modal */}
+        <EventDetailModal
+          event={selectedEvent}
+          visible={modalVisible}
+          onClose={handleCloseModal}
+        />
       </SafeAreaView>
     </GradientBackground>
   );
@@ -128,7 +229,7 @@ const styles = StyleSheet.create({
     paddingLeft: 5,
     paddingRight: 20,
     paddingTop: 4,
-    paddingBottom: 2,
+    paddingBottom: 1,
   },
   logoContainer: {
     alignItems: 'flex-start',
@@ -137,7 +238,7 @@ const styles = StyleSheet.create({
   },
   logo: {
     height: 70,
-    width: 216,
+    width: 210,
   },
   headerIcons: {
     flexDirection: 'row',
@@ -189,7 +290,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: 40,
+    height: 20,
     zIndex: 10,
   },
   feed: {
@@ -197,5 +298,37 @@ const styles = StyleSheet.create({
   },
   feedContent: {
     paddingTop: 4,
+  },
+  emptyFeedContent: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 40,
+    paddingBottom: 100,
+  },
+  emptyStateEmoji: {
+    fontSize: 64,
+    marginBottom: 16,
+  },
+  emptyStateTitle: {
+    fontFamily: 'Montserrat_700Bold',
+    fontSize: 24,
+    color: '#ffffff',
+    marginBottom: 8,
+  },
+  emptyStateText: {
+    fontFamily: 'Montserrat_400Regular',
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.6)',
+    textAlign: 'center',
   },
 });

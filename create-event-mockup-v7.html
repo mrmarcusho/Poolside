@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=375, initial-scale=1.0">
+    <title>Create Event - Poolside</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(180deg, #1a1a3e 0%, #0d0d2b 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 20px 16px;
+        }
+
+        .container {
+            max-width: 375px;
+            margin: 0 auto;
+        }
+
+        /* Title Card */
+        .title-card {
+            background: rgba(60, 60, 120, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 24px 20px;
+            text-align: center;
+            margin-bottom: 16px;
+            border: 1px solid rgba(100, 100, 180, 0.3);
+        }
+
+        .title-card h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Cover Image */
+        .cover-image-container {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .cover-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: linear-gradient(135deg, #87CEEB 0%, #98D8E8 50%, #B0E0E6 100%);
+        }
+
+        .cover-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #87CEEB 0%, #98D8E8 50%, #B0E0E6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Emoji decorations around cover */
+        .emoji-decoration {
+            position: absolute;
+            font-size: 40px;
+        }
+
+        .emoji-decoration.music { top: 10px; left: 10px; font-size: 32px; }
+        .emoji-decoration.sun { top: 20px; left: 50%; transform: translateX(-50%); font-size: 60px; }
+        .emoji-decoration.ticket { top: 20px; right: 20px; font-size: 36px; }
+        .emoji-decoration.umbrella { top: 60px; right: 10px; font-size: 34px; }
+        .emoji-decoration.heart-arrow { top: 120px; right: 15px; font-size: 38px; }
+        .emoji-decoration.mic { top: 80px; left: 5px; font-size: 36px; }
+        .emoji-decoration.lollipop { left: 20px; top: 50%; font-size: 42px; }
+        .emoji-decoration.shaved-ice { bottom: 80px; left: 10px; font-size: 38px; }
+        .emoji-decoration.cherries { bottom: 40px; left: 60px; font-size: 36px; }
+        .emoji-decoration.party { bottom: 60px; left: 50%; transform: translateX(-50%); font-size: 44px; }
+        .emoji-decoration.watermelon { bottom: 30px; right: 30px; font-size: 40px; }
+        .emoji-decoration.ball { bottom: 100px; right: 50px; font-size: 32px; }
+        .emoji-decoration.blue-heart { bottom: 50px; right: 10px; font-size: 34px; }
+
+        .cover-text {
+            font-size: 48px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.3);
+            text-align: center;
+            line-height: 1.1;
+        }
+
+        .edit-cover-btn {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            width: 44px;
+            height: 44px;
+            background: rgba(80, 80, 140, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .edit-cover-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
+        }
+
+        /* Date Selector */
+        .date-selector {
+            background: rgba(40, 40, 80, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            border: 1px solid rgba(80, 80, 140, 0.3);
+        }
+
+        .date-selector span {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .date-selector svg {
+            width: 16px;
+            height: 16px;
+            fill: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Form Section */
+        .form-section {
+            background: rgba(30, 30, 60, 0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid rgba(60, 60, 100, 0.3);
+        }
+
+        /* Host Section */
+        .host-section {
+            margin-bottom: 16px;
+        }
+
+        .host-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .host-label svg {
+            width: 18px;
+            height: 18px;
+            fill: rgba(255, 255, 255, 0.5);
+        }
+
+        .host-label span {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .host-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .host-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar-container {
+            position: relative;
+        }
+
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .crown-badge {
+            position: absolute;
+            bottom: -4px;
+            right: -4px;
+            width: 20px;
+            height: 20px;
+            background: #1a1a3e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .host-name {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .add-cohosts-btn {
+            background: rgba(60, 60, 100, 0.6);
+            border: 1px solid rgba(100, 100, 160, 0.4);
+            border-radius: 20px;
+            padding: 8px 14px;
+            color: white;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .add-cohosts-btn span {
+            font-size: 16px;
+        }
+
+        /* Form Fields */
+        .form-field {
+            display: flex;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(60, 60, 100, 0.3);
+        }
+
+        .form-field:last-of-type {
+            border-bottom: none;
+        }
+
+        .form-field-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-field-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: rgba(255, 255, 255, 0.5);
+        }
+
+        .form-field-content {
+            flex: 1;
+        }
+
+        .form-field-placeholder {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Toggle Switch */
+        .toggle-field {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(60, 60, 100, 0.3);
+        }
+
+        .toggle-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .toggle-switch {
+            width: 48px;
+            height: 28px;
+            background: rgba(60, 60, 100, 0.6);
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #6366f1;
+        }
+
+        .toggle-knob {
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch.active .toggle-knob {
+            transform: translateX(20px);
+        }
+
+        /* Optional Tags */
+        .optional-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(60, 60, 100, 0.3);
+        }
+
+        .tag-btn {
+            background: rgba(50, 50, 90, 0.6);
+            border: 1px solid rgba(80, 80, 130, 0.4);
+            border-radius: 20px;
+            padding: 8px 14px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .tag-btn .plus {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+        }
+
+        /* Description */
+        .description-field {
+            padding: 16px 0;
+        }
+
+        .description-textarea {
+            width: 100%;
+            min-height: 100px;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 15px;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+        }
+
+        .description-textarea::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Title Card -->
+        <div class="title-card">
+            <h1>Untitled Event</h1>
+        </div>
+
+        <!-- Cover Image -->
+        <div class="cover-image-container">
+            <div class="cover-placeholder">
+                <span class="emoji-decoration music">🎵</span>
+                <span class="emoji-decoration sun">🌞</span>
+                <span class="emoji-decoration ticket">🎟️</span>
+                <span class="emoji-decoration umbrella">⛱️</span>
+                <span class="emoji-decoration heart-arrow">💘</span>
+                <span class="emoji-decoration mic">🎤</span>
+                <span class="emoji-decoration lollipop">🍭</span>
+                <span class="emoji-decoration shaved-ice">🍧</span>
+                <span class="emoji-decoration cherries">🍒</span>
+                <span class="emoji-decoration party">🥳</span>
+                <span class="emoji-decoration watermelon">🍉</span>
+                <span class="emoji-decoration ball">🎾</span>
+                <span class="emoji-decoration blue-heart">💙</span>
+                <div class="cover-text">It's<br>nice<br>out</div>
+            </div>
+            <button class="edit-cover-btn">
+                <svg viewBox="0 0 24 24">
+                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Date Selector -->
+        <div class="date-selector">
+            <span>Set a date...</span>
+            <svg viewBox="0 0 24 24">
+                <path d="M7 10l5 5 5-5z"/>
+            </svg>
+        </div>
+
+        <!-- Form Section -->
+        <div class="form-section">
+            <!-- Host Section -->
+            <div class="host-section">
+                <div class="host-label">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    <span>Hosted by <span style="opacity: 0.7">(optional)</span> host nickname</span>
+                </div>
+                <div class="host-row">
+                    <div class="host-info">
+                        <div class="avatar-container">
+                            <div class="avatar">MH</div>
+                            <div class="crown-badge">👑</div>
+                        </div>
+                        <span class="host-name">Marcus Ho</span>
+                    </div>
+                    <button class="add-cohosts-btn">
+                        <span>+</span> Add cohosts
+                    </button>
+                </div>
+            </div>
+
+            <!-- Location -->
+            <div class="form-field">
+                <div class="form-field-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                    </svg>
+                </div>
+                <div class="form-field-content">
+                    <span class="form-field-placeholder">Location</span>
+                </div>
+            </div>
+
+            <!-- Unlimited spots -->
+            <div class="form-field">
+                <div class="form-field-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                    </svg>
+                </div>
+                <div class="form-field-content">
+                    <span class="form-field-placeholder">Unlimited spots</span>
+                </div>
+            </div>
+
+            <!-- Cost per person -->
+            <div class="form-field">
+                <div class="form-field-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/>
+                    </svg>
+                </div>
+                <div class="form-field-content">
+                    <span class="form-field-placeholder">Cost per person</span>
+                </div>
+            </div>
+
+            <!-- Guests can invite friends -->
+            <div class="toggle-field">
+                <div class="toggle-left">
+                    <div class="form-field-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                        </svg>
+                    </div>
+                    <span class="form-field-placeholder">Guests can invite friends</span>
+                </div>
+                <div class="toggle-switch" onclick="this.classList.toggle('active')">
+                    <div class="toggle-knob"></div>
+                </div>
+            </div>
+
+            <!-- RSVP Deadline -->
+            <div class="form-field">
+                <div class="form-field-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M6 2v6h.01L6 8.01 10 12l-4 4 .01.01H6V22h12v-5.99h-.01L18 16l-4-4 4-3.99-.01-.01H18V2H6zm10 14.5V20H8v-3.5l4-4 4 4zm-4-5l-4-4V4h8v3.5l-4 4z"/>
+                    </svg>
+                </div>
+                <div class="form-field-content">
+                    <span class="form-field-placeholder">RSVP Deadline</span>
+                </div>
+            </div>
+
+            <!-- Optional Tags -->
+            <div class="optional-tags">
+                <button class="tag-btn">
+                    <span class="plus">+</span> Link
+                </button>
+                <button class="tag-btn">
+                    <span class="plus">+</span> Playlist
+                </button>
+                <button class="tag-btn">
+                    <span class="plus">+</span> Registry
+                </button>
+                <button class="tag-btn">
+                    <span class="plus">+</span> Dress code
+                </button>
+            </div>
+
+            <!-- Description -->
+            <div class="description-field">
+                <textarea class="description-textarea" placeholder="Add a description of your event"></textarea>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

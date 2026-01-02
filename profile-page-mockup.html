@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=375, initial-scale=1.0">
+  <title>Poolside - Profile Page Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(180deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1a 100%);
+      min-height: 100vh;
+      color: white;
+      max-width: 375px;
+      margin: 0 auto;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Status bar simulation */
+    .status-bar {
+      height: 44px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 20px 16px;
+    }
+
+    .header-title {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .settings-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .settings-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Profile Card */
+    .profile-card {
+      margin: 0 16px 20px;
+      padding: 24px;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+    }
+
+    .avatar-container {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 16px;
+    }
+
+    .avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .online-indicator {
+      position: absolute;
+      bottom: 4px;
+      right: 4px;
+      width: 20px;
+      height: 20px;
+      background: #22c55e;
+      border-radius: 50%;
+      border: 3px solid #0a0a0f;
+    }
+
+    .user-name {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .user-cabin {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 16px;
+    }
+
+    .edit-profile-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .edit-profile-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 0 16px 24px;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 16px 12px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+    }
+
+    /* Section */
+    .section {
+      margin: 0 16px 24px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .see-all {
+      font-size: 14px;
+      color: #667eea;
+      cursor: pointer;
+    }
+
+    /* Hosted Event Card */
+    .hosted-event {
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 10px;
+    }
+
+    .event-image {
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      object-fit: cover;
+    }
+
+    .event-info {
+      flex: 1;
+    }
+
+    .event-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .event-meta {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .event-attendees {
+      font-size: 12px;
+      color: #22c55e;
+      margin-top: 4px;
+    }
+
+    /* Menu Items */
+    .menu-section {
+      margin: 0 16px 100px;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .menu-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .menu-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .menu-icon.purple { background: rgba(102, 126, 234, 0.2); }
+    .menu-icon.orange { background: rgba(245, 158, 11, 0.2); }
+    .menu-icon.red { background: rgba(239, 68, 68, 0.2); }
+
+    .menu-text {
+      flex: 1;
+    }
+
+    .menu-title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .menu-subtitle {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .menu-arrow {
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 18px;
+    }
+
+    /* Logout button */
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: calc(100% - 32px);
+      margin: 0 16px 100px;
+      padding: 16px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 14px;
+      color: #ef4444;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+
+    /* Tab Bar */
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 375px;
+      padding: 12px 20px 30px;
+      background: rgba(10, 10, 15, 0.9);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      opacity: 0.5;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .tab-item.active {
+      opacity: 1;
+    }
+
+    .tab-icon {
+      font-size: 24px;
+    }
+
+    .tab-label {
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .tab-item.active .tab-icon {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  </style>
+</head>
+<body>
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span>9:41</span>
+    <span>5G</span>
+  </div>
+
+  <!-- Header -->
+  <div class="header">
+    <h1 class="header-title">Profile</h1>
+    <div class="settings-btn">
+      <span>&#9881;</span>
+    </div>
+  </div>
+
+  <!-- Profile Card -->
+  <div class="profile-card">
+    <div class="avatar-container">
+      <div class="avatar">&#127946;</div>
+      <div class="online-indicator"></div>
+    </div>
+    <h2 class="user-name">Sarah Johnson</h2>
+    <p class="user-cabin">Cabin 8724 - Deck 8</p>
+    <button class="edit-profile-btn">
+      <span>&#9998;</span>
+      Edit Profile
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-number">5</div>
+      <div class="stat-label">Hosted</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">12</div>
+      <div class="stat-label">Attended</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">28</div>
+      <div class="stat-label">Friends</div>
+    </div>
+  </div>
+
+  <!-- My Events Section -->
+  <div class="section">
+    <div class="section-header">
+      <h3 class="section-title">My Hosted Events</h3>
+      <span class="see-all">See All</span>
+    </div>
+
+    <div class="hosted-event">
+      <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200" class="event-image" alt="Event">
+      <div class="event-info">
+        <div class="event-title">Sunset Drinks at Sky Bar</div>
+        <div class="event-meta">Tomorrow at 6:00 PM</div>
+        <div class="event-attendees">12 going</div>
+      </div>
+    </div>
+
+    <div class="hosted-event">
+      <img src="https://images.unsplash.com/photo-1530549387789-4c1017266635?w=200" class="event-image" alt="Event">
+      <div class="event-info">
+        <div class="event-title">Pool Party Deck 7</div>
+        <div class="event-meta">Wed, Jan 1 at 2:00 PM</div>
+        <div class="event-attendees">8 going</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Menu Section -->
+  <div class="menu-section">
+    <div class="menu-item">
+      <div class="menu-icon purple">&#128276;</div>
+      <div class="menu-text">
+        <div class="menu-title">Notifications</div>
+        <div class="menu-subtitle">Manage your alerts</div>
+      </div>
+      <span class="menu-arrow">&#8250;</span>
+    </div>
+
+    <div class="menu-item">
+      <div class="menu-icon orange">&#128274;</div>
+      <div class="menu-text">
+        <div class="menu-title">Privacy</div>
+        <div class="menu-subtitle">Control who sees your activity</div>
+      </div>
+      <span class="menu-arrow">&#8250;</span>
+    </div>
+  </div>
+
+  <!-- Logout Button -->
+  <button class="logout-btn">
+    <span>&#128682;</span>
+    Log Out
+  </button>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item">
+      <span class="tab-icon">&#127968;</span>
+      <span class="tab-label">Feed</span>
+    </div>
+    <div class="tab-item">
+      <span class="tab-icon">&#128197;</span>
+      <span class="tab-label">My Plans</span>
+    </div>
+    <div class="tab-item">
+      <span class="tab-icon">&#10133;</span>
+      <span class="tab-label">Create</span>
+    </div>
+    <div class="tab-item">
+      <span class="tab-icon">&#128172;</span>
+      <span class="tab-label">Friends</span>
+    </div>
+    <div class="tab-item active">
+      <span class="tab-icon">&#128100;</span>
+      <span class="tab-label">Profile</span>
+    </div>
+  </div>
+</body>
+</html>

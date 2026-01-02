@@ -1,0 +1,175 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// ============== USERS ==============
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  emoji     String   @default("👤")
+  avatar    String?
+  bio       String?
+  age       Int?
+  location  String?
+  school    String?
+  interests String?  // JSON array of interests
+  isOnline  Boolean  @default(false)
+  lastSeen  DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  hostedEvents  Event[]        @relation("EventHost")
+  rsvps         Rsvp[]
+  notifications Notification[]
+  pushTokens    PushToken[]
+
+  // Friends
+  sentFriendRequests     FriendRequest[] @relation("FriendRequestFrom")
+  receivedFriendRequests FriendRequest[] @relation("FriendRequestTo")
+  friendsAsUser1         Friendship[]    @relation("FriendshipUser1")
+  friendsAsUser2         Friendship[]    @relation("FriendshipUser2")
+
+  // Messages
+  sentMessages     Message[]      @relation("MessageSender")
+  conversationsAs1 Conversation[] @relation("ConversationUser1")
+  conversationsAs2 Conversation[] @relation("ConversationUser2")
+
+  @@map("users")
+}
+
+model PushToken {
+  id        String   @id @default(cuid())
+  token     String
+  platform  String   // "ios" | "android"
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, token])
+  @@map("push_tokens")
+}
+
+// ============== EVENTS ==============
+
+model Event {
+  id              String   @id @default(cuid())
+  title           String
+  description     String
+  fullDescription String?
+  eventImage      String?
+  locationName    String
+  locationDeck    String?
+  locationImage   String?
+  dateTime        DateTime
+  endTime         DateTime?
+  hostId          String
+  host            User     @relation("EventHost", fields: [hostId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  rsvps Rsvp[]
+
+  @@map("events")
+}
+
+// ============== RSVP ==============
+// Status: "GOING" | "INTERESTED"
+
+model Rsvp {
+  id        String   @id @default(cuid())
+  userId    String
+  eventId   String
+  status    String   // "GOING" | "INTERESTED"
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, eventId])
+  @@map("rsvps")
+}
+
+// ============== FRIENDS ==============
+// Status: "PENDING" | "ACCEPTED" | "REJECTED"
+
+model FriendRequest {
+  id        String   @id @default(cuid())
+  fromId    String
+  toId      String
+  status    String   @default("PENDING") // "PENDING" | "ACCEPTED" | "REJECTED"
+  from      User     @relation("FriendRequestFrom", fields: [fromId], references: [id], onDelete: Cascade)
+  to        User     @relation("FriendRequestTo", fields: [toId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([fromId, toId])
+  @@map("friend_requests")
+}
+
+model Friendship {
+  id        String   @id @default(cuid())
+  user1Id   String
+  user2Id   String
+  user1     User     @relation("FriendshipUser1", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2     User     @relation("FriendshipUser2", fields: [user2Id], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([user1Id, user2Id])
+  @@map("friendships")
+}
+
+// ============== MESSAGES ==============
+
+model Conversation {
+  id        String    @id @default(cuid())
+  user1Id   String
+  user2Id   String
+  user1     User      @relation("ConversationUser1", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2     User      @relation("ConversationUser2", fields: [user2Id], references: [id], onDelete: Cascade)
+  messages  Message[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([user1Id, user2Id])
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  text           String
+  senderId       String
+  conversationId String
+  sender         User         @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  readAt         DateTime?
+  createdAt      DateTime     @default(now())
+
+  @@map("messages")
+}
+
+// ============== NOTIFICATIONS ==============
+// Type: "EVENT_RSVP" | "FRIEND_REQUEST" | "FRIEND_ACCEPTED" | "NEW_MESSAGE" | "EVENT_REMINDER" | "EVENT_UPDATE"
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // "EVENT_RSVP" | "FRIEND_REQUEST" | etc.
+  title     String
+  body      String
+  data      String?  // JSON string
+  isRead    Boolean  @default(false)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@map("notifications")
+}

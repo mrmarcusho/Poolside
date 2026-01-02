@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Creation Animation Mockup</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: linear-gradient(180deg, #1a1a3e 0%, #0d0d2b 100%);
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Status bar */
+    .status-bar {
+      height: 44px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      padding-bottom: 8px;
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    /* Main content area */
+    .content {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      height: calc(100% - 44px - 85px);
+    }
+
+    /* Event card preview */
+    .event-preview {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+      transform-origin: center center;
+      transition: none;
+    }
+
+    .event-preview.animating {
+      position: fixed;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    .event-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .event-cover {
+      width: 100%;
+      height: 160px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 48px;
+    }
+
+    .event-details {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 14px;
+    }
+
+    .event-details .row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .event-details .icon {
+      width: 20px;
+      text-align: center;
+    }
+
+    /* Create button */
+    .create-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 18px 32px;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 20px;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .create-btn:hover {
+      transform: scale(1.02);
+    }
+
+    .create-btn:active {
+      transform: scale(0.98);
+    }
+
+    .create-btn.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Tab bar */
+    .tab-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 85px;
+      background: rgba(20, 20, 35, 0.95);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-start;
+      padding-top: 12px;
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      opacity: 0.5;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .tab-item.active {
+      opacity: 1;
+    }
+
+    .tab-item .icon {
+      font-size: 24px;
+      transition: transform 0.3s;
+    }
+
+    .tab-item .label {
+      font-size: 10px;
+      color: white;
+    }
+
+    .tab-item.home-tab {
+      position: relative;
+    }
+
+    .tab-item.home-tab.receiving .icon {
+      transform: scale(1.3);
+    }
+
+    /* Pulse effect on home icon */
+    .pulse-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: rgba(102, 126, 234, 0.3);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .pulse-ring.active {
+      animation: pulse 0.6s ease-out;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(2);
+        opacity: 0;
+      }
+    }
+
+    /* Success particles */
+    .particle {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1001;
+    }
+
+    /* Success checkmark overlay */
+    .success-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 999;
+      transition: opacity 0.3s;
+    }
+
+    .success-overlay.visible {
+      opacity: 1;
+    }
+
+    .success-message {
+      background: rgba(40, 40, 60, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 24px 48px;
+      border-radius: 20px;
+      text-align: center;
+      transform: scale(0.8);
+      opacity: 0;
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
+    }
+
+    .success-overlay.visible .success-message {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .success-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .success-text {
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .success-subtext {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    /* Trail effect */
+    .trail {
+      position: fixed;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0;
+    }
+
+    /* Reset button */
+    .reset-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #333;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .instructions {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="instructions">
+    Click "Create Event" to see the animation
+  </div>
+
+  <div class="phone-frame">
+    <div class="status-bar">9:41</div>
+
+    <div class="content">
+      <div class="event-preview" id="eventCard">
+        <div class="event-title">Pool Party</div>
+        <div class="event-cover">🎉</div>
+        <div class="event-details">
+          <div class="row">
+            <span class="icon">📅</span>
+            <span>Sat Jan 4, 6:00 PM</span>
+          </div>
+          <div class="row">
+            <span class="icon">📍</span>
+            <span>Main Pool Deck</span>
+          </div>
+          <div class="row">
+            <span class="icon">👤</span>
+            <span>Hosted by You</span>
+          </div>
+        </div>
+        <button class="create-btn" id="createBtn" onclick="startAnimation()">
+          Create Event
+        </button>
+      </div>
+    </div>
+
+    <div class="tab-bar">
+      <div class="tab-item home-tab" id="homeTab">
+        <div class="pulse-ring" id="pulseRing"></div>
+        <span class="icon">🏠</span>
+        <span class="label">Feed</span>
+      </div>
+      <div class="tab-item">
+        <span class="icon">📅</span>
+        <span class="label">Plans</span>
+      </div>
+      <div class="tab-item active">
+        <span class="icon">➕</span>
+        <span class="label">Create</span>
+      </div>
+      <div class="tab-item">
+        <span class="icon">👥</span>
+        <span class="label">Friends</span>
+      </div>
+      <div class="tab-item">
+        <span class="icon">👤</span>
+        <span class="label">Profile</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="success-overlay" id="successOverlay">
+    <div class="success-message">
+      <div class="success-icon">✨</div>
+      <div class="success-text">Event Created!</div>
+      <div class="success-subtext">Added to your feed</div>
+    </div>
+  </div>
+
+  <button class="reset-btn" onclick="resetAnimation()">Reset Demo</button>
+
+  <script>
+    let isAnimating = false;
+
+    function startAnimation() {
+      if (isAnimating) return;
+      isAnimating = true;
+
+      const card = document.getElementById('eventCard');
+      const btn = document.getElementById('createBtn');
+      const homeTab = document.getElementById('homeTab');
+      const pulseRing = document.getElementById('pulseRing');
+      const successOverlay = document.getElementById('successOverlay');
+
+      // Get positions
+      const cardRect = card.getBoundingClientRect();
+      const homeRect = homeTab.getBoundingClientRect();
+
+      // Calculate target position (center of home icon)
+      const targetX = homeRect.left + homeRect.width / 2;
+      const targetY = homeRect.top + 20;
+
+      // Store original position
+      const startX = cardRect.left + cardRect.width / 2;
+      const startY = cardRect.top + cardRect.height / 2;
+
+      // Hide button
+      btn.classList.add('hidden');
+
+      // Prepare card for animation
+      card.style.position = 'fixed';
+      card.style.left = cardRect.left + 'px';
+      card.style.top = cardRect.top + 'px';
+      card.style.width = cardRect.width + 'px';
+      card.style.zIndex = '1000';
+
+      // Create trail elements
+      createTrail(startX, startY, targetX, targetY);
+
+      // Animate with requestAnimationFrame for smooth arc
+      const duration = 800;
+      const startTime = performance.now();
+
+      function animate(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        // Easing function (ease-in-out)
+        const easeProgress = progress < 0.5
+          ? 4 * progress * progress * progress
+          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+        // Calculate position along arc
+        const x = startX + (targetX - startX) * easeProgress;
+
+        // Add arc (parabola) to y movement
+        const arcHeight = -150; // Negative = up
+        const normalizedProgress = progress * 2 - 1; // -1 to 1
+        const arc = arcHeight * (1 - normalizedProgress * normalizedProgress);
+        const y = startY + (targetY - startY) * easeProgress + arc;
+
+        // Scale down as it moves
+        const scale = 1 - (0.95 * easeProgress);
+
+        // Rotate slightly
+        const rotation = progress * 360;
+
+        // Apply transforms
+        card.style.transform = `translate(${x - startX}px, ${y - startY}px) scale(${scale}) rotate(${rotation}deg)`;
+        card.style.opacity = 1 - (0.5 * easeProgress);
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          // Animation complete
+          finishAnimation();
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    function createTrail(startX, startY, endX, endY) {
+      const numParticles = 8;
+      const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c'];
+
+      for (let i = 0; i < numParticles; i++) {
+        setTimeout(() => {
+          const particle = document.createElement('div');
+          particle.className = 'trail';
+          particle.style.background = colors[i % colors.length];
+          particle.style.left = startX + 'px';
+          particle.style.top = startY + 'px';
+          document.body.appendChild(particle);
+
+          // Animate particle
+          const delay = i * 50;
+          setTimeout(() => {
+            particle.style.transition = `all ${600 - i * 30}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`;
+            particle.style.opacity = '0.8';
+            particle.style.left = endX + 'px';
+            particle.style.top = endY + 'px';
+            particle.style.transform = 'scale(0.3)';
+
+            setTimeout(() => {
+              particle.style.opacity = '0';
+              setTimeout(() => particle.remove(), 300);
+            }, 400);
+          }, 50);
+        }, i * 40);
+      }
+    }
+
+    function finishAnimation() {
+      const card = document.getElementById('eventCard');
+      const homeTab = document.getElementById('homeTab');
+      const pulseRing = document.getElementById('pulseRing');
+      const successOverlay = document.getElementById('successOverlay');
+
+      // Hide card
+      card.style.opacity = '0';
+
+      // Pulse effect on home icon
+      homeTab.classList.add('receiving');
+      pulseRing.classList.add('active');
+
+      // Create burst particles
+      createBurstParticles();
+
+      // Show success message
+      setTimeout(() => {
+        successOverlay.classList.add('visible');
+      }, 200);
+
+      // Reset home tab
+      setTimeout(() => {
+        homeTab.classList.remove('receiving');
+        pulseRing.classList.remove('active');
+      }, 600);
+
+      // Hide success after delay
+      setTimeout(() => {
+        successOverlay.classList.remove('visible');
+      }, 2500);
+    }
+
+    function createBurstParticles() {
+      const homeTab = document.getElementById('homeTab');
+      const rect = homeTab.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + 20;
+
+      const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe', '#00f2fe'];
+      const numParticles = 12;
+
+      for (let i = 0; i < numParticles; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.background = colors[i % colors.length];
+        particle.style.left = centerX + 'px';
+        particle.style.top = centerY + 'px';
+        document.body.appendChild(particle);
+
+        // Random direction
+        const angle = (i / numParticles) * Math.PI * 2;
+        const distance = 40 + Math.random() * 30;
+        const targetX = centerX + Math.cos(angle) * distance;
+        const targetY = centerY + Math.sin(angle) * distance;
+
+        // Animate
+        requestAnimationFrame(() => {
+          particle.style.transition = 'all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+          particle.style.left = targetX + 'px';
+          particle.style.top = targetY + 'px';
+          particle.style.opacity = '0';
+          particle.style.transform = 'scale(0)';
+        });
+
+        setTimeout(() => particle.remove(), 600);
+      }
+    }
+
+    function resetAnimation() {
+      isAnimating = false;
+      const card = document.getElementById('eventCard');
+      const btn = document.getElementById('createBtn');
+      const successOverlay = document.getElementById('successOverlay');
+
+      // Reset card
+      card.style.position = '';
+      card.style.left = '';
+      card.style.top = '';
+      card.style.width = '';
+      card.style.zIndex = '';
+      card.style.transform = '';
+      card.style.opacity = '';
+      card.style.transition = '';
+
+      // Show button
+      btn.classList.remove('hidden');
+
+      // Hide success
+      successOverlay.classList.remove('visible');
+    }
+  </script>
+</body>
+</html>

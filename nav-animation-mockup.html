@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nav Bar Animation Mockup</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0a0a12;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+    }
+
+    .title {
+      color: white;
+      font-size: 20px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .subtitle {
+      color: rgba(255,255,255,0.5);
+      font-size: 13px;
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    /* Phone frame */
+    .phone {
+      width: 375px;
+      height: 200px;
+      background: #12121a;
+      border-radius: 24px;
+      border: 2px solid rgba(255,255,255,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .phone-content {
+      height: 100%;
+      display: flex;
+      align-items: flex-end;
+    }
+
+    /* Nav bar */
+    .nav-bar {
+      width: 100%;
+      height: 80px;
+      background: rgba(20, 20, 30, 0.95);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 20px;
+      padding-bottom: 10px;
+    }
+
+    .nav-icon {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      user-select: none;
+    }
+
+    .nav-icon svg {
+      width: 26px;
+      height: 26px;
+      fill: rgba(255,255,255,0.4);
+      transition: fill 0.2s ease;
+    }
+
+    /* Active state - scaled up 12% */
+    .nav-icon.active {
+      transform: scale(1.12);
+    }
+
+    .nav-icon.active svg {
+      fill: rgba(255,255,255,0.95);
+    }
+
+    /* Tap animation - scale 1.1 and move up 2px */
+    .nav-icon:active {
+      transform: scale(1.1) translateY(-2px);
+    }
+
+    .nav-icon.active:active {
+      transform: scale(1.22) translateY(-2px);
+    }
+
+    /* Spring bounce animation on click */
+    @keyframes springBounce {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.15) translateY(-3px); }
+      50% { transform: scale(1.08) translateY(-1px); }
+      70% { transform: scale(1.12); }
+      100% { transform: scale(1.12); }
+    }
+
+    .nav-icon.bouncing {
+      animation: springBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Labels */
+    .labels {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      padding: 0 20px;
+      position: absolute;
+      bottom: 5px;
+    }
+
+    .label {
+      font-size: 10px;
+      color: rgba(255,255,255,0.3);
+    }
+
+    .label.active {
+      color: rgba(255,255,255,0.7);
+    }
+
+    /* Animation breakdown */
+    .breakdown {
+      max-width: 400px;
+      padding: 20px;
+    }
+
+    .breakdown-title {
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .animation-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .animation-trigger {
+      background: rgba(139, 92, 246, 0.3);
+      color: #a78bfa;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .animation-desc {
+      color: rgba(255,255,255,0.7);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .code {
+      background: rgba(255,255,255,0.1);
+      color: #67e8f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 11px;
+    }
+
+    .hint {
+      color: rgba(255,255,255,0.4);
+      font-size: 12px;
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <h1 class="title">Nav Icon Spring Animation</h1>
+    <p class="subtitle">Click the icons to see the animation</p>
+  </div>
+
+  <div class="phone">
+    <div class="phone-content">
+      <div class="nav-bar">
+        <div class="nav-icon active" onclick="selectIcon(this)">
+          <!-- Home icon -->
+          <svg viewBox="0 0 24 24">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+          </svg>
+        </div>
+        <div class="nav-icon" onclick="selectIcon(this)">
+          <!-- Calendar icon -->
+          <svg viewBox="0 0 24 24">
+            <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM9 10H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/>
+          </svg>
+        </div>
+        <div class="nav-icon" onclick="selectIcon(this)">
+          <!-- Add/Create icon -->
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+          </svg>
+        </div>
+        <div class="nav-icon" onclick="selectIcon(this)">
+          <!-- Messages icon -->
+          <svg viewBox="0 0 24 24">
+            <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/>
+          </svg>
+        </div>
+        <div class="nav-icon" onclick="selectIcon(this)">
+          <!-- Profile icon -->
+          <svg viewBox="0 0 24 24">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="breakdown">
+    <div class="breakdown-title">Animation Behavior:</div>
+
+    <div class="animation-item">
+      <span class="animation-trigger">whileTap</span>
+      <span class="animation-desc">
+        On press: <span class="code">scale: 1.1</span> + <span class="code">y: -2px</span><br>
+        Icon pops up slightly when tapped
+      </span>
+    </div>
+
+    <div class="animation-item">
+      <span class="animation-trigger">animate</span>
+      <span class="animation-desc">
+        Active tab: <span class="code">scale: 1.12</span><br>
+        Inactive: <span class="code">scale: 1</span><br>
+        Active icon stays 12% larger
+      </span>
+    </div>
+
+    <div class="animation-item">
+      <span class="animation-trigger">transition</span>
+      <span class="animation-desc">
+        <span class="code">spring</span> with <span class="code">stiffness: 300</span>, <span class="code">damping: 18</span><br>
+        Snappy spring with slight bounce/overshoot
+      </span>
+    </div>
+  </div>
+
+  <p class="hint">The spring transition creates a satisfying bounce effect when switching tabs</p>
+
+  <script>
+    function selectIcon(clicked) {
+      // Remove active from all
+      document.querySelectorAll('.nav-icon').forEach(icon => {
+        icon.classList.remove('active');
+        icon.classList.remove('bouncing');
+      });
+
+      // Add active and bounce animation to clicked
+      clicked.classList.add('active');
+      clicked.classList.add('bouncing');
+
+      // Remove bounce class after animation completes
+      setTimeout(() => {
+        clicked.classList.remove('bouncing');
+      }, 400);
+    }
+  </script>
+</body>
+</html>

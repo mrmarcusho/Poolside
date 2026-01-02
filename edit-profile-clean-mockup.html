@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=375, initial-scale=1.0">
+  <title>Poolside - Edit Profile Clean Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0a0a0f;
+      min-height: 100vh;
+      color: white;
+      max-width: 375px;
+      margin: 0 auto;
+      position: relative;
+      overflow-x: hidden;
+      padding-bottom: 100px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 50px 20px 14px;
+      position: sticky;
+      top: 0;
+      background: #0a0a0f;
+      z-index: 100;
+    }
+
+    .header-btn {
+      padding: 8px 16px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    .header-btn.cancel {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .header-btn.cancel:hover {
+      color: white;
+    }
+
+    .header-btn.done {
+      background: #667eea;
+      color: white;
+    }
+
+    .header-title {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    /* Photo Section */
+    .photo-section {
+      padding: 10px 20px 20px;
+    }
+
+    .main-photo {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .main-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .change-photo-btn {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 20px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Form Section */
+    .form-section {
+      padding: 0 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 14px 0;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      font-size: 16px;
+      color: white;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus {
+      border-bottom-color: #667eea;
+    }
+
+    .form-input::placeholder {
+      color: rgba(255, 255, 255, 0.25);
+    }
+
+    .form-textarea {
+      width: 100%;
+      padding: 14px 0;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      font-size: 16px;
+      color: white;
+      font-family: inherit;
+      outline: none;
+      resize: none;
+      min-height: 80px;
+      line-height: 1.5;
+      transition: border-color 0.2s;
+    }
+
+    .form-textarea:focus {
+      border-bottom-color: #667eea;
+    }
+
+    .char-count {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.3);
+      text-align: right;
+      margin-top: 6px;
+    }
+
+    /* Inline fields */
+    .inline-group {
+      display: flex;
+      gap: 16px;
+    }
+
+    .inline-group .form-group {
+      flex: 1;
+    }
+
+    .inline-group .form-group.small {
+      flex: 0 0 80px;
+    }
+
+    /* Tags Section */
+    .tags-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-top: 8px;
+    }
+
+    .tag-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 25px;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .tag-item .remove-tag {
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 50%;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .tag-item .remove-tag:hover {
+      background: rgba(239, 68, 68, 0.5);
+    }
+
+    .add-tag-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      background: transparent;
+      border: 1px dashed rgba(255, 255, 255, 0.25);
+      border-radius: 25px;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .add-tag-btn:hover {
+      border-color: rgba(255, 255, 255, 0.4);
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.08);
+      margin: 28px 0;
+    }
+
+    /* Toggle Row */
+    .toggle-group {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+    }
+
+    .toggle-text {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .toggle-switch {
+      width: 48px;
+      height: 28px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .toggle-switch.active {
+      background: #667eea;
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      background: white;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.3s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle-switch.active::after {
+      transform: translateX(20px);
+    }
+
+    /* Tab Bar */
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 375px;
+      padding: 12px 20px 30px;
+      background: rgba(10, 10, 15, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      opacity: 0.5;
+    }
+
+    .tab-item.active {
+      opacity: 1;
+    }
+
+    .tab-icon {
+      font-size: 24px;
+    }
+
+    .tab-label {
+      font-size: 10px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <span class="header-btn cancel">Cancel</span>
+    <span class="header-title">Edit Profile</span>
+    <span class="header-btn done">Done</span>
+  </div>
+
+  <!-- Photo Section -->
+  <div class="photo-section">
+    <div class="main-photo">
+      <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop" alt="">
+      <div class="change-photo-btn">
+        <span>&#128247;</span>
+        Change Photo
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Section -->
+  <div class="form-section">
+
+    <div class="inline-group">
+      <div class="form-group">
+        <label class="form-label">Name</label>
+        <input type="text" class="form-input" value="Sarah" placeholder="Your name">
+      </div>
+      <div class="form-group small">
+        <label class="form-label">Age</label>
+        <input type="text" class="form-input" value="22" placeholder="Age">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Location</label>
+      <input type="text" class="form-input" value="San Diego, California" placeholder="Where are you from?">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">School</label>
+      <input type="text" class="form-input" value="UCLA '25 - Communications" placeholder="Your school">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Bio</label>
+      <textarea class="form-textarea" placeholder="Tell us about yourself...">Here for a good time not a long time! Love meeting new people, sunset cocktails, and spontaneous adventures. Always down for karaoke - warning: I will sing Taylor Swift.</textarea>
+      <div class="char-count">156 / 300</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Interests</label>
+      <div class="tags-section">
+        <div class="tag-item">
+          <span>&#127926; Live Music</span>
+          <span class="remove-tag">&times;</span>
+        </div>
+        <div class="tag-item">
+          <span>&#127946; Swimming</span>
+          <span class="remove-tag">&times;</span>
+        </div>
+        <div class="tag-item">
+          <span>&#127860; Foodie</span>
+          <span class="remove-tag">&times;</span>
+        </div>
+        <div class="tag-item">
+          <span>&#128247; Photography</span>
+          <span class="remove-tag">&times;</span>
+        </div>
+        <div class="add-tag-btn">
+          <span>+</span>
+          <span>Add</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="form-group">
+      <label class="form-label">Privacy</label>
+
+      <div class="toggle-group" style="margin-bottom: 16px;">
+        <span class="toggle-text">Show events I've hosted</span>
+        <div class="toggle-switch active"></div>
+      </div>
+
+      <div class="toggle-group">
+        <span class="toggle-text">Show events I've attended</span>
+        <div class="toggle-switch active"></div>
+      </div>
+    </div>
+
+    <div style="height: 120px;"></div>
+
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item">
+      <span class="tab-icon">&#127968;</span>
+      <span class="tab-label">Feed</span>
+    </div>
+    <div class="tab-item">
+      <span class="tab-icon">&#128197;</span>
+      <span class="tab-label">My Plans</span>
+    </div>
+    <div class="tab-item">
+      <span class="tab-icon">&#10133;</span>
+      <span class="tab-label">Create</span>
+    </div>
+    <div class="tab-item">
+      <span class="tab-icon">&#128172;</span>
+      <span class="tab-label">Friends</span>
+    </div>
+    <div class="tab-item active">
+      <span class="tab-icon">&#128100;</span>
+      <span class="tab-label">Profile</span>
+    </div>
+  </div>
+
+</body>
+</html>

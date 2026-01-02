@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RSVP Split Button Mockup</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0a0a12;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 60px;
+    }
+
+    .title {
+      color: white;
+      font-size: 20px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .subtitle {
+      color: rgba(255,255,255,0.5);
+      font-size: 13px;
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    /* Card preview */
+    .card-footer {
+      background: rgba(20, 20, 35, 0.9);
+      backdrop-filter: blur(20px);
+      padding: 16px 20px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 360px;
+    }
+
+    .attendees {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .attendee-avatars {
+      display: flex;
+    }
+
+    .attendee {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(102, 126, 234, 0.4);
+      border: 2px solid rgba(20, 20, 30, 0.9);
+      margin-left: -8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .attendee:first-child {
+      margin-left: 0;
+    }
+
+    .attendee-count {
+      color: rgba(255,255,255,0.6);
+      font-size: 12px;
+    }
+
+    /* RSVP Button Container */
+    .rsvp-container {
+      position: relative;
+      height: 36px;
+    }
+
+    /* Single RSVP button */
+    .rsvp-btn {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      white-space: nowrap;
+    }
+
+    .rsvp-btn:hover {
+      transform: scale(1.05);
+    }
+
+    /* Split buttons container */
+    .split-buttons {
+      display: flex;
+      gap: 8px;
+      opacity: 0;
+      transform: scale(0.8);
+      pointer-events: none;
+      position: absolute;
+      right: 0;
+      top: 0;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .split-btn {
+      padding: 10px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .split-btn.going {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+    }
+
+    .split-btn.interested {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.9);
+    }
+
+    .split-btn:hover {
+      transform: scale(1.05);
+    }
+
+    /* Active state - button is split */
+    .rsvp-container.split .rsvp-btn {
+      opacity: 0;
+      transform: scale(0.8);
+      pointer-events: none;
+    }
+
+    .rsvp-container.split .split-buttons {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
+
+    /* Demo controls */
+    .demo-container {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      align-items: center;
+    }
+
+    .state-label {
+      color: rgba(255,255,255,0.4);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .hint {
+      color: rgba(255,255,255,0.4);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    /* Animation breakdown */
+    .breakdown {
+      max-width: 400px;
+      padding: 20px;
+    }
+
+    .breakdown-title {
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .animation-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .animation-trigger {
+      background: rgba(139, 92, 246, 0.3);
+      color: #a78bfa;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .animation-desc {
+      color: rgba(255,255,255,0.7);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .code {
+      background: rgba(255,255,255,0.1);
+      color: #67e8f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 11px;
+    }
+
+    /* Selected state buttons */
+    .selected-state {
+      display: flex;
+      gap: 8px;
+    }
+
+    .selected-btn {
+      padding: 10px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .selected-btn.going-selected {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+    }
+
+    .selected-btn.interested-selected {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: white;
+    }
+
+    .checkmark {
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <h1 class="title">RSVP Split Button Animation</h1>
+    <p class="subtitle">Tap RSVP to split into two options</p>
+  </div>
+
+  <div class="demo-container">
+    <!-- State 1: Default RSVP -->
+    <div>
+      <div class="state-label">Default State</div>
+      <div class="card-footer" style="margin-top: 12px;">
+        <div class="attendees">
+          <div class="attendee-avatars">
+            <div class="attendee">👨</div>
+            <div class="attendee">👩</div>
+            <div class="attendee">🧔</div>
+          </div>
+          <span class="attendee-count">+12 going</span>
+        </div>
+        <div class="rsvp-container" id="rsvpContainer">
+          <button class="rsvp-btn" onclick="toggleSplit()">RSVP</button>
+          <div class="split-buttons">
+            <button class="split-btn going" onclick="selectGoing()">Going</button>
+            <button class="split-btn interested" onclick="selectInterested()">Interested</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- State 2: Split view (static demo) -->
+    <div>
+      <div class="state-label">After Tap - Split View</div>
+      <div class="card-footer" style="margin-top: 12px;">
+        <div class="attendees">
+          <div class="attendee-avatars">
+            <div class="attendee">👨</div>
+            <div class="attendee">👩</div>
+            <div class="attendee">🧔</div>
+          </div>
+          <span class="attendee-count">+12 going</span>
+        </div>
+        <div class="rsvp-container split">
+          <button class="rsvp-btn">RSVP</button>
+          <div class="split-buttons">
+            <button class="split-btn going">Going</button>
+            <button class="split-btn interested">Interested</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- State 3: Selected states -->
+    <div>
+      <div class="state-label">After Selection</div>
+      <div class="card-footer" style="margin-top: 12px;">
+        <div class="attendees">
+          <div class="attendee-avatars">
+            <div class="attendee">👨</div>
+            <div class="attendee">👩</div>
+            <div class="attendee">🧔</div>
+          </div>
+          <span class="attendee-count">+13 going</span>
+        </div>
+        <div class="selected-state">
+          <button class="selected-btn going-selected">
+            <span class="checkmark">✓</span> Going
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="hint">Click the RSVP button above to see the animation</p>
+
+  <div class="breakdown">
+    <div class="breakdown-title">Animation Flow:</div>
+
+    <div class="animation-item">
+      <span class="animation-trigger">1. Tap RSVP</span>
+      <span class="animation-desc">
+        RSVP button fades out + scales down<br>
+        Split buttons fade in + scale up with spring
+      </span>
+    </div>
+
+    <div class="animation-item">
+      <span class="animation-trigger">2. Choose</span>
+      <span class="animation-desc">
+        User taps "Going" or "Interested"<br>
+        Selected option animates to confirmed state
+      </span>
+    </div>
+
+    <div class="animation-item">
+      <span class="animation-trigger">3. Confirm</span>
+      <span class="animation-desc">
+        Button shows checkmark + selected state<br>
+        Tap again to change or cancel
+      </span>
+    </div>
+  </div>
+
+  <script>
+    function toggleSplit() {
+      const container = document.getElementById('rsvpContainer');
+      container.classList.toggle('split');
+    }
+
+    function selectGoing() {
+      alert('Selected: Going!');
+      document.getElementById('rsvpContainer').classList.remove('split');
+    }
+
+    function selectInterested() {
+      alert('Selected: Interested!');
+      document.getElementById('rsvpContainer').classList.remove('split');
+    }
+  </script>
+</body>
+</html>

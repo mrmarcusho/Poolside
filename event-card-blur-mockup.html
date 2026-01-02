@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Card Blur Effect Mockup</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .phone-frame {
+      width: 390px;
+      height: 844px;
+      margin: 20px auto;
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+
+    /* Colorful gradient background */
+    .gradient-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(139, 92, 246, 0.4) 0%, transparent 40%),
+        radial-gradient(circle at 80% 30%, rgba(59, 130, 246, 0.3) 0%, transparent 40%),
+        radial-gradient(circle at 40% 70%, rgba(236, 72, 153, 0.3) 0%, transparent 40%),
+        radial-gradient(circle at 70% 80%, rgba(34, 197, 94, 0.2) 0%, transparent 40%),
+        linear-gradient(180deg, #0a0a0f 0%, #1a1a2e 50%, #0a0a0f 100%);
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      padding: 60px 16px 100px;
+      height: 100%;
+      overflow-y: auto;
+    }
+
+    .header {
+      color: white;
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      padding-left: 4px;
+    }
+
+    .label {
+      text-align: center;
+      color: rgba(255,255,255,0.4);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      margin-top: 20px;
+    }
+
+    /* ============ FROSTED GLASS EVENT CARD ============ */
+    .event-card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      margin-bottom: 16px;
+    }
+
+    /* Host header */
+    .card-host {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+    }
+
+    .host-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(102, 126, 234, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .host-info {
+      flex: 1;
+    }
+
+    .host-name {
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .host-label {
+      color: rgba(255,255,255,0.5);
+      font-size: 11px;
+    }
+
+    .more-btn {
+      color: rgba(255,255,255,0.4);
+      font-size: 18px;
+      padding: 4px 8px;
+    }
+
+    /* Event image */
+    .card-image {
+      width: 100%;
+      height: 180px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Event details */
+    .card-content {
+      padding: 14px 16px;
+    }
+
+    .card-title {
+      color: #fff;
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .card-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.6);
+      font-size: 13px;
+    }
+
+    .meta-icon {
+      font-size: 13px;
+      width: 18px;
+      text-align: center;
+    }
+
+    .card-description {
+      color: rgba(255,255,255,0.7);
+      font-size: 14px;
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Card footer */
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .attendees {
+      display: flex;
+      align-items: center;
+    }
+
+    .attendee-avatars {
+      display: flex;
+    }
+
+    .attendee {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: rgba(102, 126, 234, 0.4);
+      border: 2px solid rgba(30, 30, 45, 0.8);
+      margin-left: -8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+    }
+
+    .attendee:first-child {
+      margin-left: 0;
+    }
+
+    .attendee-count {
+      color: rgba(255,255,255,0.6);
+      font-size: 12px;
+      margin-left: 8px;
+    }
+
+    .rsvp-btn {
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      color: #fff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* ============ COMPARISON: SOLID CARD ============ */
+    .event-card.solid {
+      background: rgba(30, 30, 45, 0.95);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    /* Decorative elements to show blur effect */
+    .floating-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(40px);
+      z-index: 0;
+    }
+
+    .orb-1 {
+      width: 150px;
+      height: 150px;
+      background: rgba(139, 92, 246, 0.5);
+      top: 200px;
+      left: -30px;
+    }
+
+    .orb-2 {
+      width: 120px;
+      height: 120px;
+      background: rgba(59, 130, 246, 0.4);
+      top: 350px;
+      right: -20px;
+    }
+
+    .orb-3 {
+      width: 100px;
+      height: 100px;
+      background: rgba(236, 72, 153, 0.4);
+      top: 550px;
+      left: 50px;
+    }
+
+    .comparison {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 20px;
+    }
+
+    .comparison-item {
+      text-align: center;
+    }
+
+    .comparison-label {
+      color: rgba(255,255,255,0.5);
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="comparison">
+    <!-- FROSTED GLASS VERSION -->
+    <div class="comparison-item">
+      <div class="comparison-label">FROSTED GLASS (Blur Effect)</div>
+      <div class="phone-frame">
+        <div class="gradient-bg"></div>
+        <div class="floating-orb orb-1"></div>
+        <div class="floating-orb orb-2"></div>
+        <div class="floating-orb orb-3"></div>
+
+        <div class="content">
+          <div class="header">Cruise Feed</div>
+
+          <div class="event-card">
+            <div class="card-host">
+              <div class="host-avatar">👩</div>
+              <div class="host-info">
+                <div class="host-name">Sarah Johnson</div>
+                <div class="host-label">Host</div>
+              </div>
+              <div class="more-btn">•••</div>
+            </div>
+
+            <div class="card-image">
+              <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800" alt="Beach sunset">
+            </div>
+
+            <div class="card-content">
+              <div class="card-title">Sunset Drinks at Sky Bar</div>
+              <div class="card-meta">
+                <div class="meta-item">
+                  <span class="meta-icon">📅</span>
+                  <span>Today at 6:30 PM</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-icon">📍</span>
+                  <span>Sky Bar - Deck 14</span>
+                </div>
+              </div>
+              <div class="card-description">
+                Join us for cocktails and good vibes as we watch the sunset together! Bring your friends...
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <div class="attendees">
+                <div class="attendee-avatars">
+                  <div class="attendee">👨</div>
+                  <div class="attendee">👩</div>
+                  <div class="attendee">🧔</div>
+                </div>
+                <span class="attendee-count">+12 going</span>
+              </div>
+              <button class="rsvp-btn">RSVP</button>
+            </div>
+          </div>
+
+          <div class="event-card">
+            <div class="card-host">
+              <div class="host-avatar">👩‍🦰</div>
+              <div class="host-info">
+                <div class="host-name">Emma Wilson</div>
+                <div class="host-label">Host</div>
+              </div>
+              <div class="more-btn">•••</div>
+            </div>
+
+            <div class="card-image">
+              <img src="https://images.unsplash.com/photo-1530549387789-4c1017266635?w=800" alt="Pool">
+            </div>
+
+            <div class="card-content">
+              <div class="card-title">Pool Party at Deck 7</div>
+              <div class="card-meta">
+                <div class="meta-item">
+                  <span class="meta-icon">📅</span>
+                  <span>Today at 3:00 PM</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-icon">📍</span>
+                  <span>Main Pool - Deck 7</span>
+                </div>
+              </div>
+              <div class="card-description">
+                Chill by the pool with music, snacks, and great company. All ages welcome!
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <div class="attendees">
+                <div class="attendee-avatars">
+                  <div class="attendee">👨</div>
+                  <div class="attendee">👧</div>
+                </div>
+                <span class="attendee-count">+15 going</span>
+              </div>
+              <button class="rsvp-btn">RSVP</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SOLID VERSION FOR COMPARISON -->
+    <div class="comparison-item">
+      <div class="comparison-label">SOLID (Current - No Blur)</div>
+      <div class="phone-frame">
+        <div class="gradient-bg"></div>
+        <div class="floating-orb orb-1"></div>
+        <div class="floating-orb orb-2"></div>
+        <div class="floating-orb orb-3"></div>
+
+        <div class="content">
+          <div class="header">Cruise Feed</div>
+
+          <div class="event-card solid">
+            <div class="card-host">
+              <div class="host-avatar">👩</div>
+              <div class="host-info">
+                <div class="host-name">Sarah Johnson</div>
+                <div class="host-label">Host</div>
+              </div>
+              <div class="more-btn">•••</div>
+            </div>
+
+            <div class="card-image">
+              <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800" alt="Beach sunset">
+            </div>
+
+            <div class="card-content">
+              <div class="card-title">Sunset Drinks at Sky Bar</div>
+              <div class="card-meta">
+                <div class="meta-item">
+                  <span class="meta-icon">📅</span>
+                  <span>Today at 6:30 PM</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-icon">📍</span>
+                  <span>Sky Bar - Deck 14</span>
+                </div>
+              </div>
+              <div class="card-description">
+                Join us for cocktails and good vibes as we watch the sunset together! Bring your friends...
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <div class="attendees">
+                <div class="attendee-avatars">
+                  <div class="attendee">👨</div>
+                  <div class="attendee">👩</div>
+                  <div class="attendee">🧔</div>
+                </div>
+                <span class="attendee-count">+12 going</span>
+              </div>
+              <button class="rsvp-btn">RSVP</button>
+            </div>
+          </div>
+
+          <div class="event-card solid">
+            <div class="card-host">
+              <div class="host-avatar">👩‍🦰</div>
+              <div class="host-info">
+                <div class="host-name">Emma Wilson</div>
+                <div class="host-label">Host</div>
+              </div>
+              <div class="more-btn">•••</div>
+            </div>
+
+            <div class="card-image">
+              <img src="https://images.unsplash.com/photo-1530549387789-4c1017266635?w=800" alt="Pool">
+            </div>
+
+            <div class="card-content">
+              <div class="card-title">Pool Party at Deck 7</div>
+              <div class="card-meta">
+                <div class="meta-item">
+                  <span class="meta-icon">📅</span>
+                  <span>Today at 3:00 PM</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-icon">📍</span>
+                  <span>Main Pool - Deck 7</span>
+                </div>
+              </div>
+              <div class="card-description">
+                Chill by the pool with music, snacks, and great company. All ages welcome!
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <div class="attendees">
+                <div class="attendee-avatars">
+                  <div class="attendee">👨</div>
+                  <div class="attendee">👧</div>
+                </div>
+                <span class="attendee-count">+15 going</span>
+              </div>
+              <button class="rsvp-btn">RSVP</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
