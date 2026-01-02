@@ -132,7 +132,26 @@ export const CreateEventScreen: React.FC = () => {
 
   const { firstDay, daysInMonth } = getDaysInMonth(currentMonth);
 
+  // Check if a specific day in the current calendar month is in the past
+  const isPastDay = (day: number) => {
+    const now = new Date();
+    const checkDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+    // Set both to start of day for comparison
+    now.setHours(0, 0, 0, 0);
+    checkDate.setHours(0, 0, 0, 0);
+    return checkDate < now;
+  };
+
+  // Check if current calendar month is the current month (to prevent going further back)
+  const isCurrentMonth = () => {
+    const now = new Date();
+    return currentMonth.getFullYear() === now.getFullYear() &&
+           currentMonth.getMonth() === now.getMonth();
+  };
+
   const handlePrevMonth = () => {
+    // Don't allow navigating to past months
+    if (isCurrentMonth()) return;
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
   };
 
@@ -216,18 +235,25 @@ export const CreateEventScreen: React.FC = () => {
       return;
     }
 
+    // Build the full dateTime to validate it's in the future
+    const [time, period] = selectedTime.split(' ');
+    const [hours, minutes] = time.split(':').map(Number);
+    let hour24 = hours;
+    if (period === 'PM' && hours !== 12) hour24 += 12;
+    if (period === 'AM' && hours === 12) hour24 = 0;
+
+    const dateTime = new Date(selectedDate);
+    dateTime.setHours(hour24, minutes, 0, 0);
+
+    // Validate the event is in the future
+    if (dateTime.getTime() <= Date.now()) {
+      Alert.alert('Invalid Date', 'Please select a date and time in the future.');
+      return;
+    }
+
     setIsCreating(true);
 
     try {
-      const [time, period] = selectedTime.split(' ');
-      const [hours, minutes] = time.split(':').map(Number);
-      let hour24 = hours;
-      if (period === 'PM' && hours !== 12) hour24 += 12;
-      if (period === 'AM' && hours === 12) hour24 = 0;
-
-      const dateTime = new Date(selectedDate);
-      dateTime.setHours(hour24, minutes, 0, 0);
-
       const eventData = {
         title: title.trim(),
         description: eventDescription,
@@ -293,19 +319,21 @@ export const CreateEventScreen: React.FC = () => {
         tempDate.getDate() === day &&
         tempDate.getMonth() === currentMonth.getMonth() &&
         tempDate.getFullYear() === currentMonth.getFullYear();
+      const isPast = isPastDay(day);
 
       days.push(
         <TouchableOpacity
           key={day}
           style={styles.calendarDay}
-          onPress={() => handleDateSelect(day)}
+          onPress={() => !isPast && handleDateSelect(day)}
+          disabled={isPast}
         >
           {isSelected ? (
             <View style={styles.selectedDay}>
               <Text style={styles.selectedDayText}>{day}</Text>
             </View>
           ) : (
-            <Text style={styles.calendarDayText}>{day}</Text>
+            <Text style={[styles.calendarDayText, isPast && styles.calendarDayTextDisabled]}>{day}</Text>
           )}
         </TouchableOpacity>
       );
@@ -542,8 +570,12 @@ export const CreateEventScreen: React.FC = () => {
                   <Ionicons name="chevron-forward" size={14} color="rgba(255,255,255,0.5)" />
                 </View>
                 <View style={styles.navArrows}>
-                  <TouchableOpacity onPress={handlePrevMonth} style={styles.navArrowBtn}>
-                    <Text style={styles.navArrowText}>‹</Text>
+                  <TouchableOpacity
+                    onPress={handlePrevMonth}
+                    style={styles.navArrowBtn}
+                    disabled={isCurrentMonth()}
+                  >
+                    <Text style={[styles.navArrowText, isCurrentMonth() && styles.navArrowTextDisabled]}>‹</Text>
                   </TouchableOpacity>
                   <TouchableOpacity onPress={handleNextMonth} style={styles.navArrowBtn}>
                     <Text style={styles.navArrowText}>›</Text>
@@ -904,6 +936,9 @@ const styles = StyleSheet.create({
     fontSize: 22,
     color: 'rgba(255, 255, 255, 0.4)',
   },
+  navArrowTextDisabled: {
+    color: 'rgba(255, 255, 255, 0.1)',
+  },
   daysHeader: {
     flexDirection: 'row',
     marginBottom: 12,
@@ -929,6 +964,9 @@ const styles = StyleSheet.create({
   calendarDayText: {
     fontSize: 18,
     color: 'rgba(255, 255, 255, 0.9)',
+  },
+  calendarDayTextDisabled: {
+    color: 'rgba(255, 255, 255, 0.2)',
   },
   selectedDay: {
     width: 44,

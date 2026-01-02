@@ -58,7 +58,7 @@ export class EventsService {
       },
       take: limit + 1,
       ...(cursor && { cursor: { id: cursor }, skip: 1 }),
-      orderBy: { dateTime: 'asc' },
+      orderBy: { createdAt: 'desc' },
       include: {
         host: {
           select: {

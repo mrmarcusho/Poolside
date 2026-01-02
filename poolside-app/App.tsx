@@ -16,7 +16,7 @@ import {
   Baloo2_800ExtraBold,
 } from '@expo-google-fonts/baloo-2';
 import * as ExpoSplashScreen from 'expo-splash-screen';
-import { TabNavigator } from './src/navigation/TabNavigator';
+import { MainNavigator } from './src/navigation/MainNavigator';
 import { AuthNavigator } from './src/navigation/AuthNavigator';
 import { CustomSplashScreen } from './src/screens';
 import { RsvpProvider } from './src/context/RsvpContext';
@@ -48,7 +48,7 @@ const AppContent = () => {
       <EventCreationAnimationProvider>
         <NavigationContainer>
           <StatusBar style="light" />
-          <TabNavigator />
+          <MainNavigator />
           <EventCreationOverlay />
         </NavigationContainer>
       </EventCreationAnimationProvider>
