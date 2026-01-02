@@ -136,6 +136,7 @@ export const MyPlansScreen: React.FC = () => {
               refreshing={refreshing}
               onRefresh={handleRefresh}
               tintColor="#667eea"
+              colors={['#667eea']}
             />
           }
         >

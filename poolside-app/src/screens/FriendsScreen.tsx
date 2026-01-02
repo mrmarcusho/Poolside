@@ -293,6 +293,7 @@ export const FriendsScreen: React.FC = () => {
                 refreshing={refreshing}
                 onRefresh={handleRefresh}
                 tintColor="#667eea"
+                colors={['#667eea']}
               />
             }
           >

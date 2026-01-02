@@ -11,8 +11,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useFocusEffect } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { EventCard, EventDetailModal, GradientBackground } from '../components';
 import { mockEvents } from '../data/mockEvents';
 import { Event } from '../types';
@@ -37,16 +36,7 @@ export const FeedScreen: React.FC = () => {
     }
   }, [isLoading, hasLoadedOnce]);
 
-  // Refresh events when screen comes into focus (but not on initial mount)
-  useFocusEffect(
-    useCallback(() => {
-      // Only refresh if we've already loaded once (to avoid double-fetch on mount)
-      if (hasLoadedOnce) {
-        refresh();
-      }
-    }, [refresh, hasLoadedOnce])
-  );
-
+  
   // Debug logging
   useEffect(() => {
     console.log('[FeedScreen] API state:', {
@@ -77,11 +67,24 @@ export const FeedScreen: React.FC = () => {
     setSelectedEvent(null);
   };
 
-  const handleRefresh = async () => {
+  const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     await refresh();
     setRefreshing(false);
-  };
+  }, [refresh]);
+
+  // Get navigation for tab press detection
+  const navigation = useNavigation();
+
+  // Refresh when user taps the Feed tab while already on it
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('tabPress', () => {
+      if (navigation.isFocused()) {
+        handleRefresh();
+      }
+    });
+    return unsubscribe;
+  }, [navigation, handleRefresh]);
 
   return (
     <GradientBackground>
@@ -112,20 +115,16 @@ export const FeedScreen: React.FC = () => {
           <Text style={styles.pageTitle}>Cruise Feed</Text>
         </View>
 
+        {/* Refresh Spinner */}
+        {refreshing && (
+          <View style={styles.refreshIndicator}>
+            <ActivityIndicator size="small" color="#667eea" />
+          </View>
+        )}
+
         {/* Events Feed with scroll fade */}
         <View style={styles.feedContainer}>
-          {/* Scroll fade overlay - content blends into this */}
-          <LinearGradient
-            colors={[
-              'rgba(24, 24, 27, 1)',
-              'rgba(24, 24, 27, 0.8)',
-              'rgba(24, 24, 27, 0)',
-            ]}
-            locations={[0, 0.4, 1]}
-            style={styles.scrollFadeOverlay}
-            pointerEvents="none"
-          />
-
+          
           {isLoading && !refreshing ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color="#667eea" />
@@ -143,6 +142,7 @@ export const FeedScreen: React.FC = () => {
                   refreshing={refreshing}
                   onRefresh={handleRefresh}
                   tintColor="#667eea"
+                  colors={['#667eea']}
                 />
               }
             >
@@ -216,6 +216,10 @@ const styles = StyleSheet.create({
     paddingBottom: 6,
     marginTop: -10,
   },
+  refreshIndicator: {
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
   pageTitle: {
     fontFamily: 'Montserrat_700Bold',
     fontSize: 28,
@@ -223,15 +227,6 @@ const styles = StyleSheet.create({
   },
   feedContainer: {
     flex: 1,
-    position: 'relative',
-  },
-  scrollFadeOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 20,
-    zIndex: 10,
   },
   feed: {
     flex: 1,
