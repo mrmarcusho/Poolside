@@ -20,7 +20,6 @@ import { useEvents } from '../hooks';
 import { mapApiEventsToEvents } from '../utils';
 
 export const FeedScreen: React.FC = () => {
-  const [activeFilter, setActiveFilter] = useState<'upcoming' | 'saved'>('upcoming');
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -111,42 +110,6 @@ export const FeedScreen: React.FC = () => {
         {/* Page Title */}
         <View style={styles.titleContainer}>
           <Text style={styles.pageTitle}>Cruise Feed</Text>
-        </View>
-
-        {/* Filter Tabs */}
-        <View style={styles.filterTabs}>
-          <TouchableOpacity
-            style={[
-              styles.filterTab,
-              activeFilter === 'upcoming' && styles.filterTabActive,
-            ]}
-            onPress={() => setActiveFilter('upcoming')}
-          >
-            <Text
-              style={[
-                styles.filterTabText,
-                activeFilter === 'upcoming' && styles.filterTabTextActive,
-              ]}
-            >
-              Upcoming
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.filterTab,
-              activeFilter === 'saved' && styles.filterTabActive,
-            ]}
-            onPress={() => setActiveFilter('saved')}
-          >
-            <Text
-              style={[
-                styles.filterTabText,
-                activeFilter === 'saved' && styles.filterTabTextActive,
-              ]}
-            >
-              Saved
-            </Text>
-          </TouchableOpacity>
         </View>
 
         {/* Events Feed with scroll fade */}
@@ -258,29 +221,6 @@ const styles = StyleSheet.create({
     fontSize: 28,
     color: '#ffffff',
   },
-  filterTabs: {
-    flexDirection: 'row',
-    gap: 8,
-    paddingHorizontal: 20,
-    paddingBottom: 10,
-  },
-  filterTab: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-  },
-  filterTabActive: {
-    backgroundColor: '#ffffff',
-  },
-  filterTabText: {
-    fontFamily: 'Montserrat_700Bold',
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.6)',
-  },
-  filterTabTextActive: {
-    color: '#0a0a0f',
-  },
   feedContainer: {
     flex: 1,
     position: 'relative',
@@ -307,6 +247,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 15,
   },
   emptyState: {
     flex: 1,

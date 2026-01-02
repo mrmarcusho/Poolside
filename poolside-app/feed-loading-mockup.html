@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poolside - Feed Screen Mockup (Fixed Spinner)</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+      min-height: 100vh;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+      gap: 40px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 12px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.6);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .phone-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .phone-frame {
+      width: 390px;
+      height: 844px;
+      background: #000;
+      border-radius: 50px;
+      padding: 12px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+      border: 3px solid #333;
+      position: relative;
+    }
+
+    .notch {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 150px;
+      height: 30px;
+      background: #000;
+      border-radius: 0 0 20px 20px;
+      z-index: 100;
+    }
+
+    .screen {
+      background: linear-gradient(180deg, #18181b 0%, #0a0a0f 100%);
+      border-radius: 40px;
+      height: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .status-bar {
+      height: 50px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 0 30px 8px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 20px 4px 10px;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: bold;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-icons {
+      display: flex;
+      gap: 12px;
+      opacity: 0.7;
+      font-size: 18px;
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 700;
+      padding: 0 20px 12px;
+    }
+
+    /* Feed container */
+    .feed-container {
+      position: relative;
+      height: calc(100% - 180px);
+      overflow: hidden;
+    }
+
+    /* Gradient overlay - z-index 10 */
+    .gradient-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 30px;
+      background: linear-gradient(
+        180deg,
+        rgba(24, 24, 27, 1) 0%,
+        rgba(24, 24, 27, 0.8) 40%,
+        rgba(24, 24, 27, 0) 100%
+      );
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* Loading container - z-index 15 (FIXED: now above gradient) */
+    .loading-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 15;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(102, 126, 234, 0.3);
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      margin-top: 12px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.5);
+    }
+
+    /* Event Cards */
+    .scroll-content {
+      height: 100%;
+      padding: 10px 0;
+    }
+
+    .event-card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      margin: 0 16px 12px;
+      overflow: hidden;
+    }
+
+    .card-image {
+      height: 140px;
+      background: linear-gradient(135deg, rgba(102,126,234,0.4), rgba(118,75,162,0.4));
+      position: relative;
+    }
+
+    .card-content {
+      padding: 14px 16px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .card-meta {
+      display: flex;
+      gap: 12px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+    }
+
+    .card-time {
+      color: #667eea;
+    }
+
+    /* Tab bar */
+    .tab-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 85px;
+      background: rgba(20, 20, 30, 0.9);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-start;
+      padding-top: 12px;
+      border-radius: 0 0 40px 40px;
+    }
+
+    .tab-icon {
+      font-size: 24px;
+      opacity: 0.4;
+    }
+
+    .tab-icon.active {
+      opacity: 1;
+    }
+
+    /* Badge for comparison */
+    .state-badge {
+      position: absolute;
+      top: 60px;
+      right: 20px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      z-index: 20;
+    }
+
+    .state-badge.fixed {
+      background: rgba(102, 234, 166, 0.2);
+      color: #66eaa6;
+    }
+
+    .state-badge.broken {
+      background: rgba(234, 102, 102, 0.2);
+      color: #ea6666;
+    }
+
+    /* Controls */
+    .controls {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102,126,234,0.3);
+    }
+
+    /* Broken state - spinner hidden */
+    .broken .loading-container {
+      z-index: 5; /* Below gradient */
+    }
+
+    /* Note callout */
+    .note {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(102, 126, 234, 0.15);
+      border: 1px solid rgba(102, 126, 234, 0.3);
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.8);
+      max-width: 600px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="note">
+    <strong>Fix:</strong> Loading spinner now has <code>zIndex: 15</code> (above the gradient overlay's <code>zIndex: 10</code>).
+    <br>No "upcoming" or "saved" tabs - just a clean feed view.
+  </div>
+
+  <!-- BROKEN STATE (Before Fix) -->
+  <div class="phone-wrapper">
+    <h2>Before Fix (Broken)</h2>
+    <div class="phone-frame">
+      <div class="notch"></div>
+      <div class="screen broken">
+        <div class="status-bar">
+          <span>9:41</span>
+          <span>5G</span>
+        </div>
+
+        <div class="header">
+          <div class="logo">poolside</div>
+          <div class="header-icons">
+            <span>🔔</span>
+            <span>⚙️</span>
+          </div>
+        </div>
+
+        <div class="page-title">Cruise Feed</div>
+
+        <div class="state-badge broken">Spinner Hidden</div>
+
+        <div class="feed-container">
+          <div class="gradient-overlay"></div>
+          <div class="loading-container">
+            <div class="spinner"></div>
+            <span class="loading-text">Loading events...</span>
+          </div>
+        </div>
+
+        <div class="tab-bar">
+          <span class="tab-icon active">🏠</span>
+          <span class="tab-icon">📅</span>
+          <span class="tab-icon">➕</span>
+          <span class="tab-icon">👥</span>
+          <span class="tab-icon">👤</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FIXED STATE (After Fix) -->
+  <div class="phone-wrapper">
+    <h2>After Fix (Correct)</h2>
+    <div class="phone-frame">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="status-bar">
+          <span>9:41</span>
+          <span>5G</span>
+        </div>
+
+        <div class="header">
+          <div class="logo">poolside</div>
+          <div class="header-icons">
+            <span>🔔</span>
+            <span>⚙️</span>
+          </div>
+        </div>
+
+        <div class="page-title">Cruise Feed</div>
+
+        <div class="state-badge fixed">Spinner Visible</div>
+
+        <div class="feed-container">
+          <div class="gradient-overlay"></div>
+          <div class="loading-container">
+            <div class="spinner"></div>
+            <span class="loading-text">Loading events...</span>
+          </div>
+        </div>
+
+        <div class="tab-bar">
+          <span class="tab-icon active">🏠</span>
+          <span class="tab-icon">📅</span>
+          <span class="tab-icon">➕</span>
+          <span class="tab-icon">👥</span>
+          <span class="tab-icon">👤</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADED STATE (With Content) -->
+  <div class="phone-wrapper">
+    <h2>Loaded State</h2>
+    <div class="phone-frame">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="status-bar">
+          <span>9:41</span>
+          <span>5G</span>
+        </div>
+
+        <div class="header">
+          <div class="logo">poolside</div>
+          <div class="header-icons">
+            <span>🔔</span>
+            <span>⚙️</span>
+          </div>
+        </div>
+
+        <div class="page-title">Cruise Feed</div>
+
+        <div class="state-badge fixed">Content Loaded</div>
+
+        <div class="feed-container">
+          <div class="gradient-overlay"></div>
+          <div class="scroll-content">
+            <div class="event-card">
+              <div class="card-image"></div>
+              <div class="card-content">
+                <div class="card-title">Pool Party Deck 5</div>
+                <div class="card-meta">
+                  <span class="card-time">Today, 3:00 PM</span>
+                  <span>24 going</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="event-card">
+              <div class="card-image" style="background: linear-gradient(135deg, rgba(234,102,102,0.4), rgba(162,75,118,0.4));"></div>
+              <div class="card-content">
+                <div class="card-title">Sunset Karaoke Night</div>
+                <div class="card-meta">
+                  <span class="card-time">Today, 7:30 PM</span>
+                  <span>18 going</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="event-card">
+              <div class="card-image" style="background: linear-gradient(135deg, rgba(102,234,166,0.4), rgba(75,162,118,0.4));"></div>
+              <div class="card-content">
+                <div class="card-title">Morning Yoga Session</div>
+                <div class="card-meta">
+                  <span class="card-time">Tomorrow, 7:00 AM</span>
+                  <span>12 going</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-bar">
+          <span class="tab-icon active">🏠</span>
+          <span class="tab-icon">📅</span>
+          <span class="tab-icon">➕</span>
+          <span class="tab-icon">👥</span>
+          <span class="tab-icon">👤</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" onclick="window.location.reload()">Refresh</button>
+  </div>
+</body>
+</html>
