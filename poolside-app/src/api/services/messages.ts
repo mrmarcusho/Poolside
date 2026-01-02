@@ -54,12 +54,16 @@ export const messagesService = {
 
   async createConversation(
     userId: string,
-    message: string
+    message?: string
   ): Promise<{
     conversationId: string;
-    message: Message;
+    message: Message | null;
   }> {
-    const response = await apiClient.post('/me/messages/conversations', { userId, message });
+    const body: { userId: string; message?: string } = { userId };
+    if (message && message.trim()) {
+      body.message = message;
+    }
+    const response = await apiClient.post('/me/messages/conversations', body);
     return response.data;
   },
 

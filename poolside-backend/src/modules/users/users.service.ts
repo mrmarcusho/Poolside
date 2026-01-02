@@ -101,6 +101,34 @@ export class UsersService {
     };
   }
 
+  async searchUsers(query: string, currentUserId: string) {
+    if (!query || query.length < 1) {
+      return [];
+    }
+
+    // SQLite doesn't support mode: 'insensitive', so we use raw query with LOWER()
+    // Table name is 'users' (from @@map in Prisma schema)
+    const users = await this.prisma.$queryRaw<
+      Array<{
+        id: string;
+        name: string;
+        emoji: string | null;
+        avatar: string | null;
+        isOnline: boolean;
+        lastSeen: Date;
+      }>
+    >`
+      SELECT id, name, emoji, avatar, isOnline, lastSeen
+      FROM users
+      WHERE id != ${currentUserId}
+      AND LOWER(name) LIKE LOWER(${'%' + query + '%'})
+      ORDER BY name ASC
+      LIMIT 20
+    `;
+
+    return users;
+  }
+
   async getUserEvents(userId: string) {
     const events = await this.prisma.event.findMany({
       where: { hostId: userId },

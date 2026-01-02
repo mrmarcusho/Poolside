@@ -6,10 +6,10 @@ export class CreateConversationDto {
   @IsString()
   userId: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsString()
-  @MinLength(1)
-  message: string;
+  @IsOptional()
+  message?: string;
 }
 
 export class SendMessageDto {

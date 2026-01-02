@@ -8,7 +8,17 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "jest",
-    "test:verbose": "jest --verbose"
+    "test:verbose": "jest --verbose",
+    "test:features": "jest --testPathPattern=features",
+    "test:auth": "jest --testPathPattern=features/auth",
+    "test:events": "jest --testPathPattern=features/events",
+    "test:messaging": "jest --testPathPattern=features/messaging",
+    "test:friends": "jest --testPathPattern=features/friends",
+    "test:profile": "jest --testPathPattern=features/profile",
+    "test:notifications": "jest --testPathPattern=features/notifications",
+    "test:realtime": "jest --testPathPattern=features/realtime",
+    "test:navigation": "jest --testPathPattern=features/navigation",
+    "test:coverage": "jest --coverage --testPathPattern=features"
   },
   "dependencies": {
     "@expo-google-fonts/baloo-2": "^0.4.2",
@@ -36,7 +46,8 @@
     "react-native-safe-area-context": "^5.6.2",
     "react-native-screens": "~4.16.0",
     "react-native-toast-message": "^2.3.3",
-    "react-native-web": "^0.21.0"
+    "react-native-web": "^0.21.0",
+    "socket.io-client": "^4.8.3"
   },
   "devDependencies": {
     "@testing-library/jest-native": "^5.4.3",

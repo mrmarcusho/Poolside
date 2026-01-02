@@ -4,7 +4,7 @@ import * as SecureStore from 'expo-secure-store';
 // Configure base URL - change this for production
 // Use your computer's IP address for testing on physical devices
 const API_BASE_URL = __DEV__
-  ? 'http://192.168.1.251:3000/v1'
+  ? 'http://192.168.5.66:3000/v1'
   : 'https://api.poolside.app/v1';
 
 export const apiClient = axios.create({

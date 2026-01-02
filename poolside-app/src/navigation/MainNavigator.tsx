@@ -1,7 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { TabNavigator } from './TabNavigator';
-import { ChatScreen, EditProfileScreen } from '../screens';
+import { ChatScreen, EditProfileScreen, NewMessageScreen } from '../screens';
 
 export type MainStackParamList = {
   Tabs: undefined;
@@ -13,6 +13,7 @@ export type MainStackParamList = {
       isOnline: boolean;
     };
   };
+  NewMessage: undefined;
   EditProfile: undefined;
 };
 
@@ -33,6 +34,14 @@ export const MainNavigator: React.FC = () => {
         component={ChatScreen}
         options={{
           animation: 'slide_from_right',
+        }}
+      />
+      <Stack.Screen
+        name="NewMessage"
+        component={NewMessageScreen}
+        options={{
+          animation: 'slide_from_bottom',
+          presentation: 'modal',
         }}
       />
       <Stack.Screen

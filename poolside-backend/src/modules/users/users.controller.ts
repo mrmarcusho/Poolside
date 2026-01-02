@@ -4,6 +4,7 @@ import {
   Patch,
   Body,
   Param,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
@@ -18,6 +19,15 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 @ApiBearerAuth()
 export class UsersController {
   constructor(private usersService: UsersService) {}
+
+  @Get('search')
+  @ApiOperation({ summary: 'Search users by name' })
+  async searchUsers(
+    @Query('q') query: string,
+    @CurrentUser('id') userId: string,
+  ) {
+    return this.usersService.searchUsers(query, userId);
+  }
 
   @Get('me')
   @ApiOperation({ summary: 'Get current user profile' })

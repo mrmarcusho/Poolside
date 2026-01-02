@@ -20,6 +20,15 @@ export interface CurrentUser {
   createdAt: string;
 }
 
+export interface SearchUser {
+  id: string;
+  name: string;
+  emoji: string | null;
+  avatar: string | null;
+  isOnline: boolean;
+  lastSeen: string;
+}
+
 export interface UpdateProfileData {
   name?: string;
   emoji?: string | null;
@@ -49,6 +58,13 @@ export const usersService = {
 
   async getUserEvents(userId: string): Promise<{ events: Event[] }> {
     const response = await apiClient.get(`/users/${userId}/events`);
+    return response.data;
+  },
+
+  async searchUsers(query: string): Promise<SearchUser[]> {
+    const response = await apiClient.get<SearchUser[]>('/users/search', {
+      params: { q: query },
+    });
     return response.data;
   },
 };

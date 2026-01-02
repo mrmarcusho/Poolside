@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,12 +9,15 @@ import {
   KeyboardAvoidingView,
   Platform,
   Animated,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useSocket, useChat } from '../hooks';
+import { useAuth } from '../context/AuthContext';
 
 interface Message {
   id: string;
@@ -44,69 +47,9 @@ type ChatRouteParams = {
   };
 };
 
-// Mock messages for demo
-const mockMessages: Message[] = [
-  {
-    id: '1',
-    text: 'Hey! Are you coming to the pool party later? 🏊‍♀️',
-    sent: false,
-    time: '2:30 PM',
-  },
-  {
-    id: '2',
-    text: "Yes! I'm so excited! What time does it start?",
-    sent: true,
-    time: '2:32 PM',
-  },
-  {
-    id: '3',
-    text: 'It starts at 4pm on Deck 7',
-    sent: false,
-    time: '2:33 PM',
-  },
-  {
-    id: '4',
-    text: "I heard they're having a DJ and free cocktails!",
-    sent: false,
-    time: '2:33 PM',
-  },
-  {
-    id: '5',
-    text: 'That sounds amazing! Should I bring anything?',
-    sent: true,
-    time: '2:35 PM',
-  },
-  {
-    id: '6',
-    text: 'Just your swimsuit and good vibes! 😎',
-    sent: false,
-    time: '2:36 PM',
-    reactions: [{ emoji: '🔥', count: 2 }],
-  },
-  {
-    id: '7',
-    text: '',
-    sent: false,
-    time: '2:36 PM',
-    eventCard: {
-      title: 'Pool Party at Deck 7',
-      time: 'Today at 4:00 PM',
-      attendees: 28,
-      emoji: '🎉',
-    },
-  },
-  {
-    id: '8',
-    text: 'Perfect! See you there!',
-    sent: true,
-    time: '2:38 PM',
-    read: true,
-  },
-];
-
 const quickReactions = ['👍', '❤️', '😂', '🔥', '🎉'];
 
-const TypingIndicator: React.FC = () => {
+const TypingIndicator: React.FC<{ emoji?: string }> = ({ emoji = '👩‍🦰' }) => {
   const dot1 = useRef(new Animated.Value(0)).current;
   const dot2 = useRef(new Animated.Value(0)).current;
   const dot3 = useRef(new Animated.Value(0)).current;
@@ -154,7 +97,7 @@ const TypingIndicator: React.FC = () => {
   return (
     <View style={styles.typingBubbleContainer}>
       <View style={styles.typingAvatar}>
-        <Text style={styles.typingAvatarEmoji}>👩‍🦰</Text>
+        <Text style={styles.typingAvatarEmoji}>{emoji}</Text>
       </View>
       <View style={styles.typingBubble}>
         <View style={styles.typingDotsContainer}>
@@ -213,6 +156,9 @@ export const ChatScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<ScrollView>(null);
 
+  const { user } = useAuth();
+  const { isConnected, connect } = useSocket();
+
   const conversation = route.params?.conversation || {
     id: '1',
     name: 'Sarah Johnson',
@@ -220,9 +166,41 @@ export const ChatScreen: React.FC = () => {
     isOnline: true,
   };
 
+  const {
+    messages: chatMessages,
+    isLoading,
+    isTyping,
+    sendMessage,
+    startTyping,
+    stopTyping,
+    markAsRead,
+  } = useChat({
+    conversationId: conversation.id,
+    isSocketConnected: isConnected,
+  });
+
   const [messageText, setMessageText] = useState('');
-  const [messages, setMessages] = useState<Message[]>(mockMessages);
-  const [isTyping, setIsTyping] = useState(true);
+
+  // Connect to socket on mount
+  useEffect(() => {
+    connect();
+  }, [connect]);
+
+  // Mark messages as read when viewing
+  useEffect(() => {
+    if (isConnected && chatMessages.length > 0) {
+      markAsRead();
+    }
+  }, [isConnected, chatMessages.length, markAsRead]);
+
+  // Transform API messages to UI format
+  const messages: Message[] = chatMessages.map((msg) => ({
+    id: msg.id,
+    text: msg.text,
+    sent: msg.senderId === user?.id,
+    time: new Date(msg.sentAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
+    read: !!msg.readAt,
+  }));
 
   // Group consecutive messages by sender
   const groupedMessages: { messages: Message[]; sent: boolean }[] = [];
@@ -235,18 +213,22 @@ export const ChatScreen: React.FC = () => {
     }
   });
 
+  // Handle text input change with typing indicator
+  const handleTextChange = useCallback((text: string) => {
+    setMessageText(text);
+    if (text.length > 0) {
+      startTyping();
+    } else {
+      stopTyping();
+    }
+  }, [startTyping, stopTyping]);
+
   const handleSend = () => {
     if (!messageText.trim()) return;
 
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      text: messageText.trim(),
-      sent: true,
-      time: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
-    };
-
-    setMessages([...messages, newMessage]);
+    sendMessage(messageText.trim());
     setMessageText('');
+    stopTyping();
 
     setTimeout(() => {
       scrollViewRef.current?.scrollToEnd({ animated: true });
@@ -303,15 +285,24 @@ export const ChatScreen: React.FC = () => {
             showsVerticalScrollIndicator={false}
             onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: false })}
           >
-            {/* Date Divider */}
-            <View style={styles.dateDivider}>
-              <View style={styles.dateDividerPill}>
-                <Text style={styles.dateDividerText}>Today</Text>
+            {/* Loading Indicator */}
+            {isLoading && (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="small" color="#667eea" />
               </View>
-            </View>
+            )}
+
+            {/* Date Divider */}
+            {!isLoading && messages.length > 0 && (
+              <View style={styles.dateDivider}>
+                <View style={styles.dateDividerPill}>
+                  <Text style={styles.dateDividerText}>Today</Text>
+                </View>
+              </View>
+            )}
 
             {/* Message Groups */}
-            {groupedMessages.map((group, groupIndex) => (
+            {!isLoading && groupedMessages.map((group, groupIndex) => (
               <View
                 key={groupIndex}
                 style={[styles.messageGroup, group.sent ? styles.messageGroupSent : styles.messageGroupReceived]}
@@ -348,7 +339,7 @@ export const ChatScreen: React.FC = () => {
             ))}
 
             {/* Typing Indicator */}
-            {isTyping && <TypingIndicator />}
+            {isTyping && <TypingIndicator emoji={conversation.emoji} />}
 
             <View style={{ height: 20 }} />
           </ScrollView>
@@ -375,7 +366,7 @@ export const ChatScreen: React.FC = () => {
                   placeholder="Message..."
                   placeholderTextColor="rgba(255,255,255,0.4)"
                   value={messageText}
-                  onChangeText={setMessageText}
+                  onChangeText={handleTextChange}
                   multiline
                   maxLength={1000}
                 />
@@ -403,6 +394,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#0a0a0f',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
   },
   safeArea: {
     flex: 1,

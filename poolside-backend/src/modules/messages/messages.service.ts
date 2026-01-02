@@ -148,7 +148,7 @@ export class MessagesService {
     };
   }
 
-  async createConversation(userId: string, toUserId: string, message: string) {
+  async createConversation(userId: string, toUserId: string, message?: string) {
     // Check if conversation already exists
     const existingConversation = await this.prisma.conversation.findFirst({
       where: {
@@ -160,22 +160,37 @@ export class MessagesService {
     });
 
     if (existingConversation) {
-      // Just send message to existing conversation
-      return this.sendMessage(existingConversation.id, userId, message);
+      // If message provided, send it; otherwise just return conversation info
+      if (message && message.trim()) {
+        const sentMessage = await this.sendMessage(existingConversation.id, userId, message);
+        return {
+          conversationId: existingConversation.id,
+          message: sentMessage,
+        };
+      }
+      return {
+        conversationId: existingConversation.id,
+        message: null,
+      };
     }
 
-    // Create new conversation with first message
-    const conversation = await this.prisma.conversation.create({
-      data: {
-        user1Id: userId,
-        user2Id: toUserId,
-        messages: {
-          create: {
-            text: message,
-            senderId: userId,
-          },
+    // Create new conversation (with optional first message)
+    const conversationData: any = {
+      user1Id: userId,
+      user2Id: toUserId,
+    };
+
+    if (message && message.trim()) {
+      conversationData.messages = {
+        create: {
+          text: message,
+          senderId: userId,
         },
-      },
+      };
+    }
+
+    const conversation = await this.prisma.conversation.create({
+      data: conversationData,
       include: {
         messages: true,
       },
@@ -183,13 +198,15 @@ export class MessagesService {
 
     return {
       conversationId: conversation.id,
-      message: {
-        id: conversation.messages[0].id,
-        text: conversation.messages[0].text,
-        senderId: userId,
-        sentAt: conversation.messages[0].createdAt,
-        readAt: null,
-      },
+      message: conversation.messages[0]
+        ? {
+            id: conversation.messages[0].id,
+            text: conversation.messages[0].text,
+            senderId: userId,
+            sentAt: conversation.messages[0].createdAt,
+            readAt: null,
+          }
+        : null,
     };
   }
 

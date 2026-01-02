@@ -8,7 +8,7 @@ export { messagesService } from './services/messages';
 export { notificationsService } from './services/notifications';
 
 export type { RegisterData, LoginData, AuthResponse } from './services/auth';
-export type { CurrentUser, UpdateProfileData } from './services/users';
+export type { CurrentUser, UpdateProfileData, SearchUser } from './services/users';
 export type { ApiEvent, EventsResponse, EventFilters, CreateEventData, EventAttendee } from './services/events';
 export type { RsvpStatus, RsvpResponse, MyRsvpsResponse } from './services/rsvp';
 export type { Friend, FriendRequest } from './services/friends';

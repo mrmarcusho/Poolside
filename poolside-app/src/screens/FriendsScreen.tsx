@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -12,84 +12,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useConversations } from '../hooks';
 import { Conversation } from '../api';
-
-// Mock conversations data (fallback when API unavailable)
-const mockConversations: DisplayConversation[] = [
-  {
-    id: '1',
-    name: 'Sarah Johnson',
-    emoji: '👩‍🦰',
-    lastMessage: 'See you at the pool party!',
-    time: '2m ago',
-    isOnline: true,
-    unreadCount: 3,
-    isTyping: true,
-  },
-  {
-    id: '2',
-    name: 'Mike Chen',
-    emoji: '👨‍🦱',
-    lastMessage: 'That sunset was amazing! Are you coming to the...',
-    time: '15m ago',
-    isOnline: true,
-    unreadCount: 1,
-    isTyping: false,
-  },
-  {
-    id: '3',
-    name: 'Emma Wilson',
-    emoji: '👩',
-    lastMessage: 'Thanks for the drink recommendation!',
-    time: '1h ago',
-    isOnline: true,
-    unreadCount: 0,
-    isTyping: false,
-  },
-  {
-    id: '4',
-    name: 'David Park',
-    emoji: '👨',
-    lastMessage: 'Are you going to trivia tonight?',
-    time: '2h ago',
-    isOnline: false,
-    unreadCount: 0,
-    isTyping: false,
-  },
-  {
-    id: '5',
-    name: 'Olivia Davis',
-    emoji: '👧',
-    lastMessage: 'The karaoke was so fun! 🎤',
-    time: '5h ago',
-    isOnline: true,
-    unreadCount: 0,
-    isTyping: false,
-    isMuted: true,
-  },
-  {
-    id: '6',
-    name: 'Ryan Thompson',
-    emoji: '🧔',
-    lastMessage: "Let's grab dinner at the Italian place",
-    time: 'Yesterday',
-    isOnline: false,
-    unreadCount: 0,
-    isTyping: false,
-  },
-  {
-    id: '7',
-    name: 'James Rodriguez',
-    emoji: '👦',
-    lastMessage: 'Thanks for the photos!',
-    time: 'Yesterday',
-    isOnline: false,
-    unreadCount: 0,
-    isTyping: false,
-  },
-];
 
 interface DisplayConversation {
   id: string;
@@ -216,11 +141,15 @@ export const FriendsScreen: React.FC = () => {
   const [searchText, setSearchText] = useState('');
   const { conversations: apiConversations, isLoading, error, refresh } = useConversations();
 
-  // Map API conversations or use mock data as fallback
-  const conversations: DisplayConversation[] =
-    error || apiConversations.length === 0
-      ? mockConversations
-      : apiConversations.map(mapApiConversation);
+  // Refresh conversations when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh])
+  );
+
+  // Map API conversations to display format
+  const conversations: DisplayConversation[] = apiConversations.map(mapApiConversation);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -246,7 +175,7 @@ export const FriendsScreen: React.FC = () => {
         <View style={styles.header}>
           <Text style={styles.title}>Messages</Text>
           <View style={styles.headerActions}>
-            <TouchableOpacity style={styles.headerBtn}>
+            <TouchableOpacity style={styles.headerBtn} onPress={() => navigation.navigate('NewMessage' as never)}>
               <Ionicons name="add" size={22} color="rgba(255,255,255,0.7)" />
             </TouchableOpacity>
           </View>
@@ -282,6 +211,23 @@ export const FriendsScreen: React.FC = () => {
         {isLoading && !refreshing ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#667eea" />
+          </View>
+        ) : conversations.length === 0 ? (
+          <View style={styles.emptyState}>
+            <View style={styles.emptyStateIcon}>
+              <Ionicons name="chatbubbles-outline" size={64} color="rgba(102, 126, 234, 0.5)" />
+            </View>
+            <Text style={styles.emptyStateTitle}>No Messages Yet</Text>
+            <Text style={styles.emptyStateText}>
+              Start a conversation by tapping the + button above
+            </Text>
+            <TouchableOpacity
+              style={styles.emptyStateButton}
+              onPress={() => navigation.navigate('NewMessage' as never)}
+            >
+              <Ionicons name="add" size={20} color="#fff" />
+              <Text style={styles.emptyStateButtonText}>New Message</Text>
+            </TouchableOpacity>
           </View>
         ) : (
           <ScrollView
@@ -532,6 +478,49 @@ const styles = StyleSheet.create({
   unreadBadgeText: {
     fontSize: 12,
     fontWeight: '700',
+    color: '#fff',
+  },
+  emptyState: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 40,
+    paddingBottom: 100,
+  },
+  emptyStateIcon: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+  },
+  emptyStateTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#fff',
+    marginBottom: 8,
+  },
+  emptyStateText: {
+    fontSize: 15,
+    color: 'rgba(255, 255, 255, 0.5)',
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 24,
+  },
+  emptyStateButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(102, 126, 234, 0.8)',
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 16,
+  },
+  emptyStateButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
     color: '#fff',
   },
 });
