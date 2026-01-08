@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poolside - Create Event</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep: #070b14;
+      --bg-navy: #0c1222;
+      --glass-bg: rgba(255, 255, 255, 0.04);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-hover: rgba(255, 255, 255, 0.08);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.55);
+      --text-muted: rgba(255, 255, 255, 0.35);
+      --accent-teal: #2dd4bf;
+      --accent-blue: #38bdf8;
+      --accent-purple: #a78bfa;
+      --glow-teal: rgba(45, 212, 191, 0.4);
+      --glow-blue: rgba(56, 189, 248, 0.3);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-deep);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+      overflow-x: hidden;
+    }
+
+    /* Starry background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background:
+        radial-gradient(ellipse at 20% 20%, rgba(45, 212, 191, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(56, 189, 248, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(167, 139, 250, 0.04) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Stars */
+    .stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: white;
+      border-radius: 50%;
+      opacity: 0;
+      animation: twinkle 3s ease-in-out infinite;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.2); }
+    }
+
+    /* Phone frame */
+    .phone-frame {
+      width: 390px;
+      min-height: 780px;
+      background: var(--bg-navy);
+      border-radius: 44px;
+      position: relative;
+      overflow: hidden;
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.1),
+        0 25px 80px rgba(0, 0, 0, 0.6),
+        0 0 100px rgba(45, 212, 191, 0.1);
+      z-index: 1;
+    }
+
+    .phone-frame::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background:
+        radial-gradient(ellipse at 30% 0%, rgba(45, 212, 191, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 100%, rgba(56, 189, 248, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    /* Notch */
+    .notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 160px;
+      height: 34px;
+      background: #000;
+      border-radius: 0 0 24px 24px;
+      z-index: 100;
+    }
+
+    .screen-content {
+      padding: 60px 24px 40px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 36px;
+      animation: fadeSlideDown 0.5s ease-out;
+    }
+
+    @keyframes fadeSlideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .back-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .back-btn:hover {
+      background: var(--glass-hover);
+      transform: translateX(-2px);
+    }
+
+    .back-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--text-primary);
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .header-title {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+    }
+
+    /* Form sections */
+    .form-section {
+      margin-bottom: 28px;
+      animation: fadeSlideUp 0.5s ease-out backwards;
+    }
+
+    .form-section:nth-child(2) { animation-delay: 0.1s; }
+    .form-section:nth-child(3) { animation-delay: 0.2s; }
+    .form-section:nth-child(4) { animation-delay: 0.3s; }
+    .form-section:nth-child(5) { animation-delay: 0.4s; }
+
+    @keyframes fadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .section-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    /* Main input */
+    .main-input {
+      width: 100%;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 18px;
+      padding: 20px 22px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 400;
+      color: var(--text-primary);
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .main-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .main-input:focus {
+      border-color: rgba(45, 212, 191, 0.4);
+      background: rgba(45, 212, 191, 0.05);
+      box-shadow: 0 0 30px rgba(45, 212, 191, 0.1);
+    }
+
+    /* Time chips */
+    .time-chips {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .time-chip {
+      padding: 12px 18px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 30px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .time-chip::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, var(--accent-teal), var(--accent-blue));
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      z-index: -1;
+    }
+
+    .time-chip:hover {
+      border-color: rgba(45, 212, 191, 0.3);
+      color: var(--text-primary);
+      transform: translateY(-1px);
+    }
+
+    .time-chip.active {
+      color: var(--bg-deep);
+      font-weight: 600;
+      border-color: transparent;
+      box-shadow:
+        0 4px 20px var(--glow-teal),
+        0 0 40px rgba(45, 212, 191, 0.2);
+    }
+
+    .time-chip.active::before {
+      opacity: 1;
+    }
+
+    .time-chip-icon {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .time-chip-icon svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    /* Location dropdown */
+    .location-select-wrapper {
+      position: relative;
+    }
+
+    .location-select {
+      width: 100%;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 18px;
+      padding: 18px 22px;
+      padding-right: 50px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      color: var(--text-primary);
+      cursor: pointer;
+      appearance: none;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .location-select:focus {
+      border-color: rgba(56, 189, 248, 0.4);
+      background: rgba(56, 189, 248, 0.05);
+    }
+
+    .location-select option {
+      background: var(--bg-navy);
+      color: var(--text-primary);
+      padding: 12px;
+    }
+
+    .select-arrow {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    .select-arrow svg {
+      width: 18px;
+      height: 18px;
+      stroke: var(--text-secondary);
+      stroke-width: 2;
+      fill: none;
+    }
+
+    /* Expandable section */
+    .expand-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 0;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .expand-toggle:hover {
+      opacity: 0.8;
+    }
+
+    .expand-toggle-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--accent-teal);
+    }
+
+    .expand-toggle-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(45, 212, 191, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease;
+    }
+
+    .expand-toggle-icon svg {
+      width: 12px;
+      height: 12px;
+      stroke: var(--accent-teal);
+      stroke-width: 2.5;
+      fill: none;
+    }
+
+    .expand-toggle.expanded .expand-toggle-icon {
+      transform: rotate(180deg);
+    }
+
+    .expandable-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, opacity 0.3s ease;
+      opacity: 0;
+    }
+
+    .expandable-content.show {
+      max-height: 300px;
+      opacity: 1;
+    }
+
+    .optional-fields {
+      padding-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .optional-input {
+      width: 100%;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      padding: 16px 18px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      color: var(--text-primary);
+      outline: none;
+      transition: all 0.3s ease;
+      resize: none;
+    }
+
+    .optional-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .optional-input:focus {
+      border-color: rgba(167, 139, 250, 0.4);
+      background: rgba(167, 139, 250, 0.05);
+    }
+
+    .optional-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .optional-row .optional-input {
+      flex: 1;
+    }
+
+    .image-upload-btn {
+      flex: 1;
+      background: var(--glass-bg);
+      border: 1px dashed var(--glass-border);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .image-upload-btn:hover {
+      border-color: var(--accent-purple);
+      background: rgba(167, 139, 250, 0.05);
+    }
+
+    .image-upload-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: var(--text-secondary);
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .image-upload-btn span {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    /* Create button */
+    .create-btn {
+      width: 100%;
+      padding: 20px;
+      border: none;
+      border-radius: 20px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--bg-deep);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--accent-teal), var(--accent-blue));
+      box-shadow:
+        0 8px 32px var(--glow-teal),
+        0 0 60px rgba(45, 212, 191, 0.15);
+      transition: all 0.3s ease;
+      animation: fadeSlideUp 0.5s ease-out 0.5s backwards;
+    }
+
+    .create-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .create-btn:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 12px 40px var(--glow-teal),
+        0 0 80px rgba(45, 212, 191, 0.25);
+    }
+
+    .create-btn:hover::before {
+      left: 100%;
+    }
+
+    .create-btn:active {
+      transform: translateY(0);
+    }
+
+    /* Floating decorative elements */
+    .float-bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(45, 212, 191, 0.1), rgba(56, 189, 248, 0.05));
+      pointer-events: none;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .float-bubble.b1 {
+      width: 120px;
+      height: 120px;
+      top: 15%;
+      right: -40px;
+      animation-delay: 0s;
+    }
+
+    .float-bubble.b2 {
+      width: 80px;
+      height: 80px;
+      bottom: 25%;
+      left: -30px;
+      animation-delay: 2s;
+    }
+
+    .float-bubble.b3 {
+      width: 60px;
+      height: 60px;
+      bottom: 10%;
+      right: 20%;
+      animation-delay: 4s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-15px) scale(1.02); }
+    }
+
+    /* Label with optional indicator */
+    .label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .optional-badge {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Stars background -->
+  <div class="stars" id="stars"></div>
+
+  <div class="phone-frame">
+    <div class="notch"></div>
+
+    <!-- Floating bubbles -->
+    <div class="float-bubble b1"></div>
+    <div class="float-bubble b2"></div>
+    <div class="float-bubble b3"></div>
+
+    <div class="screen-content">
+      <!-- Header -->
+      <div class="header">
+        <div class="back-btn">
+          <svg viewBox="0 0 24 24">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </div>
+        <h1 class="header-title">Create Event</h1>
+      </div>
+
+      <!-- What's happening -->
+      <div class="form-section">
+        <label class="section-label">What's happening?</label>
+        <input type="text" class="main-input" placeholder="Pool party, dinner meetup...">
+      </div>
+
+      <!-- When -->
+      <div class="form-section">
+        <label class="section-label">When?</label>
+        <div class="time-chips">
+          <div class="time-chip" onclick="selectTime(this)">Now</div>
+          <div class="time-chip" onclick="selectTime(this)">In 1hr</div>
+          <div class="time-chip active" onclick="selectTime(this)">Tonight</div>
+          <div class="time-chip" onclick="selectTime(this)">Tomorrow</div>
+          <div class="time-chip" onclick="selectTime(this)">
+            <span class="time-chip-icon">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
+              Pick time
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Where -->
+      <div class="form-section">
+        <label class="section-label">Where?</label>
+        <div class="location-select-wrapper">
+          <select class="location-select">
+            <option value="" disabled>Select a location...</option>
+            <option value="pool">🏊 Pool Deck</option>
+            <option value="lido" selected>🍹 Lido Bar</option>
+            <option value="dining">🍽️ Main Dining Room</option>
+            <option value="casino">🎰 Casino</option>
+            <option value="theater">🎭 Theater</option>
+            <option value="spa">💆 Spa Deck</option>
+            <option value="sports">🏀 Sports Court</option>
+            <option value="custom">📍 Custom location...</option>
+          </select>
+          <div class="select-arrow">
+            <svg viewBox="0 0 24 24">
+              <path d="M6 9l6 6 6-6"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Optional section -->
+      <div class="form-section">
+        <div class="expand-toggle" onclick="toggleExpand(this)">
+          <span class="expand-toggle-text">Add more details</span>
+          <div class="expand-toggle-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M6 9l6 6 6-6"/>
+            </svg>
+          </div>
+        </div>
+        <div class="expandable-content">
+          <div class="optional-fields">
+            <div>
+              <div class="label-row">
+                <label class="section-label" style="margin-bottom: 8px;">Description</label>
+                <span class="optional-badge">optional</span>
+              </div>
+              <textarea class="optional-input" rows="3" placeholder="Tell people what to expect..."></textarea>
+            </div>
+            <div class="optional-row">
+              <input type="number" class="optional-input" placeholder="Max spots" min="1">
+              <div class="image-upload-btn">
+                <svg viewBox="0 0 24 24">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <path d="M21 15l-5-5L5 21"/>
+                </svg>
+                <span>Add image</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Create button -->
+      <button class="create-btn">Create Event</button>
+    </div>
+  </div>
+
+  <script>
+    // Generate stars
+    function createStars() {
+      const starsContainer = document.getElementById('stars');
+      for (let i = 0; i < 60; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.animationDelay = Math.random() * 3 + 's';
+        star.style.width = (Math.random() * 2 + 1) + 'px';
+        star.style.height = star.style.width;
+        starsContainer.appendChild(star);
+      }
+    }
+    createStars();
+
+    // Time chip selection
+    function selectTime(chip) {
+      document.querySelectorAll('.time-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    }
+
+    // Expand toggle
+    function toggleExpand(toggle) {
+      toggle.classList.toggle('expanded');
+      const content = toggle.nextElementSibling;
+      content.classList.toggle('show');
+    }
+  </script>
+</body>
+</html>

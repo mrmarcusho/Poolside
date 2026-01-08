@@ -1,0 +1,1707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile</title>
+
+  <!-- Typography matching the reference -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;800;900&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      background: #f5f5f5;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    /* Phone Frame - Poolside Dark Theme */
+    .phone {
+      width: 390px;
+      height: 844px;
+      background: #050508;
+      border-radius: 50px;
+      position: relative;
+      overflow: hidden;
+      box-shadow:
+        0 50px 100px -20px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.05);
+    }
+
+    /* ============================================
+       BIOLUMINESCENT DEEP SEA - Blob Layer
+       ============================================ */
+    .blob-layer {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.85;
+      will-change: transform;
+    }
+
+    /* Primary blob - Deep Ocean Cyan (upper right) */
+    .blob-1 {
+      width: 400px;
+      height: 400px;
+      top: -60px;
+      right: -80px;
+      background: radial-gradient(circle at 30% 30%,
+        #22d3ee 0%,
+        #0891b2 40%,
+        #0e7490 70%,
+        transparent 100%
+      );
+      animation: float-1 6s ease-in-out infinite;
+    }
+
+    /* Secondary blob - Twilight Violet (lower left) */
+    .blob-2 {
+      width: 450px;
+      height: 450px;
+      bottom: 80px;
+      left: -120px;
+      background: radial-gradient(circle at 60% 40%,
+        #a78bfa 0%,
+        #8b5cf6 35%,
+        #6d28d9 60%,
+        transparent 100%
+      );
+      animation: float-2 7s ease-in-out infinite;
+    }
+
+    /* Tertiary blob - Midnight Abyss with bioluminescent edge (center) */
+    .blob-3 {
+      width: 350px;
+      height: 350px;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle at 50% 50%,
+        #3b82f6 0%,
+        #1e40af 40%,
+        rgba(30, 58, 138, 0.5) 70%,
+        transparent 100%
+      );
+      opacity: 0.6;
+      animation: float-3 8s ease-in-out infinite;
+    }
+
+    /* Subtle bioluminescent accent (small, floating) */
+    .blob-4 {
+      width: 200px;
+      height: 200px;
+      top: 55%;
+      right: 10px;
+      background: radial-gradient(circle at 50% 50%,
+        #34d399 0%,
+        #10b981 40%,
+        transparent 80%
+      );
+      opacity: 0.5;
+      filter: blur(50px);
+      animation: float-4 5s ease-in-out infinite;
+    }
+
+    /* Blob animations - more apparent underwater drift */
+    @keyframes float-1 {
+      0%, 100% {
+        transform: translate(0, 0) scale(1);
+      }
+      25% {
+        transform: translate(-60px, 80px) scale(1.15);
+      }
+      50% {
+        transform: translate(40px, 120px) scale(0.9);
+      }
+      75% {
+        transform: translate(-30px, 60px) scale(1.1);
+      }
+    }
+
+    @keyframes float-2 {
+      0%, 100% {
+        transform: translate(0, 0) scale(1);
+      }
+      33% {
+        transform: translate(100px, -80px) scale(1.2);
+      }
+      66% {
+        transform: translate(60px, 50px) scale(0.85);
+      }
+    }
+
+    @keyframes float-3 {
+      0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.6;
+      }
+      50% {
+        transform: translate(-30%, -60%) scale(1.3);
+        opacity: 0.8;
+      }
+    }
+
+    @keyframes float-4 {
+      0%, 100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.5;
+      }
+      50% {
+        transform: translate(-80px, -100px) scale(1.4);
+        opacity: 0.7;
+      }
+    }
+
+    /* ============================================
+       FROSTED GLASS CONTENT LAYER
+       ============================================ */
+    .glass-layer {
+      position: absolute;
+      inset: 0;
+      background: rgba(5, 5, 8, 0.7);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      z-index: 1;
+    }
+
+    /* Subtle inner glow border effect */
+    .glass-layer::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50px;
+      padding: 1px;
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0.02) 50%,
+        rgba(255, 255, 255, 0.05) 100%
+      );
+      -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    /* Status Bar */
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 28px 0;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Ensure all content appears above glass layer */
+    .dynamic-island,
+    .status-bar,
+    .back-btn,
+    .content,
+    .home-indicator {
+      position: relative;
+      z-index: 10;
+    }
+
+    .status-time {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .status-icons svg {
+      height: 12px;
+      fill: #fff;
+    }
+
+    /* Dynamic Island */
+    .dynamic-island {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 36px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 100 !important;
+    }
+
+    /* Main Content */
+    .content {
+      padding: 12px 0 0;
+      height: calc(100% - 50px);
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .content::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Back Button */
+    .back-btn {
+      position: absolute;
+      top: 68px;
+      left: 24px;
+      width: 44px;
+      height: 44px;
+      background: rgba(120, 120, 120, 0.35);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50 !important;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .back-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: #fff;
+      stroke-width: 2.5;
+      fill: none;
+      margin-right: 2px;
+    }
+
+    /* Edit Profile Button - Top Right */
+    .edit-profile-btn {
+      position: absolute;
+      top: 68px;
+      right: 24px;
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 100px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: #fff;
+      cursor: pointer;
+      z-index: 50 !important;
+      transition: all 0.2s ease;
+    }
+
+    .edit-profile-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: scale(1.02);
+    }
+
+    .edit-profile-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* ============================================
+       PHOTO CAROUSEL - Deck of Cards Animation
+       ============================================ */
+    .carousel-container {
+      position: relative;
+      width: 100%;
+      height: 480px;
+      margin-bottom: 20px;
+      overflow: hidden;
+      padding: 0 16px;
+    }
+
+    .carousel-track {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      touch-action: pan-y;
+    }
+
+    .carousel-slide {
+      position: absolute;
+      top: 0;
+      width: calc(100% - 60px); /* Leave room for peek */
+      height: 100%;
+      border-radius: 20px;
+      overflow: hidden;
+      cursor: grab;
+
+      /* Transition for smooth animations */
+      transition: transform 350ms cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                  opacity 350ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+      /* Default: off-screen right (future slides) */
+      transform: translateX(calc(100% + 20px)) scale(0.7);
+      transform-origin: left center;
+      opacity: 0.5;
+      z-index: 1;
+    }
+
+    .carousel-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+    }
+
+    /* Active slide - full size, centered */
+    .carousel-slide.active {
+      transform: translateX(0) scale(1);
+      opacity: 1;
+      z-index: 3;
+    }
+
+    /* Next slide - peeking from right, scaled down */
+    .carousel-slide.next {
+      transform: translateX(calc(100% - 50px)) scale(0.85);
+      transform-origin: left center;
+      opacity: 0.7;
+      z-index: 2;
+    }
+
+    /* Previous slide - off-screen left */
+    .carousel-slide.prev {
+      transform: translateX(calc(-100% - 20px)) scale(0.7);
+      transform-origin: right center;
+      opacity: 0;
+      z-index: 1;
+    }
+
+    /* Transition states during swipe */
+    .carousel-slide.exiting-left {
+      transform: translateX(calc(-100% - 20px)) scale(0.7);
+      opacity: 0;
+    }
+
+    .carousel-slide.entering-from-right {
+      transform: translateX(0) scale(1);
+      opacity: 1;
+    }
+
+    /* Grabbing state */
+    .carousel-track:active .carousel-slide {
+      cursor: grabbing;
+    }
+
+    /* Pagination dots */
+    .carousel-pagination {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 16px;
+      padding: 0 16px;
+    }
+
+    .pagination-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.25);
+      transition: all 300ms ease-out;
+      cursor: pointer;
+    }
+
+    .pagination-dot.active {
+      width: 24px;
+      border-radius: 4px;
+      background: #fff;
+    }
+
+    /* ============================================
+       PROFILE INFO
+       ============================================ */
+    .profile-section {
+      padding: 0 16px;
+    }
+
+    .profile-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 2px;
+    }
+
+    .profile-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 42px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -1px;
+      line-height: 1.1;
+    }
+
+    .connect-btn {
+      padding: 10px 22px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 100px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: #fff;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: all 0.2s;
+    }
+
+    .connect-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .profile-lastname {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 16px;
+      letter-spacing: -0.5px;
+    }
+
+    /* Editable States */
+    .editable {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 12px 14px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .editable:focus {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(139, 92, 246, 0.5);
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+    }
+
+    .profile-name.editable {
+      width: 100%;
+      font-family: 'Playfair Display', serif;
+      font-size: 42px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -1px;
+      line-height: 1.1;
+    }
+
+    .profile-lastname.editable {
+      width: 100%;
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.6);
+      letter-spacing: -0.5px;
+      margin-bottom: 16px;
+    }
+
+    .description.editable {
+      width: 100%;
+      min-height: 100px;
+      resize: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* Edit mode buttons */
+    .edit-actions {
+      display: none;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .edit-actions.visible {
+      display: flex;
+    }
+
+    .btn-save {
+      flex: 1;
+      padding: 14px 20px;
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      border: none;
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-save:hover {
+      transform: scale(1.02);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-cancel {
+      flex: 1;
+      padding: 14px 20px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-cancel:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    /* Hide elements in edit mode */
+    .edit-mode .connect-btn,
+    .edit-mode .interests-section,
+    .edit-mode .cta-section {
+      display: none;
+    }
+
+    /* Edit Profile button states */
+    .edit-profile-btn.editing {
+      display: none;
+    }
+
+    /* ============================================
+       PHOTO EDIT MODE
+       ============================================ */
+
+    /* Remove photo button */
+    .photo-remove-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: all 0.2s ease;
+      z-index: 10;
+    }
+
+    .photo-remove-btn svg {
+      width: 14px;
+      height: 14px;
+      stroke: #fff;
+      stroke-width: 2;
+    }
+
+    .photo-remove-btn:hover {
+      background: rgba(239, 68, 68, 0.8);
+      transform: scale(1);
+    }
+
+    /* Show remove buttons in edit mode */
+    .edit-mode .carousel-slide .photo-remove-btn {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* Add photo card */
+    .carousel-slide.add-photo-card {
+      display: none;
+      background: rgba(255, 255, 255, 0.04);
+      border: 2px dashed rgba(255, 255, 255, 0.2);
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .carousel-slide.add-photo-card:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(139, 92, 246, 0.4);
+    }
+
+    .add-photo-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(139, 92, 246, 0.3));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .add-photo-icon svg {
+      width: 28px;
+      height: 28px;
+      stroke: #fff;
+      stroke-width: 2;
+    }
+
+    .add-photo-text {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* Show add photo card in edit mode */
+    .edit-mode .carousel-slide.add-photo-card {
+      display: flex;
+    }
+
+    /* Photo count badge in edit mode */
+    .photo-count-badge {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      padding: 6px 12px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      border-radius: 20px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: #fff;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      z-index: 10;
+    }
+
+    .edit-mode .carousel-slide.active .photo-count-badge {
+      opacity: 1;
+    }
+
+    /* Description */
+    .description {
+      font-size: 15px;
+      line-height: 1.55;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 24px;
+      font-weight: 400;
+    }
+
+    /* ============================================
+       INTERESTS GALLERY - Curated Personality
+       ============================================ */
+    .interests-section {
+      margin-bottom: 28px;
+    }
+
+    .interests-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding: 0 16px;
+    }
+
+    .interests-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+
+    .interests-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg,
+        rgba(255,255,255,0.3) 0%,
+        rgba(139,92,246,0.3) 50%,
+        transparent 100%
+      );
+    }
+
+    /* Masonry Grid */
+    .interests-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      padding: 0 16px;
+    }
+
+    /* Base Interest Card */
+    .interest-card {
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      position: relative;
+    }
+
+    .interest-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        135deg,
+        rgba(255,255,255,0.1) 0%,
+        transparent 50%
+      );
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .interest-card:hover {
+      transform: translateY(-4px) scale(1.02);
+      border-color: rgba(139, 92, 246, 0.3);
+      box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.4),
+        0 0 20px rgba(139, 92, 246, 0.15);
+    }
+
+    .interest-card:hover::before {
+      opacity: 1;
+    }
+
+    .interest-card:active {
+      transform: translateY(-2px) scale(1.01);
+    }
+
+    /* Card entrance animations */
+    .interest-card:nth-child(1) { animation: cardReveal 0.5s ease-out 0.1s both; }
+    .interest-card:nth-child(2) { animation: cardReveal 0.5s ease-out 0.2s both; }
+    .interest-card:nth-child(3) { animation: cardReveal 0.5s ease-out 0.3s both; }
+    .interest-card:nth-child(4) { animation: cardReveal 0.5s ease-out 0.4s both; }
+    .interest-card:nth-child(5) { animation: cardReveal 0.5s ease-out 0.5s both; }
+    .interest-card:nth-child(6) { animation: cardReveal 0.5s ease-out 0.6s both; }
+
+    @keyframes cardReveal {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* Album Card - Square with art */
+    .card-album {
+      grid-column: span 1;
+    }
+
+    .card-album .card-image {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+    }
+
+    .card-album .card-info {
+      padding: 12px;
+    }
+
+    .card-category {
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 4px;
+    }
+
+    .card-title {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Movie Card - Portrait, spans 2 rows */
+    .card-movie {
+      grid-column: span 1;
+      grid-row: span 2;
+    }
+
+    .card-movie .card-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .card-movie .card-info {
+      padding: 12px;
+    }
+
+    .card-movie .card-year {
+      display: inline-block;
+      padding: 3px 8px;
+      background: rgba(139, 92, 246, 0.3);
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #a78bfa;
+      margin-top: 6px;
+    }
+
+    /* Song Card - Compact horizontal */
+    .card-song {
+      grid-column: span 2;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+    }
+
+    .card-song .card-image {
+      width: 56px;
+      height: 56px;
+      border-radius: 10px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .card-song .card-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .card-song .waveform {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 24px;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    .card-song .waveform span {
+      width: 3px;
+      background: linear-gradient(180deg, #22d3ee, #8b5cf6);
+      border-radius: 2px;
+      animation: wave 1s ease-in-out infinite;
+    }
+
+    .card-song .waveform span:nth-child(1) { height: 40%; animation-delay: 0s; }
+    .card-song .waveform span:nth-child(2) { height: 70%; animation-delay: 0.1s; }
+    .card-song .waveform span:nth-child(3) { height: 100%; animation-delay: 0.2s; }
+    .card-song .waveform span:nth-child(4) { height: 60%; animation-delay: 0.3s; }
+    .card-song .waveform span:nth-child(5) { height: 80%; animation-delay: 0.4s; }
+
+    @keyframes wave {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(0.5); }
+    }
+
+    /* Food Card - Square with emoji overlay */
+    .card-food {
+      grid-column: span 1;
+      position: relative;
+    }
+
+    .card-food .card-image {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+    }
+
+    .card-food .food-emoji {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 36px;
+      height: 36px;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(8px);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      z-index: 2;
+    }
+
+    .card-food .card-info {
+      padding: 12px;
+    }
+
+    .card-food .cuisine-tag {
+      display: inline-block;
+      padding: 3px 8px;
+      background: rgba(52, 211, 153, 0.2);
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #34d399;
+      margin-top: 6px;
+    }
+
+    /* Sport Card - Horizontal with level badge */
+    .card-sport {
+      grid-column: span 2;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px;
+    }
+
+    .card-sport .sport-icon {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(139, 92, 246, 0.2));
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      flex-shrink: 0;
+    }
+
+    .card-sport .card-info {
+      flex: 1;
+    }
+
+    .card-sport .level-badge {
+      padding: 5px 12px;
+      background: linear-gradient(135deg, #22d3ee 0%, #8b5cf6 100%);
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
+
+    /* Bottom CTAs */
+    .cta-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-bottom: 40px;
+    }
+
+    /* Add Friend Button - Gradient */
+    .btn-add-friend {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 18px 24px;
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      border: none;
+      border-radius: 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-add-friend:hover {
+      transform: scale(1.02);
+      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+    }
+
+    /* Message Button - Glass */
+    .btn-message {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px 24px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-message:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    /* Home Indicator */
+    .home-indicator {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 134px;
+      height: 5px;
+      background: #fff;
+      border-radius: 100px;
+      opacity: 0.3;
+      z-index: 50 !important;
+    }
+  </style>
+</head>
+<body>
+
+<div class="phone">
+  <!-- Bioluminescent Blob Layer (behind everything) -->
+  <div class="blob-layer">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
+  </div>
+
+  <!-- Frosted Glass Overlay -->
+  <div class="glass-layer"></div>
+
+  <div class="dynamic-island"></div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <svg viewBox="0 0 18 12" fill="#fff"><path d="M1 4C1 2.9 1.9 2 3 2h1c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2H3c-1.1 0-2-.9-2-2V4zm6-1c0-1.1.9-2 2-2h1c1.1 0 2 .9 2 2v6c0 1.1-.9 2-2 2H9c-1.1 0-2-.9-2-2V3zm6-1c0-1.1.9-2 2-2h1c1.1 0 2 .9 2 2v8c0 1.1-.9 2-2 2h-1c-1.1 0-2-.9-2-2V2z"/></svg>
+      <svg viewBox="0 0 16 12" fill="#fff"><path d="M8 2c2.5 0 4.8 1 6.5 2.6.3.3.3.8 0 1.1L8.7 11.5c-.4.4-1 .4-1.4 0L1.5 5.7c-.3-.3-.3-.8 0-1.1C3.2 3 5.5 2 8 2z"/></svg>
+      <svg viewBox="0 0 25 12" fill="none">
+        <rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="#fff" stroke-width="1"/>
+        <path d="M23 4v4a2 2 0 0 0 0-4z" fill="#fff" opacity="0.4"/>
+        <rect x="2" y="2" width="18" height="8" rx="1.5" fill="#fff"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Back Button -->
+  <div class="back-btn">
+    <svg viewBox="0 0 24 24">
+      <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <!-- Edit Profile Button -->
+  <button class="edit-profile-btn">Edit Profile</button>
+
+  <!-- Main Content -->
+  <div class="content">
+    <!-- Photo Carousel -->
+    <div class="carousel-container" id="carouselContainer">
+      <div class="carousel-track" id="carouselTrack">
+        <div class="carousel-slide active" data-index="0">
+          <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=600&q=85" alt="Photo 1">
+          <button class="photo-remove-btn" data-index="0">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <span class="photo-count-badge">1 of 5</span>
+        </div>
+        <div class="carousel-slide next" data-index="1">
+          <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=85" alt="Photo 2">
+          <button class="photo-remove-btn" data-index="1">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <span class="photo-count-badge">2 of 5</span>
+        </div>
+        <div class="carousel-slide" data-index="2">
+          <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=600&q=85" alt="Photo 3">
+          <button class="photo-remove-btn" data-index="2">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <span class="photo-count-badge">3 of 5</span>
+        </div>
+        <div class="carousel-slide" data-index="3">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&q=85" alt="Photo 4">
+          <button class="photo-remove-btn" data-index="3">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <span class="photo-count-badge">4 of 5</span>
+        </div>
+        <div class="carousel-slide" data-index="4">
+          <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600&q=85" alt="Photo 5">
+          <button class="photo-remove-btn" data-index="4">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <span class="photo-count-badge">5 of 5</span>
+        </div>
+        <!-- Add Photo Card -->
+        <div class="carousel-slide add-photo-card" data-index="5" id="addPhotoCard">
+          <div class="add-photo-icon">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <span class="add-photo-text">Add Photo</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination Dots -->
+    <div class="carousel-pagination" id="pagination">
+      <div class="pagination-dot active" data-index="0"></div>
+      <div class="pagination-dot" data-index="1"></div>
+      <div class="pagination-dot" data-index="2"></div>
+      <div class="pagination-dot" data-index="3"></div>
+      <div class="pagination-dot" data-index="4"></div>
+    </div>
+
+    <!-- Profile Info -->
+    <div class="profile-section" id="profileSection">
+      <div class="profile-header">
+        <h1 class="profile-name" id="profileFirstName">Sarah</h1>
+        <button class="connect-btn">Message</button>
+      </div>
+
+      <p class="profile-lastname" id="profileLastName">Mitchell</p>
+
+      <!-- Description -->
+      <p class="description" id="profileDescription">
+        First-time cruiser loving every moment! Here for the sunset deck parties, trivia nights, and making new friends. Always down for poolside hangs or exploring ports together. Let's make this voyage unforgettable!
+      </p>
+
+      <!-- Edit Actions (shown in edit mode) -->
+      <div class="edit-actions" id="editActions">
+        <button class="btn-cancel" id="btnCancel">Cancel</button>
+        <button class="btn-save" id="btnSave">Save Changes</button>
+      </div>
+
+      <!-- Interests Gallery -->
+      <div class="interests-section">
+        <div class="interests-header">
+          <h2 class="interests-title">Favorites</h2>
+          <div class="interests-line"></div>
+        </div>
+
+        <div class="interests-grid">
+          <!-- Movie Card - Portrait (spans 2 rows) -->
+          <div class="interest-card card-movie">
+            <img class="card-image" src="https://image.tmdb.org/t/p/w300/d5NXSklXo0qyIYkgV94XAgMIckC.jpg" alt="Dune">
+            <div class="card-info">
+              <div class="card-category">Favorite Movie</div>
+              <div class="card-title">Dune: Part Two</div>
+              <span class="card-year">2024</span>
+            </div>
+          </div>
+
+          <!-- Album Card - Square -->
+          <div class="interest-card card-album">
+            <img class="card-image" src="https://i.scdn.co/image/ab67616d0000b273a91c10fe9472d9bd535e289f" alt="Blonde">
+            <div class="card-info">
+              <div class="card-category">Favorite Album</div>
+              <div class="card-title">Blonde</div>
+              <div class="card-subtitle">Frank Ocean</div>
+            </div>
+          </div>
+
+          <!-- Food Card - Square with emoji -->
+          <div class="interest-card card-food">
+            <span class="food-emoji">🍣</span>
+            <img class="card-image" src="https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=400&q=80" alt="Sushi">
+            <div class="card-info">
+              <div class="card-category">Favorite Food</div>
+              <div class="card-title">Omakase Sushi</div>
+              <span class="cuisine-tag">Japanese</span>
+            </div>
+          </div>
+
+          <!-- Song Card - Horizontal full width -->
+          <div class="interest-card card-song">
+            <img class="card-image" src="https://i.scdn.co/image/ab67616d0000b2732e8ed79e177ff6011076f5f0" alt="Pink + White">
+            <div class="card-info">
+              <div class="card-category">Favorite Song</div>
+              <div class="card-title">Pink + White</div>
+              <div class="card-subtitle">Frank Ocean</div>
+            </div>
+            <div class="waveform">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+
+          <!-- Sport Card - Horizontal full width -->
+          <div class="interest-card card-sport">
+            <div class="sport-icon">🎾</div>
+            <div class="card-info">
+              <div class="card-category">Sport</div>
+              <div class="card-title">Tennis</div>
+            </div>
+            <span class="level-badge">Competitive</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA Buttons -->
+      <div class="cta-section">
+        <button class="btn-add-friend">Add Friend</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="home-indicator"></div>
+</div>
+
+<script>
+  // ============================================
+  // CAROUSEL - Deck of Cards Animation
+  // ============================================
+
+  const track = document.getElementById('carouselTrack');
+  const slides = document.querySelectorAll('.carousel-slide');
+  const dots = document.querySelectorAll('.pagination-dot');
+  const totalSlides = slides.length;
+
+  let currentIndex = 0;
+  let startX = 0;
+  let currentX = 0;
+  let isDragging = false;
+  let isAnimating = false;
+
+  // Update slide positions based on current index
+  function updateSlides(animate = true) {
+    slides.forEach((slide, index) => {
+      // Remove all state classes
+      slide.classList.remove('active', 'next', 'prev');
+
+      if (index === currentIndex) {
+        // Active slide - full size, centered
+        slide.classList.add('active');
+      } else if (index === currentIndex + 1 || (currentIndex === totalSlides - 1 && index === 0)) {
+        // Next slide - peeking from right
+        slide.classList.add('next');
+      } else if (index === currentIndex - 1 || (currentIndex === 0 && index === totalSlides - 1)) {
+        // Previous slide - off-screen left
+        slide.classList.add('prev');
+      }
+    });
+
+    // Update pagination dots
+    dots.forEach((dot, index) => {
+      dot.classList.toggle('active', index === currentIndex);
+    });
+  }
+
+  // Go to specific slide
+  function goToSlide(index) {
+    if (isAnimating || index === currentIndex) return;
+    if (index < 0) index = 0;
+    if (index >= totalSlides) index = totalSlides - 1;
+
+    isAnimating = true;
+    currentIndex = index;
+    updateSlides(true);
+
+    setTimeout(() => {
+      isAnimating = false;
+    }, 350);
+  }
+
+  // Go to next slide
+  function nextSlide() {
+    if (currentIndex < totalSlides - 1) {
+      goToSlide(currentIndex + 1);
+    }
+  }
+
+  // Go to previous slide
+  function prevSlide() {
+    if (currentIndex > 0) {
+      goToSlide(currentIndex - 1);
+    }
+  }
+
+  // Touch/Mouse event handlers
+  function handleDragStart(e) {
+    if (isAnimating) return;
+    isDragging = true;
+    startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+
+    // Disable transition during drag for immediate feedback
+    slides.forEach(slide => {
+      slide.style.transition = 'none';
+    });
+  }
+
+  function handleDragMove(e) {
+    if (!isDragging) return;
+    e.preventDefault();
+
+    currentX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+    const diff = currentX - startX;
+
+    // Apply drag offset to active and adjacent slides
+    const activeSlide = slides[currentIndex];
+    const nextSlide = slides[currentIndex + 1];
+    const prevSlide = slides[currentIndex - 1];
+
+    // Resistance at edges
+    let resistance = 1;
+    if ((currentIndex === 0 && diff > 0) || (currentIndex === totalSlides - 1 && diff < 0)) {
+      resistance = 0.3;
+    }
+
+    const adjustedDiff = diff * resistance;
+
+    // Move active slide
+    if (activeSlide) {
+      const scale = Math.max(0.85, 1 - Math.abs(adjustedDiff) / 1000);
+      activeSlide.style.transform = `translateX(${adjustedDiff}px) scale(${scale})`;
+      activeSlide.style.opacity = Math.max(0.7, 1 - Math.abs(adjustedDiff) / 500);
+    }
+
+    // Move next slide (when swiping left/showing next)
+    if (nextSlide && diff < 0) {
+      const progress = Math.min(1, Math.abs(adjustedDiff) / 200);
+      const translateX = `calc(100% - 50px - ${Math.abs(adjustedDiff)}px)`;
+      const scale = 0.85 + (progress * 0.15);
+      nextSlide.style.transform = `translateX(${translateX}) scale(${scale})`;
+      nextSlide.style.opacity = 0.7 + (progress * 0.3);
+    }
+
+    // Move prev slide (when swiping right/showing prev)
+    if (prevSlide && diff > 0) {
+      const progress = Math.min(1, adjustedDiff / 200);
+      const translateX = `calc(-100% - 20px + ${adjustedDiff}px)`;
+      const scale = 0.7 + (progress * 0.3);
+      prevSlide.style.transform = `translateX(${translateX}) scale(${scale})`;
+      prevSlide.style.opacity = progress;
+    }
+  }
+
+  function handleDragEnd(e) {
+    if (!isDragging) return;
+    isDragging = false;
+
+    const diff = currentX - startX;
+    const threshold = 80; // Minimum swipe distance to trigger slide change
+
+    // Re-enable transitions
+    slides.forEach(slide => {
+      slide.style.transition = '';
+      slide.style.transform = '';
+      slide.style.opacity = '';
+    });
+
+    // Determine if we should change slides
+    if (diff < -threshold && currentIndex < totalSlides - 1) {
+      nextSlide();
+    } else if (diff > threshold && currentIndex > 0) {
+      prevSlide();
+    } else {
+      // Snap back to current slide
+      updateSlides(true);
+    }
+  }
+
+  // Add event listeners
+  track.addEventListener('mousedown', handleDragStart);
+  track.addEventListener('mousemove', handleDragMove);
+  track.addEventListener('mouseup', handleDragEnd);
+  track.addEventListener('mouseleave', handleDragEnd);
+
+  track.addEventListener('touchstart', handleDragStart, { passive: true });
+  track.addEventListener('touchmove', handleDragMove, { passive: false });
+  track.addEventListener('touchend', handleDragEnd);
+
+  // Click on pagination dots
+  dots.forEach(dot => {
+    dot.addEventListener('click', () => {
+      const index = parseInt(dot.dataset.index);
+      goToSlide(index);
+    });
+  });
+
+  // Tap on next slide to advance
+  slides.forEach((slide, index) => {
+    slide.addEventListener('click', (e) => {
+      if (slide.classList.contains('next')) {
+        nextSlide();
+      }
+    });
+  });
+
+  // Initialize
+  updateSlides(false);
+
+  // ============================================
+  // EDIT PROFILE FUNCTIONALITY
+  // ============================================
+
+  const editProfileBtn = document.querySelector('.edit-profile-btn');
+  const profileSection = document.getElementById('profileSection');
+  const carouselContainer = document.getElementById('carouselContainer');
+  const editActions = document.getElementById('editActions');
+  const btnSave = document.getElementById('btnSave');
+  const btnCancel = document.getElementById('btnCancel');
+  const addPhotoCard = document.getElementById('addPhotoCard');
+
+  let isEditMode = false;
+  let originalValues = {};
+  let originalPhotos = [];
+  let photosToRemove = [];
+
+  // Sample photos for "adding" new photos (in real app, this would be a file picker)
+  const samplePhotos = [
+    'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=600&q=85',
+    'https://images.unsplash.com/photo-1488716820095-cbe80883c496?w=600&q=85',
+    'https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=600&q=85',
+  ];
+  let samplePhotoIndex = 0;
+
+  function getPhotoSlides() {
+    return Array.from(document.querySelectorAll('.carousel-slide:not(.add-photo-card)'));
+  }
+
+  function updatePhotoCountBadges() {
+    const photoSlides = getPhotoSlides();
+    const total = photoSlides.length;
+    photoSlides.forEach((slide, index) => {
+      const badge = slide.querySelector('.photo-count-badge');
+      if (badge) {
+        badge.textContent = `${index + 1} of ${total}`;
+      }
+    });
+  }
+
+  function updatePaginationDots() {
+    const photoSlides = getPhotoSlides();
+    const pagination = document.getElementById('pagination');
+    pagination.innerHTML = '';
+
+    photoSlides.forEach((slide, index) => {
+      const dot = document.createElement('div');
+      dot.className = 'pagination-dot' + (index === currentIndex ? ' active' : '');
+      dot.dataset.index = index;
+      dot.addEventListener('click', () => goToSlide(index));
+      pagination.appendChild(dot);
+    });
+  }
+
+  function removePhoto(index) {
+    const photoSlides = getPhotoSlides();
+    if (photoSlides.length <= 1) {
+      alert('You must have at least one photo');
+      return;
+    }
+
+    const slideToRemove = photoSlides[index];
+    slideToRemove.style.transform = 'translateX(0) scale(0.8)';
+    slideToRemove.style.opacity = '0';
+
+    setTimeout(() => {
+      slideToRemove.remove();
+
+      // Reindex remaining slides
+      const remainingSlides = getPhotoSlides();
+      remainingSlides.forEach((slide, i) => {
+        slide.dataset.index = i;
+        const removeBtn = slide.querySelector('.photo-remove-btn');
+        if (removeBtn) removeBtn.dataset.index = i;
+      });
+
+      // Update current index if needed
+      if (currentIndex >= remainingSlides.length) {
+        currentIndex = remainingSlides.length - 1;
+      }
+
+      // Update carousel
+      totalSlides = remainingSlides.length;
+      updateSlides(true);
+      updatePhotoCountBadges();
+      updatePaginationDots();
+    }, 200);
+  }
+
+  function addPhoto() {
+    const photoSlides = getPhotoSlides();
+    const newIndex = photoSlides.length;
+
+    // Create new slide
+    const newSlide = document.createElement('div');
+    newSlide.className = 'carousel-slide';
+    newSlide.dataset.index = newIndex;
+    newSlide.innerHTML = `
+      <img src="${samplePhotos[samplePhotoIndex % samplePhotos.length]}" alt="Photo ${newIndex + 1}">
+      <button class="photo-remove-btn" data-index="${newIndex}">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <span class="photo-count-badge">${newIndex + 1} of ${newIndex + 1}</span>
+    `;
+
+    samplePhotoIndex++;
+
+    // Insert before add photo card
+    addPhotoCard.parentNode.insertBefore(newSlide, addPhotoCard);
+
+    // Add remove listener
+    const removeBtn = newSlide.querySelector('.photo-remove-btn');
+    removeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      removePhoto(parseInt(removeBtn.dataset.index));
+    });
+
+    // Update carousel
+    totalSlides = newIndex + 1;
+    goToSlide(newIndex);
+    updatePhotoCountBadges();
+    updatePaginationDots();
+  }
+
+  function enterEditMode() {
+    isEditMode = true;
+
+    const profileFirstName = document.getElementById('profileFirstName');
+    const profileLastName = document.getElementById('profileLastName');
+    const profileDescription = document.getElementById('profileDescription');
+
+    // Store original values
+    originalValues = {
+      firstName: profileFirstName.textContent,
+      lastName: profileLastName.textContent,
+      description: profileDescription.textContent
+    };
+
+    // Store original photos
+    originalPhotos = getPhotoSlides().map(slide => slide.querySelector('img').src);
+
+    // Convert to input fields
+    const firstNameInput = document.createElement('input');
+    firstNameInput.type = 'text';
+    firstNameInput.value = originalValues.firstName;
+    firstNameInput.className = 'profile-name editable';
+    firstNameInput.id = 'profileFirstName';
+    profileFirstName.replaceWith(firstNameInput);
+
+    const lastNameInput = document.createElement('input');
+    lastNameInput.type = 'text';
+    lastNameInput.value = originalValues.lastName;
+    lastNameInput.className = 'profile-lastname editable';
+    lastNameInput.id = 'profileLastName';
+    profileLastName.replaceWith(lastNameInput);
+
+    const descriptionTextarea = document.createElement('textarea');
+    descriptionTextarea.value = originalValues.description.trim();
+    descriptionTextarea.className = 'description editable';
+    descriptionTextarea.id = 'profileDescription';
+    profileDescription.replaceWith(descriptionTextarea);
+
+    // Show edit actions, hide edit button, enable photo editing
+    editActions.classList.add('visible');
+    editProfileBtn.classList.add('editing');
+    profileSection.classList.add('edit-mode');
+    carouselContainer.classList.add('edit-mode');
+  }
+
+  function exitEditMode(save = false) {
+    isEditMode = false;
+
+    const firstNameInput = document.getElementById('profileFirstName');
+    const lastNameInput = document.getElementById('profileLastName');
+    const descriptionTextarea = document.getElementById('profileDescription');
+
+    // Get values (saved or original)
+    const firstName = save ? firstNameInput.value : originalValues.firstName;
+    const lastName = save ? lastNameInput.value : originalValues.lastName;
+    const description = save ? descriptionTextarea.value : originalValues.description;
+
+    // Convert back to static elements
+    const firstNameEl = document.createElement('h1');
+    firstNameEl.className = 'profile-name';
+    firstNameEl.id = 'profileFirstName';
+    firstNameEl.textContent = firstName;
+    firstNameInput.replaceWith(firstNameEl);
+
+    const lastNameEl = document.createElement('p');
+    lastNameEl.className = 'profile-lastname';
+    lastNameEl.id = 'profileLastName';
+    lastNameEl.textContent = lastName;
+    lastNameInput.replaceWith(lastNameEl);
+
+    const descriptionEl = document.createElement('p');
+    descriptionEl.className = 'description';
+    descriptionEl.id = 'profileDescription';
+    descriptionEl.textContent = description;
+    descriptionTextarea.replaceWith(descriptionEl);
+
+    // Hide edit actions, show edit button, disable photo editing
+    editActions.classList.remove('visible');
+    editProfileBtn.classList.remove('editing');
+    profileSection.classList.remove('edit-mode');
+    carouselContainer.classList.remove('edit-mode');
+
+    // Update photo count badges
+    updatePhotoCountBadges();
+  }
+
+  // Add event listeners for remove buttons
+  document.querySelectorAll('.photo-remove-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (isEditMode) {
+        removePhoto(parseInt(btn.dataset.index));
+      }
+    });
+  });
+
+  // Add photo card click
+  addPhotoCard.addEventListener('click', () => {
+    if (isEditMode) {
+      addPhoto();
+    }
+  });
+
+  editProfileBtn.addEventListener('click', () => {
+    if (!isEditMode) {
+      enterEditMode();
+    }
+  });
+
+  btnSave.addEventListener('click', () => {
+    exitEditMode(true);
+  });
+
+  btnCancel.addEventListener('click', () => {
+    exitEditMode(false);
+  });
+</script>
+
+</body>
+</html>

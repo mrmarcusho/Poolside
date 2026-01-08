@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iOS Curved Picker Mockup</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #000;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+    }
+
+    .picker-container {
+      display: flex;
+      gap: 0;
+      position: relative;
+      padding: 20px 0;
+    }
+
+    /* The selection highlight bar */
+    .selection-bar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 44px;
+      background: rgba(60, 60, 67, 0.6);
+      border-radius: 10px;
+      z-index: 0;
+    }
+
+    .picker-column {
+      width: 100px;
+      height: 220px;
+      position: relative;
+      perspective: 200px;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .picker-column.wide {
+      width: 120px;
+    }
+
+    .picker-wheel {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      transform-style: preserve-3d;
+      transition: transform 0.1s ease-out;
+    }
+
+    .picker-item {
+      position: absolute;
+      width: 100%;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backface-visibility: hidden;
+      font-size: 22px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.3);
+      transition: all 0.15s ease;
+    }
+
+    /* Items in the selection area get highlighted */
+    .picker-item.selected {
+      color: #fff;
+      font-weight: 500;
+    }
+
+    .picker-item .label {
+      font-size: 18px;
+      margin-left: 4px;
+      color: inherit;
+    }
+
+    /* Curved effect - items transform based on position */
+    .picker-item[data-offset="0"] {
+      transform: translateY(-22px) rotateX(0deg) scale(1);
+      opacity: 1;
+    }
+
+    .picker-item[data-offset="1"],
+    .picker-item[data-offset="-1"] {
+      opacity: 0.5;
+    }
+
+    .picker-item[data-offset="1"] {
+      transform: translateY(22px) rotateX(-20deg) scale(0.92);
+    }
+
+    .picker-item[data-offset="-1"] {
+      transform: translateY(-66px) rotateX(20deg) scale(0.92);
+    }
+
+    .picker-item[data-offset="2"],
+    .picker-item[data-offset="-2"] {
+      opacity: 0.35;
+    }
+
+    .picker-item[data-offset="2"] {
+      transform: translateY(66px) rotateX(-35deg) scale(0.82);
+    }
+
+    .picker-item[data-offset="-2"] {
+      transform: translateY(-110px) rotateX(35deg) scale(0.82);
+    }
+
+    .picker-item[data-offset="3"],
+    .picker-item[data-offset="-3"] {
+      opacity: 0.2;
+    }
+
+    .picker-item[data-offset="3"] {
+      transform: translateY(110px) rotateX(-48deg) scale(0.7);
+    }
+
+    .picker-item[data-offset="-3"] {
+      transform: translateY(-154px) rotateX(48deg) scale(0.7);
+    }
+
+    .picker-item[data-offset="4"],
+    .picker-item[data-offset="-4"] {
+      opacity: 0.1;
+    }
+
+    .picker-item[data-offset="4"] {
+      transform: translateY(154px) rotateX(-58deg) scale(0.58);
+    }
+
+    .picker-item[data-offset="-4"] {
+      transform: translateY(-198px) rotateX(58deg) scale(0.58);
+    }
+
+    /* Gradient masks for top and bottom fade */
+    .picker-column::before,
+    .picker-column::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 70px;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .picker-column::before {
+      top: 0;
+      background: linear-gradient(to bottom, #000 0%, transparent 100%);
+    }
+
+    .picker-column::after {
+      bottom: 0;
+      background: linear-gradient(to top, #000 0%, transparent 100%);
+    }
+
+    /* Demo title */
+    .demo-title {
+      position: fixed;
+      top: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .demo-note {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 13px;
+      text-align: center;
+      max-width: 300px;
+      line-height: 1.5;
+    }
+
+    /* Interactive scrolling demo */
+    .picker-scroll-area {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 20;
+      cursor: grab;
+    }
+
+    .picker-scroll-area:active {
+      cursor: grabbing;
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-title">iOS Curved Picker Effect</div>
+
+  <div class="picker-container">
+    <div class="selection-bar"></div>
+
+    <!-- Hours Column -->
+    <div class="picker-column wide" id="hours-column">
+      <div class="picker-wheel" id="hours-wheel">
+        <!-- Items will be generated by JS -->
+      </div>
+      <div class="picker-scroll-area" data-column="hours"></div>
+    </div>
+
+    <!-- Minutes Column -->
+    <div class="picker-column wide" id="minutes-column">
+      <div class="picker-wheel" id="minutes-wheel">
+        <!-- Items will be generated by JS -->
+      </div>
+      <div class="picker-scroll-area" data-column="minutes"></div>
+    </div>
+
+    <!-- Seconds Column -->
+    <div class="picker-column wide" id="seconds-column">
+      <div class="picker-wheel" id="seconds-wheel">
+        <!-- Items will be generated by JS -->
+      </div>
+      <div class="picker-scroll-area" data-column="seconds"></div>
+    </div>
+  </div>
+
+  <div class="demo-note">
+    Drag up/down on each column to scroll.<br>
+    Notice the 3D curve effect and opacity changes.
+  </div>
+
+  <script>
+    // Generate picker items
+    function generateItems(wheelId, count, label, startValue = 0) {
+      const wheel = document.getElementById(wheelId);
+      wheel.innerHTML = '';
+
+      for (let i = 0; i < count; i++) {
+        const item = document.createElement('div');
+        item.className = 'picker-item';
+        item.dataset.value = startValue + i;
+        item.innerHTML = `${startValue + i}<span class="label">${label}</span>`;
+        wheel.appendChild(item);
+      }
+    }
+
+    generateItems('hours-wheel', 24, ' hours');
+    generateItems('minutes-wheel', 60, ' min');
+    generateItems('seconds-wheel', 60, ' sec');
+
+    // State for each column
+    const state = {
+      hours: { selected: 3, scrollY: 0 },
+      minutes: { selected: 34, scrollY: 0 },
+      seconds: { selected: 0, scrollY: 0 }
+    };
+
+    const itemHeight = 44;
+    const visibleItems = 5;
+
+    function updateWheel(column, wheel, items, count) {
+      const selectedIndex = state[column].selected;
+
+      items.forEach((item, index) => {
+        const offset = index - selectedIndex;
+
+        // Only show items within visible range
+        if (Math.abs(offset) <= 4) {
+          item.style.display = 'flex';
+          item.dataset.offset = offset;
+          item.classList.toggle('selected', offset === 0);
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+
+    function initColumn(column) {
+      const wheel = document.getElementById(`${column}-wheel`);
+      const scrollArea = document.querySelector(`[data-column="${column}"]`);
+      const items = wheel.querySelectorAll('.picker-item');
+      const count = items.length;
+
+      let isDragging = false;
+      let startY = 0;
+      let startSelected = 0;
+      let velocity = 0;
+      let lastY = 0;
+      let lastTime = 0;
+      let animationId = null;
+
+      updateWheel(column, wheel, items, count);
+
+      scrollArea.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startY = e.clientY;
+        startSelected = state[column].selected;
+        velocity = 0;
+        lastY = e.clientY;
+        lastTime = Date.now();
+        if (animationId) cancelAnimationFrame(animationId);
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+
+        const deltaY = startY - e.clientY;
+        const deltaItems = deltaY / itemHeight;
+        let newSelected = Math.round(startSelected + deltaItems);
+        newSelected = Math.max(0, Math.min(count - 1, newSelected));
+
+        // Calculate velocity
+        const now = Date.now();
+        const dt = now - lastTime;
+        if (dt > 0) {
+          velocity = (lastY - e.clientY) / dt;
+        }
+        lastY = e.clientY;
+        lastTime = now;
+
+        if (newSelected !== state[column].selected) {
+          state[column].selected = newSelected;
+          updateWheel(column, wheel, items, count);
+        }
+      });
+
+      document.addEventListener('mouseup', () => {
+        if (!isDragging) return;
+        isDragging = false;
+
+        // Momentum scrolling
+        if (Math.abs(velocity) > 0.3) {
+          const decelerate = () => {
+            velocity *= 0.92;
+
+            if (Math.abs(velocity) > 0.05) {
+              const delta = velocity * 16;
+              let newSelected = state[column].selected + Math.sign(delta) * (Math.abs(delta) > itemHeight / 3 ? 1 : 0);
+              newSelected = Math.max(0, Math.min(count - 1, newSelected));
+
+              if (newSelected !== state[column].selected) {
+                state[column].selected = newSelected;
+                updateWheel(column, wheel, items, count);
+              }
+
+              animationId = requestAnimationFrame(decelerate);
+            }
+          };
+          decelerate();
+        }
+      });
+
+      // Touch support
+      scrollArea.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        startY = e.touches[0].clientY;
+        startSelected = state[column].selected;
+        velocity = 0;
+        lastY = e.touches[0].clientY;
+        lastTime = Date.now();
+        if (animationId) cancelAnimationFrame(animationId);
+      });
+
+      scrollArea.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+
+        const deltaY = startY - e.touches[0].clientY;
+        const deltaItems = deltaY / itemHeight;
+        let newSelected = Math.round(startSelected + deltaItems);
+        newSelected = Math.max(0, Math.min(count - 1, newSelected));
+
+        // Calculate velocity
+        const now = Date.now();
+        const dt = now - lastTime;
+        if (dt > 0) {
+          velocity = (lastY - e.touches[0].clientY) / dt;
+        }
+        lastY = e.touches[0].clientY;
+        lastTime = now;
+
+        if (newSelected !== state[column].selected) {
+          state[column].selected = newSelected;
+          updateWheel(column, wheel, items, count);
+        }
+      });
+
+      scrollArea.addEventListener('touchend', () => {
+        isDragging = false;
+
+        // Momentum scrolling
+        if (Math.abs(velocity) > 0.3) {
+          const decelerate = () => {
+            velocity *= 0.92;
+
+            if (Math.abs(velocity) > 0.05) {
+              const delta = velocity * 16;
+              let newSelected = state[column].selected + Math.sign(delta) * (Math.abs(delta) > itemHeight / 3 ? 1 : 0);
+              newSelected = Math.max(0, Math.min(count - 1, newSelected));
+
+              if (newSelected !== state[column].selected) {
+                state[column].selected = newSelected;
+                updateWheel(column, wheel, items, count);
+              }
+
+              animationId = requestAnimationFrame(decelerate);
+            }
+          };
+          decelerate();
+        }
+      });
+    }
+
+    initColumn('hours');
+    initColumn('minutes');
+    initColumn('seconds');
+  </script>
+</body>
+</html>

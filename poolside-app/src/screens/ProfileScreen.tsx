@@ -3,54 +3,210 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
   TouchableOpacity,
   ScrollView,
   Dimensions,
-  FlatList,
-  NativeSyntheticEvent,
-  NativeScrollEvent,
-  Modal,
+  TextInput,
   ActivityIndicator,
+  StatusBar,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { EditProfileScreen } from './EditProfileScreen';
-import { SettingsModal } from '../components/SettingsModal';
-import { usersService, CurrentUser } from '../api/services/users';
+import { BlurView } from 'expo-blur';
+import { useNavigation } from '@react-navigation/native';
+import * as Haptics from 'expo-haptics';
+import * as ImagePicker from 'expo-image-picker';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withDelay,
+  withTiming,
+  runOnJS,
+  Easing,
+} from 'react-native-reanimated';
+import { usersService } from '../api/services/users';
+import { ProfileBackground } from '../components/ProfileBackground';
+import { DeckCarousel } from '../components/DeckCarousel';
+import { InterestsGallery, Interest } from '../components/InterestsGallery';
+import { FavoritesSearchModal } from '../components/FavoritesSearchModal';
 
-const { width } = Dimensions.get('window');
-const PHOTO_WIDTH = width - 40;
-
-// Empty defaults for new users
-const emptyStats = {
-  followers: 0,
-  following: 0,
-  eventsHosted: 0,
+// Spring config for bubbly animation
+const BUBBLE_SPRING_CONFIG = {
+  damping: 12,
+  stiffness: 180,
+  mass: 0.8,
 };
+
+const { width, height } = Dimensions.get('window');
+
+// Sample interests data matching the mockup
+const sampleInterests: Interest[] = [
+  {
+    type: 'movie',
+    title: 'Dune: Part Two',
+    year: '2024',
+    image: 'https://image.tmdb.org/t/p/w300/d5NXSklXo0qyIYkgV94XAgMIckC.jpg',
+  },
+  {
+    type: 'artist',
+    name: 'Frank Ocean',
+    image: 'https://i.scdn.co/image/ab6761610000e5ebee3123e593174208f9754fab',
+  },
+  {
+    type: 'food',
+    name: 'Omakase Sushi',
+    cuisine: 'Japanese',
+    emoji: '🍣',
+    image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=400&q=80',
+  },
+  {
+    type: 'song',
+    title: 'Pink + White',
+    artist: 'Frank Ocean',
+    image: 'https://i.scdn.co/image/ab67616d0000b2732e8ed79e177ff6011076f5f0',
+  },
+  {
+    type: 'sport',
+    name: 'Tennis',
+    level: 'competitive',
+    emoji: '🎾',
+  },
+];
+
+// Sample photos for the carousel
+const samplePhotos = [
+  'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=600&q=85',
+  'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=85',
+  'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=600&q=85',
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&q=85',
+  'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600&q=85',
+];
 
 interface UserProfile {
   id: string;
-  name: string;
-  age: number | null;
-  emoji: string;
-  location: string;
-  college: string;
+  firstName: string;
+  lastName: string;
   bio: string;
   photos: string[];
-  interests: { emoji: string; label: string }[];
-  stats: { followers: number; following: number; eventsHosted: number };
-  pastEvents: { id: string; title: string; date: string; image: string; type: string }[];
+  interests: Interest[];
 }
 
 export const ProfileScreen: React.FC = () => {
-  const [activePhotoIndex, setActivePhotoIndex] = useState(0);
-  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  const [isSettingsVisible, setIsSettingsVisible] = useState(false);
+  const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(true);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [user, setUser] = useState<UserProfile | null>(null);
 
-  // Fetch user profile from API on mount
+  // Edit mode state
+  const [editFirstName, setEditFirstName] = useState('');
+  const [editLastName, setEditLastName] = useState('');
+  const [editBio, setEditBio] = useState('');
+  const [editPhotos, setEditPhotos] = useState<string[]>([]);
+  const [editInterests, setEditInterests] = useState<Interest[]>([]);
+
+  // Favorites search modal state
+  const [searchModalVisible, setSearchModalVisible] = useState(false);
+  const [searchModalType, setSearchModalType] = useState<Interest['type']>('movie');
+  const [editingInterestIndex, setEditingInterestIndex] = useState<number>(0);
+
+  // Original values for cancel
+  const [originalValues, setOriginalValues] = useState({
+    firstName: '',
+    lastName: '',
+    bio: '',
+    photos: [] as string[],
+    interests: [] as Interest[],
+  });
+
+  // Animation state - tracks if edit content should be shown
+  const [showEditContent, setShowEditContent] = useState(false);
+
+  // Animation shared values for each field (0 = hidden, 1 = visible)
+  const carouselAnim = useSharedValue(0);
+  const firstNameAnim = useSharedValue(0);
+  const lastNameAnim = useSharedValue(0);
+  const bioAnim = useSharedValue(0);
+  const buttonsAnim = useSharedValue(0);
+
+  // Animated styles for carousel
+  const carouselAnimStyle = useAnimatedStyle(() => ({
+    opacity: carouselAnim.value,
+    transform: [
+      { scale: 0.85 + (carouselAnim.value * 0.15) },
+      { translateY: 10 - (carouselAnim.value * 10) },
+    ],
+  }));
+
+  // Animated styles for first name input
+  const firstNameAnimStyle = useAnimatedStyle(() => ({
+    opacity: firstNameAnim.value,
+    transform: [
+      { scale: 0.85 + (firstNameAnim.value * 0.15) },
+      { translateY: 10 - (firstNameAnim.value * 10) },
+    ],
+  }));
+
+  // Animated styles for last name input
+  const lastNameAnimStyle = useAnimatedStyle(() => ({
+    opacity: lastNameAnim.value,
+    transform: [
+      { scale: 0.85 + (lastNameAnim.value * 0.15) },
+      { translateY: 10 - (lastNameAnim.value * 10) },
+    ],
+  }));
+
+  // Animated styles for bio input
+  const bioAnimStyle = useAnimatedStyle(() => ({
+    opacity: bioAnim.value,
+    transform: [
+      { scale: 0.85 + (bioAnim.value * 0.15) },
+      { translateY: 10 - (bioAnim.value * 10) },
+    ],
+  }));
+
+  // Animated styles for action buttons
+  const buttonsAnimStyle = useAnimatedStyle(() => ({
+    opacity: buttonsAnim.value,
+    transform: [
+      { scale: 0.85 + (buttonsAnim.value * 0.15) },
+      { translateY: 10 - (buttonsAnim.value * 10) },
+    ],
+  }));
+
+  // Trigger enter animation
+  const animateIn = () => {
+    setShowEditContent(true);
+    carouselAnim.value = withDelay(0, withSpring(1, BUBBLE_SPRING_CONFIG));
+    firstNameAnim.value = withDelay(80, withSpring(1, BUBBLE_SPRING_CONFIG));
+    lastNameAnim.value = withDelay(160, withSpring(1, BUBBLE_SPRING_CONFIG));
+    bioAnim.value = withDelay(240, withSpring(1, BUBBLE_SPRING_CONFIG));
+    buttonsAnim.value = withDelay(320, withSpring(1, BUBBLE_SPRING_CONFIG));
+  };
+
+  // Trigger exit animation
+  const animateOut = (callback: () => void) => {
+    const exitDuration = 200;
+    const exitConfig = { duration: exitDuration, easing: Easing.out(Easing.ease) };
+
+    buttonsAnim.value = withDelay(0, withTiming(0, exitConfig));
+    bioAnim.value = withDelay(40, withTiming(0, exitConfig));
+    lastNameAnim.value = withDelay(80, withTiming(0, exitConfig));
+    firstNameAnim.value = withDelay(120, withTiming(0, exitConfig));
+    carouselAnim.value = withDelay(160, withTiming(0, exitConfig, () => {
+      runOnJS(callback)();
+    }));
+  };
+
+  // Reset animation values
+  const resetAnimations = () => {
+    carouselAnim.value = 0;
+    firstNameAnim.value = 0;
+    lastNameAnim.value = 0;
+    bioAnim.value = 0;
+    buttonsAnim.value = 0;
+    setShowEditContent(false);
+  };
+
   useEffect(() => {
     fetchProfile();
   }, []);
@@ -60,701 +216,567 @@ export const ProfileScreen: React.FC = () => {
       setIsLoading(true);
       const apiUser = await usersService.getMe();
 
-      // Use actual user data - empty arrays for new users
+      // Parse name into first and last
+      const nameParts = apiUser.name.split(' ');
+      const firstName = nameParts[0] || 'Sarah';
+      const lastName = nameParts.slice(1).join(' ') || 'Mitchell';
+
+      // Use sample data for demo, will use API data in production
+      const photos = apiUser.avatar ? [apiUser.avatar] : samplePhotos;
+
       setUser({
         id: apiUser.id,
-        name: apiUser.name,
-        age: apiUser.age,
-        emoji: apiUser.emoji || '👤',
-        location: apiUser.location || '',
-        college: apiUser.school || '',
-        bio: apiUser.bio || '',
-        photos: apiUser.avatar ? [apiUser.avatar] : [], // Empty for new users
-        interests: apiUser.interests || [], // Empty for new users
-        stats: emptyStats, // TODO: Fetch from API when available
-        pastEvents: [], // TODO: Fetch from API when available
+        firstName,
+        lastName,
+        bio: apiUser.bio || "First-time cruiser loving every moment! Here for the sunset deck parties, trivia nights, and making new friends. Always down for poolside hangs or exploring ports together. Let's make this voyage unforgettable!",
+        photos,
+        interests: sampleInterests,
       });
     } catch (error) {
       console.error('Failed to fetch profile:', error);
-      // Use fallback data on error
+      // Use sample data on error
       setUser({
         id: '0',
-        name: 'Guest',
-        age: null,
-        emoji: '👤',
-        location: '',
-        college: '',
-        bio: '',
-        photos: [],
-        interests: [],
-        stats: emptyStats,
-        pastEvents: [],
+        firstName: 'Sarah',
+        lastName: 'Mitchell',
+        bio: "First-time cruiser loving every moment! Here for the sunset deck parties, trivia nights, and making new friends. Always down for poolside hangs or exploring ports together. Let's make this voyage unforgettable!",
+        photos: samplePhotos,
+        interests: sampleInterests,
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const contentOffsetX = event.nativeEvent.contentOffset.x;
-    const index = Math.round(contentOffsetX / PHOTO_WIDTH);
-    setActivePhotoIndex(index);
+  const handleBackPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (isEditMode) {
+      handleCancel();
+    } else {
+      navigation.goBack();
+    }
   };
 
-  const handleEditProfile = () => {
-    setIsEditModalVisible(true);
+  const handleEditPress = () => {
+    if (!user) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    // Store original values
+    setOriginalValues({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      bio: user.bio,
+      photos: [...user.photos],
+      interests: [...user.interests],
+    });
+
+    // Initialize edit fields
+    setEditFirstName(user.firstName);
+    setEditLastName(user.lastName);
+    setEditBio(user.bio);
+    setEditPhotos([...user.photos]);
+    setEditInterests([...user.interests]);
+
+    setIsEditMode(true);
+    animateIn();
   };
 
-  const handleSaveProfile = (updatedData: any) => {
-    setUser(prev => prev ? {
-      ...prev,
-      name: updatedData.name,
-      age: updatedData.age,
-      location: updatedData.location,
-      college: updatedData.school,
-      bio: updatedData.bio,
-      interests: updatedData.interests,
-    } : null);
+  const handleSave = async () => {
+    if (!user) return;
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+    // Update local state
+    setUser({
+      ...user,
+      firstName: editFirstName,
+      lastName: editLastName,
+      bio: editBio,
+      photos: editPhotos,
+      interests: editInterests,
+    });
+
+    // Animate out then exit edit mode
+    animateOut(() => {
+      setIsEditMode(false);
+      resetAnimations();
+    });
+
+    // Persist to backend
+    try {
+      await usersService.updateProfile({
+        name: `${editFirstName} ${editLastName}`.trim(),
+        bio: editBio,
+      });
+    } catch (error) {
+      console.error('Failed to save profile:', error);
+    }
   };
 
-  // Show loading state
+  const handleCancel = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    // Restore original values
+    setEditFirstName(originalValues.firstName);
+    setEditLastName(originalValues.lastName);
+    setEditBio(originalValues.bio);
+    setEditPhotos(originalValues.photos);
+    setEditInterests(originalValues.interests);
+
+    // Animate out then exit edit mode
+    animateOut(() => {
+      setIsEditMode(false);
+      resetAnimations();
+    });
+  };
+
+  const handleRemovePhoto = (index: number) => {
+    if (editPhotos.length <= 1) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setEditPhotos(editPhotos.filter((_, i) => i !== index));
+  };
+
+  const handleAddPhoto = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    // Request permission
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Sorry, we need camera roll permissions to add photos.');
+      return;
+    }
+
+    // Launch image picker
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [3, 4],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      setEditPhotos([...editPhotos, result.assets[0].uri]);
+    }
+  };
+
+  const handleMessagePress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    // Navigate to messages
+  };
+
+  const handleAddFriend = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    // Add friend logic
+  };
+
+  const handleInterestPress = (index: number, type: Interest['type']) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setEditingInterestIndex(index);
+    setSearchModalType(type);
+    setSearchModalVisible(true);
+  };
+
+  const handleInterestSelect = (interest: Interest) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    const updatedInterests = [...editInterests];
+    updatedInterests[editingInterestIndex] = interest;
+    setEditInterests(updatedInterests);
+    setSearchModalVisible(false);
+  };
+
   if (isLoading || !user) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#667eea" />
-        </View>
-      </SafeAreaView>
+      <View style={styles.loadingContainer}>
+        <ProfileBackground />
+        <ActivityIndicator size="large" color="#FF8C00" style={{ zIndex: 10 }} />
+      </View>
     );
   }
 
-  const renderPhoto = ({ item }: { item: string }) => (
-    <View style={styles.photoItem}>
-      <Image source={{ uri: item }} style={styles.photo} />
-    </View>
-  );
-
-  const renderPastEvent = (event: typeof user.pastEvents[0]) => (
-    <View key={event.id} style={styles.pastEvent}>
-      <Image source={{ uri: event.image }} style={styles.pastEventImage} />
-      <View style={styles.pastEventInfo}>
-        <Text style={styles.pastEventTitle}>{event.title}</Text>
-        <Text style={styles.pastEventDate}>{event.date}</Text>
-      </View>
-      <View style={[
-        styles.pastEventBadge,
-        event.type === 'hosted' ? styles.badgeHosted : styles.badgeAttended
-      ]}>
-        <Text style={[
-          styles.badgeText,
-          event.type === 'hosted' ? styles.badgeTextHosted : styles.badgeTextAttended
-        ]}>
-          {event.type === 'hosted' ? 'Hosted' : 'Went'}
-        </Text>
-      </View>
-    </View>
-  );
+  const displayPhotos = isEditMode ? editPhotos : user.photos;
+  const displayFirstName = isEditMode ? editFirstName : user.firstName;
+  const displayLastName = isEditMode ? editLastName : user.lastName;
+  const displayBio = isEditMode ? editBio : user.bio;
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.headerBtn} onPress={() => setIsSettingsVisible(true)}>
-          <Text style={styles.headerBtnText}>⚙️</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Profile</Text>
-        <TouchableOpacity style={styles.headerBtn} onPress={handleEditProfile}>
-          <Text style={styles.headerBtnText}>✏️</Text>
-        </TouchableOpacity>
-      </View>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
 
+      {/* Lottie Background Layer */}
+      <ProfileBackground />
+
+      {/* Back Button */}
+      <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
+        <BlurView intensity={80} tint="light" style={styles.blurButton}>
+          <Text style={styles.backButtonText}>‹</Text>
+        </BlurView>
+      </TouchableOpacity>
+
+      {/* Edit Profile Button (hidden in edit mode) */}
+      {!isEditMode && (
+        <TouchableOpacity style={styles.editProfileButton} onPress={handleEditPress}>
+          <BlurView intensity={12} tint="light" style={styles.editProfileBlur}>
+            <Text style={styles.editProfileText}>Edit Profile</Text>
+          </BlurView>
+        </TouchableOpacity>
+      )}
+
+      {/* Main Content */}
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardDismissMode="on-drag"
       >
-        {/* Photo Gallery or Empty State */}
-        {user.photos.length > 0 ? (
-          <>
-            <FlatList
-              data={user.photos}
-              renderItem={renderPhoto}
-              keyExtractor={(_, index) => index.toString()}
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-              onScroll={handleScroll}
-              scrollEventThrottle={16}
-              style={styles.photoGallery}
-              contentContainerStyle={styles.photoGalleryContent}
-              snapToInterval={PHOTO_WIDTH + 8}
-              decelerationRate="fast"
+        {/* Photo Carousel */}
+        <View style={styles.carouselSection}>
+          {showEditContent ? (
+            <Animated.View style={carouselAnimStyle}>
+              <DeckCarousel
+                photos={displayPhotos}
+                isEditMode={isEditMode}
+                onRemovePhoto={handleRemovePhoto}
+                onAddPhoto={handleAddPhoto}
+              />
+            </Animated.View>
+          ) : (
+            <DeckCarousel
+              photos={displayPhotos}
+              isEditMode={isEditMode}
+              onRemovePhoto={handleRemovePhoto}
+              onAddPhoto={handleAddPhoto}
             />
-            {/* Photo Dots */}
-            <View style={styles.photoDots}>
-              {user.photos.map((_, index) => (
-                <View
-                  key={index}
-                  style={[
-                    styles.dot,
-                    activePhotoIndex === index && styles.dotActive
-                  ]}
-                />
-              ))}
-            </View>
-          </>
-        ) : (
-          /* Empty Photo State */
-          <View style={styles.emptyPhotoSection}>
-            <TouchableOpacity style={styles.emptyPhotoCard} onPress={handleEditProfile}>
-              <View style={styles.emptyPhotoPlusIcon}>
-                <Text style={styles.emptyPhotoPlusText}>+</Text>
-              </View>
-              <Text style={styles.emptyPhotoTitle}>Add Photos</Text>
-              <Text style={styles.emptyPhotoSubtitle}>Add some photos for your profile</Text>
-            </TouchableOpacity>
-            <View style={styles.photoDots}>
-              <View style={[styles.dot, styles.dotActive]} />
-            </View>
-          </View>
-        )}
+          )}
+        </View>
 
-        {/* Profile Content */}
-        <View style={styles.profileContent}>
-          {/* Name Row with Action Buttons */}
-          <View style={styles.nameRow}>
-            <View style={styles.nameInfo}>
-              <Text style={styles.userName}>{user.name}</Text>
-              {user.age != null && <Text style={styles.userAge}>{user.age}</Text>}
-              <Text style={styles.userEmoji}>{user.emoji}</Text>
-            </View>
-            <View style={styles.actionButtons}>
-              <TouchableOpacity>
+        {/* Profile Section */}
+        <View style={styles.profileSection}>
+          {/* Name Header */}
+          <View style={styles.profileHeader}>
+            {showEditContent ? (
+              <Animated.View style={[styles.editFieldContainer, firstNameAnimStyle]}>
+                <TextInput
+                  style={styles.profileNameInput}
+                  value={editFirstName}
+                  onChangeText={setEditFirstName}
+                  placeholder="First Name"
+                  placeholderTextColor="rgba(255,255,255,0.3)"
+                />
+              </Animated.View>
+            ) : (
+              <Text style={styles.profileName}>{displayFirstName}</Text>
+            )}
+
+            {!isEditMode && (
+              <TouchableOpacity style={styles.messageButton} onPress={handleMessagePress}>
+                <Text style={styles.messageButtonText}>Message</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* Last Name */}
+          {showEditContent ? (
+            <Animated.View style={[styles.editFieldContainer, lastNameAnimStyle]}>
+              <TextInput
+                style={styles.profileLastNameInput}
+                value={editLastName}
+                onChangeText={setEditLastName}
+                placeholder="Last Name"
+                placeholderTextColor="rgba(255,255,255,0.3)"
+              />
+            </Animated.View>
+          ) : (
+            <Text style={styles.profileLastName}>{displayLastName}</Text>
+          )}
+
+          {/* Description */}
+          {showEditContent ? (
+            <Animated.View style={[styles.editFieldContainer, bioAnimStyle]}>
+              <TextInput
+                style={styles.descriptionInput}
+                value={editBio}
+                onChangeText={setEditBio}
+                placeholder="Tell others about yourself..."
+                placeholderTextColor="rgba(255,255,255,0.3)"
+                multiline
+                numberOfLines={4}
+              />
+            </Animated.View>
+          ) : (
+            <Text style={styles.description}>{displayBio}</Text>
+          )}
+
+          {/* Edit Actions */}
+          {showEditContent && (
+            <Animated.View style={[styles.editActions, buttonsAnimStyle]}>
+              <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
                 <LinearGradient
-                  colors={['#667eea', '#764ba2']}
+                  colors={['#3b82f6', '#8b5cf6']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
-                  style={styles.btnAddFriend}
+                  style={styles.saveButtonGradient}
                 >
-                  <Text style={styles.btnAddFriendText}>Add Friend</Text>
+                  <Text style={styles.saveButtonText}>Save Changes</Text>
                 </LinearGradient>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.btnMessage}>
-                <Text style={styles.btnMessageText}>💬</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* Location - show add button if empty */}
-          {user.location ? (
-            <View style={styles.infoRow}>
-              <Text style={styles.infoIcon}>📍</Text>
-              <Text style={styles.infoText}>{user.location}</Text>
-            </View>
-          ) : (
-            <TouchableOpacity style={styles.addInfoBtn} onPress={handleEditProfile}>
-              <Text style={styles.addInfoIcon}>📍</Text>
-              <Text style={styles.addInfoText}>+ Add location</Text>
-            </TouchableOpacity>
+            </Animated.View>
           )}
 
-          {/* College - show add button if empty */}
-          {user.college ? (
-            <View style={styles.infoRow}>
-              <Text style={styles.infoIcon}>🎓</Text>
-              <Text style={styles.infoText}>{user.college}</Text>
-            </View>
-          ) : (
-            <TouchableOpacity style={styles.addInfoBtn} onPress={handleEditProfile}>
-              <Text style={styles.addInfoIcon}>🎓</Text>
-              <Text style={styles.addInfoText}>+ Add college</Text>
-            </TouchableOpacity>
-          )}
+          {/* Interests Gallery */}
+          <InterestsGallery
+            interests={isEditMode ? editInterests : user.interests}
+            isEditMode={isEditMode}
+            onInterestPress={handleInterestPress}
+          />
 
-          {/* Bio - show placeholder if empty */}
-          {user.bio ? (
-            <Text style={styles.bio}>{user.bio}</Text>
-          ) : (
-            <TouchableOpacity style={styles.emptyBioSection} onPress={handleEditProfile}>
-              <Text style={styles.emptyBioIcon}>📝</Text>
-              <Text style={styles.emptyBioText}>Tell others about yourself...</Text>
-              <Text style={styles.emptyBioAddBtn}>Add bio</Text>
-            </TouchableOpacity>
-          )}
-
-          {/* Interest Tags - show add button if empty */}
-          {user.interests.length > 0 ? (
-            <View style={styles.tags}>
-              {user.interests.map((interest, index) => (
-                <View key={index} style={styles.tag}>
-                  <Text style={styles.tagText}>
-                    {interest.emoji} {interest.label}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          ) : (
-            <View style={styles.emptyInterestsSection}>
-              <Text style={styles.sectionLabel}>INTERESTS</Text>
-              <TouchableOpacity style={styles.addInterestBtn} onPress={handleEditProfile}>
-                <Text style={styles.addInterestBtnText}>+ Add interests</Text>
+          {/* Add Friend Button (hidden in edit mode) */}
+          {!isEditMode && (
+            <View style={styles.ctaSection}>
+              <TouchableOpacity style={styles.addFriendButton} onPress={handleAddFriend}>
+                <LinearGradient
+                  colors={['#3b82f6', '#8b5cf6']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.addFriendGradient}
+                >
+                  <Text style={styles.addFriendText}>Add Friend</Text>
+                </LinearGradient>
               </TouchableOpacity>
             </View>
           )}
 
-          {/* Stats Row */}
-          <View style={styles.statsRow}>
-            <View style={styles.stat}>
-              <Text style={[styles.statValue, user.stats.followers === 0 && styles.statValueEmpty]}>
-                {user.stats.followers}
-              </Text>
-              <Text style={styles.statLabel}>Followers</Text>
-            </View>
-            <View style={styles.stat}>
-              <Text style={[styles.statValue, user.stats.following === 0 && styles.statValueEmpty]}>
-                {user.stats.following}
-              </Text>
-              <Text style={styles.statLabel}>Following</Text>
-            </View>
-            <View style={styles.stat}>
-              <Text style={[styles.statValue, user.stats.eventsHosted === 0 && styles.statValueEmpty]}>
-                {user.stats.eventsHosted}
-              </Text>
-              <Text style={styles.statLabel}>Events Hosted</Text>
-            </View>
-          </View>
-
-          {/* Past Events */}
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>🗓 Past Events</Text>
-          </View>
-
-          {user.pastEvents.length > 0 ? (
-            <View style={styles.pastEvents}>
-              {user.pastEvents.map(renderPastEvent)}
-            </View>
-          ) : (
-            <View style={styles.emptyEventsSection}>
-              <Text style={styles.emptyEventsIcon}>🎉</Text>
-              <Text style={styles.emptyEventsTitle}>No events yet</Text>
-              <Text style={styles.emptyEventsSubtitle}>Events you host or attend will appear here</Text>
-            </View>
-          )}
-
-          {/* Bottom padding for tab bar */}
+          {/* Bottom padding */}
           <View style={{ height: 100 }} />
         </View>
       </ScrollView>
 
-      {/* Edit Profile Modal */}
-      <Modal
-        visible={isEditModalVisible}
-        animationType="slide"
-        presentationStyle="fullScreen"
-      >
-        <EditProfileScreen
-          visible={isEditModalVisible}
-          onClose={() => setIsEditModalVisible(false)}
-          initialData={{
-            name: user.name,
-            age: user.age || 0,
-            location: user.location,
-            school: user.college,
-            bio: user.bio,
-            interests: user.interests,
-            photo: user.photos[0],
-            showEventsHosted: true,
-            showEventsAttended: true,
-          }}
-          onSave={handleSaveProfile}
-        />
-      </Modal>
-
-      {/* Settings Modal */}
-      <SettingsModal
-        visible={isSettingsVisible}
-        onClose={() => setIsSettingsVisible(false)}
+      {/* Favorites Search Modal */}
+      <FavoritesSearchModal
+        visible={searchModalVisible}
+        onClose={() => setSearchModalVisible(false)}
+        onSelect={handleInterestSelect}
+        type={searchModalType}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0a0f',
+    backgroundColor: '#FAF8F6',  // Warm white base (matches background)
   },
   loadingContainer: {
     flex: 1,
+    backgroundColor: '#FAF8F6',  // Warm white base (matches background)
     justifyContent: 'center',
     alignItems: 'center',
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
-  headerBtn: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerBtnText: {
-    fontSize: 22,
-    opacity: 0.7,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 20,
-  },
-  // Photo Gallery
-  photoGallery: {
-    flexGrow: 0,
-  },
-  photoGalleryContent: {
-    paddingHorizontal: 16,
-  },
-  photoItem: {
-    width: PHOTO_WIDTH,
-    aspectRatio: 3 / 4,
-    borderRadius: 20,
+  // Back Button
+  backButton: {
+    position: 'absolute',
+    top: 68,
+    left: 24,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     overflow: 'hidden',
-    marginRight: 8,
+    zIndex: 50,
   },
-  photo: {
+  blurButton: {
     width: '100%',
     height: '100%',
-  },
-  photoDots: {
-    flexDirection: 'row',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
     justifyContent: 'center',
-    gap: 6,
-    paddingVertical: 12,
-  },
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-  },
-  dotActive: {
-    width: 20,
-    borderRadius: 3,
-    backgroundColor: '#fff',
-  },
-  // Profile Content
-  profileContent: {
-    paddingHorizontal: 20,
-  },
-  nameRow: {
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 8,
   },
-  nameInfo: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 10,
-  },
-  userName: {
+  backButtonText: {
     fontSize: 28,
-    fontWeight: '700',
     color: '#fff',
+    fontWeight: '300',
+    marginTop: -2,
   },
-  userAge: {
-    fontSize: 24,
-    fontWeight: '400',
-    color: 'rgba(255, 255, 255, 0.8)',
+  // Edit Profile Button
+  editProfileButton: {
+    position: 'absolute',
+    top: 68,
+    right: 24,
+    borderRadius: 100,
+    overflow: 'hidden',
+    zIndex: 50,
   },
-  userEmoji: {
-    fontSize: 24,
-  },
-  // Action Buttons (next to name)
-  actionButtons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  btnAddFriend: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 10,
-  },
-  btnAddFriendText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  btnMessage: {
-    width: 36,
-    height: 36,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  btnMessageText: {
-    fontSize: 16,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 6,
-  },
-  infoIcon: {
-    fontSize: 14,
-    opacity: 0.6,
-  },
-  infoText: {
-    fontSize: 15,
-    color: 'rgba(255, 255, 255, 0.7)',
-  },
-  bio: {
-    marginTop: 16,
-    marginBottom: 16,
-    fontSize: 15,
-    lineHeight: 22,
-    color: 'rgba(255, 255, 255, 0.9)',
-  },
-  // Tags
-  tags: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 20,
-  },
-  tag: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    backgroundColor: 'rgba(102, 126, 234, 0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(102, 126, 234, 0.3)',
-    borderRadius: 20,
-  },
-  tagText: {
-    fontSize: 13,
-    color: '#a5b4fc',
-  },
-  // Stats
-  statsRow: {
-    flexDirection: 'row',
-    gap: 24,
-    paddingVertical: 16,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    marginBottom: 20,
-  },
-  stat: {
-    flexDirection: 'column',
-  },
-  statValue: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  statLabel: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.5)',
-  },
-  // Past Events
-  sectionHeader: {
-    marginBottom: 14,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  pastEvents: {
-    gap: 12,
-  },
-  pastEvent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-  },
-  pastEventImage: {
-    width: 56,
-    height: 56,
-    borderRadius: 14,
-  },
-  pastEventInfo: {
-    flex: 1,
-  },
-  pastEventTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#fff',
-    marginBottom: 2,
-  },
-  pastEventDate: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.5)',
-  },
-  pastEventBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  badgeHosted: {
-    backgroundColor: 'rgba(139, 92, 246, 0.2)',
-  },
-  badgeAttended: {
-    backgroundColor: 'rgba(34, 197, 94, 0.2)',
-  },
-  badgeText: {
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  badgeTextHosted: {
-    color: '#a78bfa',
-  },
-  badgeTextAttended: {
-    color: '#4ade80',
-  },
-  // Empty Photo State
-  emptyPhotoSection: {
-    paddingHorizontal: 16,
-  },
-  emptyPhotoCard: {
-    width: '100%',
-    aspectRatio: 3 / 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-    borderWidth: 2,
-    borderStyle: 'dashed',
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 12,
-  },
-  emptyPhotoPlusIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyPhotoPlusText: {
-    fontSize: 32,
-    color: 'rgba(255, 255, 255, 0.4)',
-  },
-  emptyPhotoTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.4)',
-  },
-  emptyPhotoSubtitle: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.25)',
-  },
-  // Add Info Buttons
-  addInfoBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingVertical: 8,
-  },
-  addInfoIcon: {
-    fontSize: 14,
-    opacity: 0.5,
-  },
-  addInfoText: {
-    fontSize: 14,
-    color: '#667eea',
-    fontWeight: '500',
-  },
-  // Empty Bio Section
-  emptyBioSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginVertical: 16,
-    padding: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 12,
-  },
-  emptyBioIcon: {
-    fontSize: 16,
-    opacity: 0.4,
-  },
-  emptyBioText: {
-    flex: 1,
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.35)',
-  },
-  emptyBioAddBtn: {
-    fontSize: 13,
-    color: '#667eea',
-    fontWeight: '500',
-  },
-  // Empty Interests Section
-  emptyInterestsSection: {
-    marginBottom: 20,
-  },
-  sectionLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.4)',
-    letterSpacing: 0.5,
-    marginBottom: 10,
-  },
-  addInterestBtn: {
-    alignSelf: 'flex-start',
+  editProfileBlur: {
     paddingHorizontal: 16,
     paddingVertical: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
     borderWidth: 1,
-    borderStyle: 'dashed',
     borderColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 25,
+    borderRadius: 100,
   },
-  addInterestBtnText: {
+  editProfileText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#fff',
+  },
+  // Scroll View
+  scrollView: {
+    flex: 1,
+    zIndex: 10,
+  },
+  scrollContent: {
+    paddingTop: 120,
+  },
+  // Carousel
+  carouselSection: {
+    marginBottom: 20,
+  },
+  // Profile Section
+  profileSection: {
+    paddingHorizontal: 16,
+  },
+  editFieldContainer: {
+    flex: 1,
+  },
+  profileHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 2,
+  },
+  profileName: {
+    fontFamily: 'System',
+    fontSize: 42,
+    fontWeight: '900',
+    color: '#fff',
+    letterSpacing: -1,
+    lineHeight: 46,
+  },
+  profileNameInput: {
+    flex: 1,
+    fontFamily: 'System',
+    fontSize: 42,
+    fontWeight: '900',
+    color: '#fff',
+    letterSpacing: -1,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 16,
+    paddingHorizontal: 18,
+    paddingVertical: 16,
+  },
+  messageButton: {
+    marginTop: 8,
+    paddingHorizontal: 22,
+    paddingVertical: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 100,
+  },
+  messageButtonText: {
     fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.4)',
+    fontWeight: '500',
+    color: '#fff',
   },
-  // Empty Stats
-  statValueEmpty: {
-    color: 'rgba(255, 255, 255, 0.3)',
+  profileLastName: {
+    fontFamily: 'System',
+    fontSize: 28,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.8)',
+    letterSpacing: -0.5,
+    marginBottom: 16,
   },
-  // Empty Events Section
-  emptyEventsSection: {
-    padding: 32,
-    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+  profileLastNameInput: {
+    fontFamily: 'System',
+    fontSize: 28,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.9)',
+    letterSpacing: -0.5,
+    marginBottom: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 16,
+    paddingHorizontal: 18,
+    paddingVertical: 16,
+  },
+  description: {
+    fontSize: 15,
+    lineHeight: 24,
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginBottom: 24,
+  },
+  descriptionInput: {
+    fontSize: 15,
+    lineHeight: 24,
+    color: 'rgba(255, 255, 255, 0.95)',
+    marginBottom: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 16,
+    paddingHorizontal: 18,
+    paddingVertical: 16,
+    minHeight: 120,
+    textAlignVertical: 'top',
+  },
+  // Edit Actions
+  editActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 20,
+    marginBottom: 24,
+  },
+  cancelButton: {
+    flex: 1,
+    paddingVertical: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
     borderRadius: 16,
     alignItems: 'center',
   },
-  emptyEventsIcon: {
-    fontSize: 40,
-    opacity: 0.3,
-    marginBottom: 12,
-  },
-  emptyEventsTitle: {
-    fontSize: 15,
+  cancelButtonText: {
+    fontSize: 16,
     fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.5)',
-    marginBottom: 4,
+    color: '#fff',
   },
-  emptyEventsSubtitle: {
-    fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.3)',
+  saveButton: {
+    flex: 1,
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  saveButtonGradient: {
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  saveButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  // CTA Section
+  ctaSection: {
+    paddingBottom: 40,
+  },
+  addFriendButton: {
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  addFriendGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 18,
+    paddingHorizontal: 24,
+  },
+  addFriendText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
   },
 });

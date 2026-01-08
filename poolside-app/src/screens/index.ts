@@ -5,6 +5,7 @@ export { FriendsScreen } from './FriendsScreen';
 export { ChatScreen } from './ChatScreen';
 export { NewMessageScreen } from './NewMessageScreen';
 export { ProfileScreen } from './ProfileScreen';
+export { ViewProfileScreen } from './ViewProfileScreen';
 export { EditProfileScreen } from './EditProfileScreen';
 export { CustomSplashScreen } from './SplashScreen';
 export { LoginScreen } from './LoginScreen';

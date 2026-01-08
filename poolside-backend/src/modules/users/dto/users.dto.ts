@@ -46,6 +46,11 @@ export class UpdateUserDto {
   @IsArray()
   @IsOptional()
   interests?: { emoji: string; label: string }[];
+
+  @ApiProperty({ required: false, enum: ['pool_water', 'flames', 'marble'] })
+  @IsString()
+  @IsOptional()
+  profileTheme?: string;
 }
 
 export class UserResponseDto {
@@ -78,6 +83,9 @@ export class UserResponseDto {
 
   @ApiProperty({ nullable: true, type: [Object] })
   interests: { emoji: string; label: string }[] | null;
+
+  @ApiProperty({ enum: ['pool_water', 'flames', 'marble'] })
+  profileTheme: string;
 
   @ApiProperty()
   createdAt: Date;

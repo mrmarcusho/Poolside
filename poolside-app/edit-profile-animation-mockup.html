@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile Edit Animation Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-deep: #0a0a1a;
+      --bg-card: rgba(255, 255, 255, 0.03);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --text-muted: rgba(255, 255, 255, 0.4);
+      --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
+      --border-subtle: rgba(255, 255, 255, 0.1);
+      --input-bg: rgba(0, 0, 0, 0.3);
+    }
+
+    body {
+      font-family: 'Outfit', -apple-system, sans-serif;
+      background: var(--bg-deep);
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .phone-frame {
+      position: relative;
+      width: 390px;
+      height: 844px;
+      margin: 20px auto;
+      border-radius: 50px;
+      overflow: hidden;
+      box-shadow:
+        0 50px 100px rgba(0, 0, 0, 0.5),
+        0 0 0 12px #1a1a2e,
+        0 0 0 14px #0d0d1a;
+    }
+
+    .screen {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* Starry Night Background */
+    .starry-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 20%, #1a1a4e 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, #2a1a3e 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, #0f1729 0%, #0a0a1a 100%);
+    }
+
+    .stars {
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(2px 2px at 20px 30px, white, transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 90px 40px, white, transparent),
+        radial-gradient(2px 2px at 130px 80px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(1px 1px at 160px 120px, white, transparent),
+        radial-gradient(1.5px 1.5px at 200px 50px, rgba(255,255,255,0.9), transparent),
+        radial-gradient(1px 1px at 250px 160px, white, transparent),
+        radial-gradient(2px 2px at 280px 90px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(1px 1px at 310px 200px, white, transparent),
+        radial-gradient(1.5px 1.5px at 350px 130px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 50px 250px, white, transparent),
+        radial-gradient(2px 2px at 100px 300px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(1px 1px at 180px 280px, white, transparent),
+        radial-gradient(1.5px 1.5px at 220px 350px, rgba(255,255,255,0.9), transparent),
+        radial-gradient(1px 1px at 300px 320px, white, transparent),
+        radial-gradient(2px 2px at 60px 400px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(1px 1px at 140px 450px, white, transparent),
+        radial-gradient(1.5px 1.5px at 260px 420px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 340px 480px, white, transparent),
+        radial-gradient(2px 2px at 80px 550px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(1px 1px at 200px 580px, white, transparent),
+        radial-gradient(1.5px 1.5px at 320px 560px, rgba(255,255,255,0.9), transparent),
+        radial-gradient(1px 1px at 30px 650px, white, transparent),
+        radial-gradient(2px 2px at 150px 700px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(1px 1px at 280px 680px, white, transparent),
+        radial-gradient(1.5px 1.5px at 370px 720px, rgba(255,255,255,0.8), transparent);
+      animation: twinkle 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes twinkle {
+      0% { opacity: 0.7; }
+      100% { opacity: 1; }
+    }
+
+    /* Header */
+    .header {
+      position: relative;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 60px 20px 20px;
+    }
+
+    .back-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 22px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .back-btn:hover {
+      background: rgba(0, 0, 0, 0.5);
+      transform: scale(1.05);
+    }
+
+    .back-btn span {
+      color: white;
+      font-size: 24px;
+      font-weight: 300;
+    }
+
+    .edit-btn {
+      padding: 10px 20px;
+      border-radius: 100px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: white;
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .edit-btn:hover {
+      background: rgba(0, 0, 0, 0.5);
+      transform: scale(1.05);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .edit-btn.hidden {
+      opacity: 0;
+      transform: scale(0.8);
+      pointer-events: none;
+    }
+
+    /* Profile Content */
+    .profile-content {
+      position: relative;
+      z-index: 10;
+      padding: 20px;
+    }
+
+    /* Photo Card */
+    .photo-card {
+      width: 100%;
+      aspect-ratio: 3/4;
+      max-height: 380px;
+      border-radius: 24px;
+      overflow: hidden;
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .photo-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* View Mode Content */
+    .view-content {
+      transition: opacity 0.3s ease;
+    }
+
+    .view-content.hidden {
+      opacity: 0;
+      pointer-events: none;
+      position: absolute;
+    }
+
+    .profile-name {
+      font-size: 42px;
+      font-weight: 900;
+      color: var(--text-primary);
+      letter-spacing: -1px;
+      line-height: 1.1;
+    }
+
+    .profile-lastname {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .profile-bio {
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+
+    /* Edit Mode Content */
+    .edit-content {
+      position: relative;
+    }
+
+    .edit-content.hidden {
+      display: none;
+    }
+
+    .edit-field {
+      margin-bottom: 16px;
+      opacity: 0;
+      transform: scale(0.85) translateY(10px);
+    }
+
+    .edit-field.animate-in {
+      animation: bubbleIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .edit-field.animate-out {
+      animation: bubbleOut 0.4s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards;
+    }
+
+    .edit-field:nth-child(1) { --delay: 0ms; }
+    .edit-field:nth-child(2) { --delay: 80ms; }
+    .edit-field:nth-child(3) { --delay: 160ms; }
+
+    .edit-field.animate-in {
+      animation-delay: var(--delay);
+    }
+
+    .edit-field.animate-out:nth-child(1) { animation-delay: 160ms; }
+    .edit-field.animate-out:nth-child(2) { animation-delay: 80ms; }
+    .edit-field.animate-out:nth-child(3) { animation-delay: 0ms; }
+
+    @keyframes bubbleIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.85) translateY(10px);
+      }
+      60% {
+        opacity: 1;
+        transform: scale(1.03) translateY(-2px);
+      }
+      80% {
+        transform: scale(0.98) translateY(1px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    @keyframes bubbleOut {
+      0% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.9) translateY(8px);
+      }
+    }
+
+    .edit-input {
+      width: 100%;
+      padding: 18px 20px;
+      background: var(--input-bg);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      color: var(--text-primary);
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .edit-input:focus {
+      border-color: var(--accent-blue);
+      background: rgba(0, 0, 0, 0.4);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    .edit-input.large {
+      font-size: 32px;
+      font-weight: 800;
+      padding: 16px 20px;
+    }
+
+    .edit-input.medium {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    textarea.edit-input {
+      min-height: 100px;
+      resize: none;
+      line-height: 1.5;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      opacity: 0;
+      transform: scale(0.85) translateY(10px);
+    }
+
+    .action-buttons.animate-in {
+      animation: bubbleIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      animation-delay: 240ms;
+    }
+
+    .action-buttons.animate-out {
+      animation: bubbleOut 0.4s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards;
+      animation-delay: 0ms;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 16px 24px;
+      border-radius: 16px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .btn-cancel {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: white;
+    }
+
+    .btn-cancel:hover {
+      background: rgba(0, 0, 0, 0.5);
+      transform: scale(1.02);
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      border: none;
+      color: white;
+      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-save:hover {
+      transform: scale(1.02) translateY(-2px);
+      box-shadow: 0 12px 32px rgba(59, 130, 246, 0.4);
+    }
+
+    /* Instructions */
+    .instructions {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 12px 24px;
+      border-radius: 100px;
+      color: white;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="screen">
+      <div class="starry-bg"></div>
+      <div class="stars"></div>
+
+      <div class="header">
+        <div class="back-btn">
+          <span>‹</span>
+        </div>
+        <button class="edit-btn" id="editBtn">Edit Profile</button>
+      </div>
+
+      <div class="profile-content">
+        <div class="photo-card">
+          <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=600&q=85" alt="Profile">
+        </div>
+
+        <!-- View Mode -->
+        <div class="view-content" id="viewContent">
+          <div class="profile-name">Sarah</div>
+          <div class="profile-lastname">Mitchell</div>
+          <div class="profile-bio">First-time cruiser loving every moment! Here for the sunset deck parties, trivia nights, and making new friends.</div>
+        </div>
+
+        <!-- Edit Mode -->
+        <div class="edit-content hidden" id="editContent">
+          <div class="edit-field">
+            <input type="text" class="edit-input large" value="Sarah" placeholder="First Name">
+          </div>
+          <div class="edit-field">
+            <input type="text" class="edit-input medium" value="Mitchell" placeholder="Last Name">
+          </div>
+          <div class="edit-field">
+            <textarea class="edit-input" placeholder="Tell others about yourself...">First-time cruiser loving every moment! Here for the sunset deck parties, trivia nights, and making new friends.</textarea>
+          </div>
+          <div class="action-buttons">
+            <button class="btn btn-cancel" id="cancelBtn">Cancel</button>
+            <button class="btn btn-save" id="saveBtn">Save Changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="instructions">
+    Click "Edit Profile" to see the bubbly animation
+  </div>
+
+  <script>
+    const editBtn = document.getElementById('editBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const viewContent = document.getElementById('viewContent');
+    const editContent = document.getElementById('editContent');
+
+    let isEditMode = false;
+
+    function enterEditMode() {
+      if (isEditMode) return;
+      isEditMode = true;
+
+      // Hide edit button
+      editBtn.classList.add('hidden');
+
+      // Hide view content
+      viewContent.classList.add('hidden');
+
+      // Show edit content
+      editContent.classList.remove('hidden');
+
+      // Trigger animations
+      const fields = editContent.querySelectorAll('.edit-field');
+      const actionButtons = editContent.querySelector('.action-buttons');
+
+      fields.forEach(field => {
+        field.classList.remove('animate-out');
+        field.classList.add('animate-in');
+      });
+
+      actionButtons.classList.remove('animate-out');
+      actionButtons.classList.add('animate-in');
+    }
+
+    function exitEditMode() {
+      if (!isEditMode) return;
+      isEditMode = false;
+
+      const fields = editContent.querySelectorAll('.edit-field');
+      const actionButtons = editContent.querySelector('.action-buttons');
+
+      // Trigger exit animations
+      fields.forEach(field => {
+        field.classList.remove('animate-in');
+        field.classList.add('animate-out');
+      });
+
+      actionButtons.classList.remove('animate-in');
+      actionButtons.classList.add('animate-out');
+
+      // After animation completes, switch views
+      setTimeout(() => {
+        editContent.classList.add('hidden');
+        viewContent.classList.remove('hidden');
+        editBtn.classList.remove('hidden');
+
+        // Reset animation classes
+        fields.forEach(field => {
+          field.classList.remove('animate-out');
+        });
+        actionButtons.classList.remove('animate-out');
+      }, 450);
+    }
+
+    editBtn.addEventListener('click', enterEditMode);
+    cancelBtn.addEventListener('click', exitEditMode);
+    saveBtn.addEventListener('click', exitEditMode);
+  </script>
+</body>
+</html>

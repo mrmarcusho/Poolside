@@ -7,6 +7,7 @@ const SOCKET_URL = __DEV__
   : 'https://api.poolside.app';
 
 let socket: Socket | null = null;
+let isConnecting = false;
 
 export interface SocketMessage {
   id: string;
@@ -35,8 +36,39 @@ export interface MessagesReadEvent {
 
 export const socketService = {
   async connect(): Promise<Socket> {
+    // Already connected - return existing socket
     if (socket?.connected) {
       return socket;
+    }
+
+    // Already attempting to connect - don't start another attempt
+    if (isConnecting) {
+      // Wait for the existing connection attempt
+      return new Promise((resolve, reject) => {
+        const checkInterval = setInterval(() => {
+          if (!isConnecting) {
+            clearInterval(checkInterval);
+            if (socket?.connected) {
+              resolve(socket);
+            } else {
+              reject(new Error('Connection failed'));
+            }
+          }
+        }, 100);
+
+        // Timeout after 15 seconds
+        setTimeout(() => {
+          clearInterval(checkInterval);
+          reject(new Error('Connection timeout'));
+        }, 15000);
+      });
+    }
+
+    // Clean up any existing disconnected socket
+    if (socket) {
+      socket.removeAllListeners();
+      socket.disconnect();
+      socket = null;
     }
 
     const token = await tokenStorage.getAccessToken();
@@ -45,34 +77,83 @@ export const socketService = {
       throw new Error('No access token available');
     }
 
+    isConnecting = true;
+
     socket = io(SOCKET_URL, {
       auth: { token },
       transports: ['websocket'],
       reconnection: true,
-      reconnectionAttempts: 5,
+      reconnectionAttempts: 3,
       reconnectionDelay: 1000,
+      timeout: 10000,
     });
 
     return new Promise((resolve, reject) => {
       if (!socket) {
+        isConnecting = false;
         reject(new Error('Socket not initialized'));
         return;
       }
 
-      socket.on('connect', () => {
-        console.log('[Socket] Connected:', socket?.id);
-        resolve(socket!);
-      });
+      let settled = false;
+      const connectionTimeout = setTimeout(() => {
+        if (!settled) {
+          settled = true;
+          cleanup();
+          // Clean up the socket on timeout to prevent background errors
+          if (socket) {
+            socket.removeAllListeners();
+            socket.disconnect();
+            socket = null;
+          }
+          isConnecting = false;
+          reject(new Error('Connection timeout'));
+        }
+      }, 10000);
 
-      socket.on('connect_error', (error) => {
-        console.error('[Socket] Connection error:', error.message);
-        reject(error);
-      });
+      const cleanup = () => {
+        socket?.off('connect', onConnect);
+        socket?.off('connect_error', onError);
+      };
+
+      const onConnect = () => {
+        if (!settled) {
+          settled = true;
+          clearTimeout(connectionTimeout);
+          cleanup();
+          isConnecting = false;
+          console.log('[Socket] Connected:', socket?.id);
+          resolve(socket!);
+        }
+      };
+
+      const onError = (error: Error) => {
+        if (!settled) {
+          settled = true;
+          clearTimeout(connectionTimeout);
+          cleanup();
+          // Clean up the socket on error to prevent background reconnection errors
+          if (socket) {
+            socket.removeAllListeners();
+            socket.disconnect();
+            socket = null;
+          }
+          isConnecting = false;
+          // Use warn instead of error to avoid red box in React Native
+          console.warn('[Socket] Connection failed:', error.message);
+          reject(error);
+        }
+      };
+
+      socket.once('connect', onConnect);
+      socket.once('connect_error', onError);
     });
   },
 
   disconnect(): void {
+    isConnecting = false;
     if (socket) {
+      socket.removeAllListeners();
       socket.disconnect();
       socket = null;
       console.log('[Socket] Disconnected');

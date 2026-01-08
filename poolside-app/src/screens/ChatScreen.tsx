@@ -18,6 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useSocket, useChat } from '../hooks';
 import { useAuth } from '../context/AuthContext';
+import { ProfileBackground } from '../components';
 
 interface Message {
   id: string;
@@ -237,10 +238,7 @@ export const ChatScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#0a0a12', '#0d0d1a', '#0a0a0f']}
-        style={StyleSheet.absoluteFill}
-      />
+      <ProfileBackground />
 
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         {/* Header */}
@@ -393,7 +391,6 @@ export const ChatScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0a0f',
   },
   loadingContainer: {
     flex: 1,

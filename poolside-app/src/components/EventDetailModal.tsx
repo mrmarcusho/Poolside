@@ -12,7 +12,11 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
+import * as Haptics from 'expo-haptics';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Event } from '../types';
+import { MainStackParamList } from '../navigation/MainNavigator';
 
 const { width, height } = Dimensions.get('window');
 
@@ -27,9 +31,19 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
   visible,
   onClose,
 }) => {
+  const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
+
   if (!event) return null;
 
   const host = event.hosts[0];
+
+  const handleHostPress = () => {
+    if (host?.id) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      onClose(); // Close modal first
+      navigation.navigate('ViewProfile', { userId: host.id });
+    }
+  };
 
   const formatDate = (date: Date) => {
     const today = new Date();
@@ -103,13 +117,15 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
 
             {/* Host Section */}
             <View style={styles.hostSection}>
-              <View style={styles.hostAvatar}>
-                <Text style={styles.hostAvatarEmoji}>{host?.emoji || '👤'}</Text>
-              </View>
-              <View style={styles.hostInfo}>
-                <Text style={styles.hostName}>{host?.name || 'Anonymous'}</Text>
-                <Text style={styles.hostLabel}>Event Host</Text>
-              </View>
+              <TouchableOpacity onPress={handleHostPress} style={styles.hostTouchable} activeOpacity={0.7}>
+                <View style={styles.hostAvatar}>
+                  <Text style={styles.hostAvatarEmoji}>{host?.emoji || '👤'}</Text>
+                </View>
+                <View style={styles.hostInfo}>
+                  <Text style={styles.hostName}>{host?.name || 'Anonymous'}</Text>
+                  <Text style={styles.hostLabel}>Event Host</Text>
+                </View>
+              </TouchableOpacity>
               <TouchableOpacity style={styles.followButton}>
                 <Text style={styles.followButtonText}>Follow</Text>
               </TouchableOpacity>
@@ -266,6 +282,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 12,
     marginBottom: 20,
+  },
+  hostTouchable: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   hostAvatar: {
     width: 44,

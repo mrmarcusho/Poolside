@@ -54,7 +54,6 @@ export class EventsService {
         ...dateFilter,
         ...(location && { locationDeck: { contains: location } }),
         ...(hostId && { hostId }),
-        dateTime: { gte: new Date() }, // Only future events
       },
       take: limit + 1,
       ...(cursor && { cursor: { id: cursor }, skip: 1 }),
@@ -82,11 +81,7 @@ export class EventsService {
     const results = hasMore ? events.slice(0, -1) : events;
 
     // Get total count
-    const total = await this.prisma.event.count({
-      where: {
-        dateTime: { gte: new Date() },
-      },
-    });
+    const total = await this.prisma.event.count();
 
     return {
       events: results.map((event) => ({

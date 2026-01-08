@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poolside - Profile</title>
+
+  <!-- Distinctive Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      /* Poolside Dark Theme */
+      --bg-deep: #0a0a0f;
+      --bg-surface: #0d0d14;
+      --surface-glass: rgba(255, 255, 255, 0.08);
+      --surface-border: rgba(255, 255, 255, 0.12);
+
+      /* Accent Colors */
+      --accent-primary: #667eea;
+      --accent-secondary: #764ba2;
+      --accent-cyan: #00f0ff;
+      --accent-green: #22c55e;
+
+      /* Text */
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.6);
+      --text-tertiary: rgba(255, 255, 255, 0.4);
+
+      /* Gradients */
+      --gradient-primary: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+      --gradient-glow: radial-gradient(ellipse at 50% 0%, rgba(102, 126, 234, 0.15) 0%, transparent 60%);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #000;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 30px 20px;
+    }
+
+    /* Phone Device Frame */
+    .device {
+      width: 390px;
+      height: 844px;
+      background: var(--bg-deep);
+      border-radius: 54px;
+      position: relative;
+      overflow: hidden;
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.08),
+        0 50px 100px -20px rgba(0, 0, 0, 0.9),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    /* Ambient glow effect */
+    .device::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 500px;
+      background: var(--gradient-glow);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Dynamic Island */
+    .dynamic-island {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 37px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 1000;
+    }
+
+    /* Status Bar */
+    .status-bar {
+      position: absolute;
+      top: 16px;
+      left: 0;
+      right: 0;
+      padding: 0 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 999;
+      color: var(--text-primary);
+    }
+
+    .status-time {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+    }
+
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Main Content */
+    .content {
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-top: 54px;
+    }
+
+    .content::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* ============================================
+       IMAGE CAROUSEL - The Star of the Show
+       ============================================ */
+    .carousel {
+      position: relative;
+      width: 100%;
+      padding: 16px;
+      padding-top: 20px;
+    }
+
+    .carousel-track {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-right: 80px; /* Allow peek of next image */
+    }
+
+    .carousel-track::-webkit-scrollbar {
+      display: none;
+    }
+
+    .carousel-item {
+      flex: 0 0 auto;
+      width: calc(100% - 60px); /* Main image takes most space */
+      aspect-ratio: 3 / 4;
+      border-radius: 24px;
+      overflow: hidden;
+      scroll-snap-align: start;
+      position: relative;
+      box-shadow:
+        0 20px 60px -15px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.08);
+    }
+
+    .carousel-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .carousel-item:hover img {
+      transform: scale(1.03);
+    }
+
+    /* Subtle gradient overlay on images */
+    .carousel-item::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        180deg,
+        transparent 0%,
+        transparent 60%,
+        rgba(10, 10, 15, 0.4) 100%
+      );
+      pointer-events: none;
+    }
+
+    /* ============================================
+       FROSTED GLASS BACK BUTTON
+       ============================================ */
+    .back-button {
+      position: absolute;
+      top: 76px;
+      left: 24px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 100;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .back-button:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: scale(1.05);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .back-button:active {
+      transform: scale(0.95);
+    }
+
+    .back-button svg {
+      width: 22px;
+      height: 22px;
+      stroke: var(--text-primary);
+      stroke-width: 2.5;
+      fill: none;
+    }
+
+    /* ============================================
+       PROFILE INFO SECTION
+       ============================================ */
+    .profile-info {
+      padding: 24px 20px;
+    }
+
+    /* Name Row with Connect Button */
+    .name-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .profile-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 52px;
+      font-weight: 400;
+      letter-spacing: 1px;
+      line-height: 1;
+      color: var(--text-primary);
+      text-transform: uppercase;
+    }
+
+    /* Connect Pill Button */
+    .connect-btn {
+      padding: 12px 24px;
+      background: var(--surface-glass);
+      border: 1px solid var(--surface-border);
+      border-radius: 100px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      margin-top: 8px;
+      white-space: nowrap;
+    }
+
+    .connect-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Location */
+    .profile-location {
+      font-size: 16px;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .profile-location svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--text-tertiary);
+      fill: none;
+    }
+
+    /* Event Count */
+    .profile-count {
+      font-size: 14px;
+      color: var(--text-tertiary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .count-dot {
+      width: 4px;
+      height: 4px;
+      background: var(--accent-cyan);
+      border-radius: 50%;
+    }
+
+    /* Bio/Description */
+    .profile-bio {
+      margin-top: 20px;
+      font-size: 15px;
+      line-height: 1.65;
+      color: var(--text-secondary);
+      letter-spacing: 0.2px;
+    }
+
+    /* Online Status Badge */
+    .online-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 16px;
+      padding: 8px 14px;
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      border-radius: 100px;
+    }
+
+    .online-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent-green);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.85); }
+    }
+
+    .online-text {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-green);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ============================================
+       BOTTOM CTA SECTION - Frosted Glass
+       ============================================ */
+    .cta-section {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px;
+      padding-bottom: 40px;
+      background: rgba(10, 10, 15, 0.85);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 100;
+    }
+
+    /* Secondary Button - Message */
+    .btn-secondary {
+      width: 100%;
+      padding: 16px 24px;
+      background: var(--surface-glass);
+      border: 1px solid var(--surface-border);
+      border-radius: 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-secondary svg {
+      width: 18px;
+      height: 18px;
+      stroke: var(--accent-cyan);
+      fill: none;
+    }
+
+    /* Primary Button - Add Friend */
+    .btn-primary {
+      width: 100%;
+      padding: 18px 24px;
+      background: var(--gradient-primary);
+      border: none;
+      border-radius: 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      box-shadow:
+        0 4px 20px rgba(102, 126, 234, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 8px 30px rgba(102, 126, 234, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    /* Shimmer effect on primary button */
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.15),
+        transparent
+      );
+      animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    /* Home Indicator */
+    .home-indicator {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 134px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+      z-index: 1001;
+    }
+
+    /* Bottom spacing for scrollable content */
+    .bottom-spacer {
+      height: 180px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="device">
+  <div class="dynamic-island"></div>
+
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="white"><path d="M1 4C1 2.9 1.9 2 3 2h1c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2H3c-1.1 0-2-.9-2-2V4zm6-1c0-1.1.9-2 2-2h1c1.1 0 2 .9 2 2v6c0 1.1-.9 2-2 2H9c-1.1 0-2-.9-2-2V3zm6-1c0-1.1.9-2 2-2h1c1.1 0 2 .9 2 2v8c0 1.1-.9 2-2 2h-1c-1.1 0-2-.9-2-2V2z"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="white"><path d="M8.5 2.5c2.7 0 5.2 1.1 7 2.9.3.3.3.8 0 1.1l-6.5 6c-.3.3-.8.3-1.1 0l-6.5-6c-.3-.3-.3-.8 0-1.1 1.9-1.8 4.4-2.9 7.1-2.9z"/></svg>
+      <svg width="27" height="14" viewBox="0 0 27 14" fill="none"><rect x="1" y="1" width="22" height="12" rx="3" stroke="white" stroke-width="1.5"/><path d="M25 5v4c1 0 2-.9 2-2s-1-2-2-2z" fill="white" opacity="0.4"/><rect x="3" y="3" width="18" height="8" rx="1.5" fill="white"/></svg>
+    </div>
+  </div>
+
+  <!-- Frosted Glass Back Button -->
+  <button class="back-button">
+    <svg viewBox="0 0 24 24">
+      <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+
+  <div class="content">
+    <!-- Image Carousel -->
+    <div class="carousel">
+      <div class="carousel-track">
+        <div class="carousel-item">
+          <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=600&q=85" alt="Profile photo 1">
+        </div>
+        <div class="carousel-item">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&q=85" alt="Profile photo 2">
+        </div>
+        <div class="carousel-item">
+          <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600&q=85" alt="Profile photo 3">
+        </div>
+        <div class="carousel-item">
+          <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=600&q=85" alt="Profile photo 4">
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Info -->
+    <div class="profile-info">
+      <div class="name-row">
+        <h1 class="profile-name">Sarah</h1>
+        <button class="connect-btn">Connect</button>
+      </div>
+
+      <p class="profile-location">
+        <svg viewBox="0 0 24 24" stroke-width="2">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        Miami, FL · UCLA '22
+      </p>
+
+      <p class="profile-count">
+        <span class="count-dot"></span>
+        12 Events Hosted
+      </p>
+
+      <p class="profile-bio">
+        Adventure seeker & sunset chaser. Currently on Deck 7 looking for good vibes and new friends. Always down for pool parties, karaoke nights, and spontaneous adventures. Let's make this cruise unforgettable! 🌊✨
+      </p>
+
+      <div class="online-status">
+        <span class="online-dot"></span>
+        <span class="online-text">Online Now</span>
+      </div>
+    </div>
+
+    <div class="bottom-spacer"></div>
+  </div>
+
+  <!-- Bottom CTA Section -->
+  <div class="cta-section">
+    <button class="btn-secondary">
+      <svg viewBox="0 0 24 24" stroke-width="2">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Message
+    </button>
+    <button class="btn-primary">Add Friend</button>
+  </div>
+
+  <div class="home-indicator"></div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poolside - Profile Background Variants</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600&family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #0a0a0f;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .showcase-title {
+      text-align: center;
+      color: #fff;
+      font-family: 'Sora', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .showcase-subtitle {
+      text-align: center;
+      color: #6b7280;
+      font-size: 1.1rem;
+      margin-bottom: 50px;
+    }
+
+    .mockups-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 40px;
+      max-width: 1800px;
+      margin: 0 auto;
+    }
+
+    .mockup-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .variant-label {
+      color: #fff;
+      font-family: 'Sora', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 8px 20px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+    }
+
+    .phone-frame {
+      width: 320px;
+      height: 692px;
+      border-radius: 45px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 0 0 12px #1a1a24,
+        0 0 0 14px #2a2a3a,
+        0 25px 50px rgba(0,0,0,0.5),
+        0 0 100px rgba(100,100,255,0.1);
+    }
+
+    .phone-frame::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 28px;
+      background: #1a1a24;
+      border-radius: 0 0 20px 20px;
+      z-index: 100;
+    }
+
+    .screen {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ============================================
+       VARIANT 1: GRADIENT BLOB BACKGROUND
+       ============================================ */
+    .variant-blob {
+      background: #0f0f1a;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .variant-blob .blob-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      filter: blur(60px);
+    }
+
+    .variant-blob .blob {
+      position: absolute;
+      border-radius: 50%;
+      animation: blobFloat 8s ease-in-out infinite;
+    }
+
+    .variant-blob .blob-1 {
+      width: 200px;
+      height: 200px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      top: -50px;
+      right: -30px;
+      animation-delay: 0s;
+    }
+
+    .variant-blob .blob-2 {
+      width: 180px;
+      height: 180px;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      top: 200px;
+      left: -60px;
+      animation-delay: -2s;
+    }
+
+    .variant-blob .blob-3 {
+      width: 150px;
+      height: 150px;
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      bottom: 150px;
+      right: -40px;
+      animation-delay: -4s;
+    }
+
+    .variant-blob .blob-4 {
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+      bottom: -30px;
+      left: 50px;
+      animation-delay: -6s;
+    }
+
+    @keyframes blobFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(20px, -20px) scale(1.05); }
+      50% { transform: translate(-10px, 20px) scale(0.95); }
+      75% { transform: translate(15px, 10px) scale(1.02); }
+    }
+
+    .variant-blob .content {
+      position: relative;
+      z-index: 10;
+      padding: 60px 24px 24px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .variant-blob .profile-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .variant-blob .avatar {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+      box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4);
+      border: 3px solid rgba(255,255,255,0.2);
+    }
+
+    .variant-blob .name {
+      color: #fff;
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .variant-blob .cruise-info {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .variant-blob .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin-bottom: 24px;
+      padding: 20px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 20px;
+      backdrop-filter: blur(20px);
+    }
+
+    .variant-blob .stat {
+      text-align: center;
+    }
+
+    .variant-blob .stat-value {
+      color: #fff;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .variant-blob .stat-label {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .variant-blob .interests {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .variant-blob .tag {
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 20px;
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 500;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .variant-blob .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: auto;
+      padding-bottom: 20px;
+    }
+
+    .variant-blob .btn {
+      flex: 1;
+      padding: 16px;
+      border: none;
+      border-radius: 16px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .variant-blob .btn-primary {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+    }
+
+    .variant-blob .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    /* ============================================
+       VARIANT 2: OCEAN WAVE GRADIENT
+       ============================================ */
+    .variant-ocean {
+      background: linear-gradient(180deg, #0c4a6e 0%, #0369a1 30%, #0ea5e9 60%, #7dd3fc 100%);
+      font-family: 'Sora', sans-serif;
+      position: relative;
+    }
+
+    .variant-ocean .wave {
+      position: absolute;
+      width: 200%;
+      height: 200px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,60 C150,120 350,0 600,60 C850,120 1050,0 1200,60 L1200,120 L0,120 Z' fill='rgba(255,255,255,0.08)'/%3E%3C/svg%3E");
+      background-size: 600px 100%;
+      animation: waveMove 12s linear infinite;
+    }
+
+    .variant-ocean .wave-1 { bottom: 300px; opacity: 0.4; animation-duration: 15s; }
+    .variant-ocean .wave-2 { bottom: 200px; opacity: 0.3; animation-duration: 12s; animation-delay: -3s; }
+    .variant-ocean .wave-3 { bottom: 100px; opacity: 0.2; animation-duration: 10s; animation-delay: -6s; }
+
+    @keyframes waveMove {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .variant-ocean .sun {
+      position: absolute;
+      top: 80px;
+      right: 40px;
+      width: 60px;
+      height: 60px;
+      background: radial-gradient(circle, #fef3c7 0%, #fcd34d 50%, transparent 70%);
+      border-radius: 50%;
+      box-shadow: 0 0 60px rgba(252, 211, 77, 0.6);
+    }
+
+    .variant-ocean .content {
+      position: relative;
+      z-index: 10;
+      padding: 60px 24px 24px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .variant-ocean .profile-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .variant-ocean .avatar {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fff 0%, #e0f2fe 100%);
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      border: 4px solid rgba(255,255,255,0.8);
+    }
+
+    .variant-ocean .name {
+      color: #fff;
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+
+    .variant-ocean .cruise-info {
+      color: rgba(255,255,255,0.9);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .variant-ocean .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin-bottom: 24px;
+      padding: 20px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .variant-ocean .stat {
+      text-align: center;
+    }
+
+    .variant-ocean .stat-value {
+      color: #fff;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .variant-ocean .stat-label {
+      color: rgba(255,255,255,0.8);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .variant-ocean .interests {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .variant-ocean .tag {
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 20px;
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 500;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .variant-ocean .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: auto;
+      padding-bottom: 20px;
+    }
+
+    .variant-ocean .btn {
+      flex: 1;
+      padding: 16px;
+      border: none;
+      border-radius: 16px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .variant-ocean .btn-primary {
+      background: #fff;
+      color: #0369a1;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    .variant-ocean .btn-secondary {
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255,255,255,0.4);
+    }
+
+    /* ============================================
+       VARIANT 3: GLASSMORPHISM
+       ============================================ */
+    .variant-glass {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 25%, #4c1d95 50%, #7c3aed 75%, #a855f7 100%);
+      font-family: 'Space Grotesk', sans-serif;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .variant-glass .bg-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(40px);
+    }
+
+    .variant-glass .orb-1 {
+      width: 200px;
+      height: 200px;
+      background: #f472b6;
+      top: -80px;
+      left: -60px;
+      opacity: 0.6;
+    }
+
+    .variant-glass .orb-2 {
+      width: 180px;
+      height: 180px;
+      background: #22d3ee;
+      bottom: 100px;
+      right: -80px;
+      opacity: 0.5;
+    }
+
+    .variant-glass .orb-3 {
+      width: 120px;
+      height: 120px;
+      background: #fbbf24;
+      bottom: -40px;
+      left: 40px;
+      opacity: 0.4;
+    }
+
+    .variant-glass .content {
+      position: relative;
+      z-index: 10;
+      padding: 60px 20px 24px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .variant-glass .glass-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 28px 20px;
+      margin-bottom: 16px;
+    }
+
+    .variant-glass .profile-header {
+      text-align: center;
+    }
+
+    .variant-glass .avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f472b6, #a855f7);
+      margin: 0 auto 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 38px;
+      box-shadow: 0 8px 32px rgba(168, 85, 247, 0.4);
+      border: 3px solid rgba(255,255,255,0.3);
+    }
+
+    .variant-glass .name {
+      color: #fff;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .variant-glass .cruise-info {
+      color: rgba(255,255,255,0.7);
+      font-size: 0.85rem;
+    }
+
+    .variant-glass .stats-card {
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .variant-glass .stat {
+      text-align: center;
+    }
+
+    .variant-glass .stat-value {
+      color: #fff;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .variant-glass .stat-label {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .variant-glass .interests-card {
+      padding: 20px;
+    }
+
+    .variant-glass .section-title {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .variant-glass .interests {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .variant-glass .tag {
+      padding: 8px 14px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .variant-glass .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: auto;
+      padding-bottom: 20px;
+    }
+
+    .variant-glass .btn {
+      flex: 1;
+      padding: 16px;
+      border: none;
+      border-radius: 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .variant-glass .btn-primary {
+      background: rgba(255,255,255,0.95);
+      color: #7c3aed;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .variant-glass .btn-secondary {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+
+    /* ============================================
+       VARIANT 4: MINIMAL DARK
+       ============================================ */
+    .variant-dark {
+      background: #09090b;
+      font-family: 'DM Sans', sans-serif;
+      position: relative;
+    }
+
+    .variant-dark .grid-bg {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .variant-dark .glow {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(34, 211, 238, 0.15) 0%, transparent 70%);
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .variant-dark .content {
+      position: relative;
+      z-index: 10;
+      padding: 60px 24px 24px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .variant-dark .profile-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .variant-dark .avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, #22d3ee, #06b6d4);
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 38px;
+      box-shadow: 0 0 40px rgba(34, 211, 238, 0.3);
+    }
+
+    .variant-dark .name {
+      color: #fafafa;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .variant-dark .cruise-info {
+      color: #71717a;
+      font-size: 0.9rem;
+    }
+
+    .variant-dark .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .variant-dark .stat {
+      text-align: center;
+    }
+
+    .variant-dark .stat-value {
+      color: #22d3ee;
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+
+    .variant-dark .stat-label {
+      color: #52525b;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .variant-dark .section-title {
+      color: #52525b;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 12px;
+    }
+
+    .variant-dark .interests {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+
+    .variant-dark .tag {
+      padding: 10px 16px;
+      background: #18181b;
+      border-radius: 8px;
+      color: #a1a1aa;
+      font-size: 0.8rem;
+      font-weight: 500;
+      border: 1px solid #27272a;
+    }
+
+    .variant-dark .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: auto;
+      padding-bottom: 20px;
+    }
+
+    .variant-dark .btn {
+      flex: 1;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .variant-dark .btn-primary {
+      background: #22d3ee;
+      color: #09090b;
+    }
+
+    .variant-dark .btn-secondary {
+      background: #18181b;
+      color: #fafafa;
+      border: 1px solid #27272a;
+    }
+
+    /* ============================================
+       VARIANT 5: SUNSET CRUISE
+       ============================================ */
+    .variant-sunset {
+      background: linear-gradient(180deg, #1e1b4b 0%, #4c1d95 20%, #be185d 50%, #f97316 75%, #fbbf24 100%);
+      font-family: 'Playfair Display', serif;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .variant-sunset .sun {
+      position: absolute;
+      bottom: 180px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 140px;
+      height: 140px;
+      background: radial-gradient(circle, #fef3c7 0%, #fcd34d 40%, #f97316 70%, transparent 100%);
+      border-radius: 50%;
+      box-shadow: 0 0 80px rgba(249, 115, 22, 0.6);
+    }
+
+    .variant-sunset .water {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 180px;
+      background: linear-gradient(180deg, rgba(30, 27, 75, 0.3) 0%, #0f172a 100%);
+    }
+
+    .variant-sunset .water-reflection {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 180px;
+      background: linear-gradient(180deg, rgba(251, 191, 36, 0.4) 0%, rgba(249, 115, 22, 0.2) 50%, transparent 100%);
+      filter: blur(10px);
+    }
+
+    .variant-sunset .ship-silhouette {
+      position: absolute;
+      bottom: 160px;
+      right: 30px;
+      font-size: 24px;
+      opacity: 0.3;
+    }
+
+    .variant-sunset .birds {
+      position: absolute;
+      top: 100px;
+      left: 40px;
+      font-size: 14px;
+      opacity: 0.4;
+      color: #1e1b4b;
+    }
+
+    .variant-sunset .content {
+      position: relative;
+      z-index: 10;
+      padding: 60px 24px 24px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .variant-sunset .profile-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .variant-sunset .avatar {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fbbf24, #f97316);
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+      box-shadow: 0 8px 32px rgba(249, 115, 22, 0.4);
+      border: 4px solid rgba(255,255,255,0.3);
+    }
+
+    .variant-sunset .name {
+      color: #fff;
+      font-size: 1.7rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      font-family: 'Playfair Display', serif;
+    }
+
+    .variant-sunset .cruise-info {
+      color: rgba(255,255,255,0.8);
+      font-size: 0.9rem;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .variant-sunset .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin-bottom: 24px;
+      padding: 20px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 20px;
+      backdrop-filter: blur(20px);
+    }
+
+    .variant-sunset .stat {
+      text-align: center;
+    }
+
+    .variant-sunset .stat-value {
+      color: #fbbf24;
+      font-size: 1.5rem;
+      font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .variant-sunset .stat-label {
+      color: rgba(255,255,255,0.7);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .variant-sunset .interests {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .variant-sunset .tag {
+      padding: 8px 16px;
+      background: rgba(251, 191, 36, 0.2);
+      border-radius: 20px;
+      color: #fef3c7;
+      font-size: 0.8rem;
+      font-weight: 500;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .variant-sunset .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: auto;
+      padding-bottom: 20px;
+    }
+
+    .variant-sunset .btn {
+      flex: 1;
+      padding: 16px;
+      border: none;
+      border-radius: 16px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .variant-sunset .btn-primary {
+      background: linear-gradient(135deg, #fbbf24, #f97316);
+      color: #1e1b4b;
+      box-shadow: 0 8px 24px rgba(249, 115, 22, 0.4);
+    }
+
+    .variant-sunset .btn-secondary {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1600px) {
+      .mockups-container {
+        max-width: 1200px;
+      }
+    }
+
+    @media (max-width: 1100px) {
+      .mockups-container {
+        gap: 30px;
+      }
+      .phone-frame {
+        width: 280px;
+        height: 606px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1 class="showcase-title">Poolside Profile Backgrounds</h1>
+  <p class="showcase-subtitle">5 distinctive background variants for the cruise social app</p>
+
+  <div class="mockups-container">
+    <!-- VARIANT 1: GRADIENT BLOB -->
+    <div class="mockup-wrapper">
+      <span class="variant-label">1. Gradient Blob</span>
+      <div class="phone-frame">
+        <div class="screen variant-blob">
+          <div class="blob-container">
+            <div class="blob blob-1"></div>
+            <div class="blob blob-2"></div>
+            <div class="blob blob-3"></div>
+            <div class="blob blob-4"></div>
+          </div>
+          <div class="content">
+            <div class="profile-header">
+              <div class="avatar">👩‍🦰</div>
+              <h2 class="name">Sarah Chen</h2>
+              <p class="cruise-info">🚢 Caribbean Dream • Deck 8</p>
+            </div>
+            <div class="stats-row">
+              <div class="stat">
+                <div class="stat-value">24</div>
+                <div class="stat-label">Friends</div>
+              </div>
+              <div class="stat">
+                <div class="stat-value">12</div>
+                <div class="stat-label">Events</div>
+              </div>
+              <div class="stat">
+                <div class="stat-value">Day 4</div>
+                <div class="stat-label">Cruise</div>
+              </div>
+            </div>
+            <div class="interests">
+              <span class="tag">🎵 Live Music</span>
+              <span class="tag">🍹 Cocktails</span>
+              <span class="tag">🏊 Pool</span>
+              <span class="tag">🎰 Casino</span>
+              <span class="tag">🌅 Sunset</span>
+            </div>
+            <div class="actions">
+              <button class="btn btn-primary">Message</button>
+              <button class="btn btn-secondary">Add Friend</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VARIANT 2: OCEAN WAVE -->
+    <div class="mockup-wrapper">
+      <span class="variant-label">2. Ocean Wave</span>
+      <div class="phone-frame">
+        <div class="screen variant-ocean">
+          <div class="sun"></div>
+          <div class="wave wave-1"></div>
+          <div class="wave wave-2"></div>
+          <div class="wave wave-3"></div>
+          <div class="content">
+            <div class="profile-header">
+              <div class="avatar">👩‍🦰</div>
+              <h2 class="name">Sarah Chen</h2>
+              <p class="cruise-info">🚢 Caribbean Dream • Deck 8</p>
+            </div>
+            <div class="stats-row">
+              <div class="stat">
+                <div class="stat-value">24</div>
+                <div class="stat-label">Friends</div>
+              </div>
+              <div class="stat">
+                <div class="stat-value">12</div>
+                <div class="stat-label">Events</div>
+              </div>
+              <div class="stat">
+                <div class="stat-value">Day 4</div>
+                <div class="stat-label">Cruise</div>
+              </div>
+            </div>
+            <div class="interests">
+              <span class="tag">🎵 Live Music</span>
+              <span class="tag">🍹 Cocktails</span>
+              <span class="tag">🏊 Pool</span>
+              <span class="tag">🎰 Casino</span>
+              <span class="tag">🌅 Sunset</span>
+            </div>
+            <div class="actions">
+              <button class="btn btn-primary">Message</button>
+              <button class="btn btn-secondary">Add Friend</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VARIANT 3: GLASSMORPHISM -->
+    <div class="mockup-wrapper">
+      <span class="variant-label">3. Glassmorphism</span>
+      <div class="phone-frame">
+        <div class="screen variant-glass">
+          <div class="bg-orb orb-1"></div>
+          <div class="bg-orb orb-2"></div>
+          <div class="bg-orb orb-3"></div>
+          <div class="content">
+            <div class="glass-card">
+              <div class="profile-header">
+                <div class="avatar">👩‍🦰</div>
+                <h2 class="name">Sarah Chen</h2>
+                <p class="cruise-info">🚢 Caribbean Dream • Deck 8</p>
+              </div>
+            </div>
+            <div class="glass-card stats-card">
+              <div class="stat">
+                <div class="stat-value">24</div>
+                <div class="stat-label">Friends</div>
+              </div>
+              <div class="stat">
+                <div class="stat-value">12</div>
+                <div class="stat-label">Events</div>
+              </div>
+              <div class="stat">
+                <div class="stat-value">Day 4</div>
+                <div class="stat-label">Cruise</div>
+              </div>
+            </div>
+            <div class="glass-card interests-card">
+              <p class="section-title">Interests</p>
+              <div class="interests">
+                <span class="tag">🎵 Live Music</span>
+                <span class="tag">🍹 Cocktails</span>
+                <span class="tag">🏊 Pool</span>
+                <span class="tag">🎰 Casino</span>
+              </div>
+            </div>
+            <div class="actions">
+              <button class="btn btn-primary">Message</button>
+              <button class="btn btn-secondary">Add Friend</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VARIANT 4: MINIMAL DARK -->
+    <div class="mockup-wrapper">
+      <span class="variant-label">4. Minimal Dark</span>
+      <div class="phone-frame">
+        <div class="screen variant-dark">
+          <div class="grid-bg"></div>
+          <div class="glow"></div>
+          <div class="content">
+            <div class="profile-header">
+              <div class="avatar">👩‍🦰</div>
+              <h2 class="name">Sarah Chen</h2>
+              <p class="cruise-info">Caribbean Dream • Deck 8</p>
+            </div>
+            <div class="stats-row">
+              <div class="stat">
+                <div class="stat-value">24</div>
+                <div class="stat-label">Friends</div>
+              </div>
+              <div class="stat">
+                <div class="stat-value">12</div>
+                <div class="stat-label">Events</div>
+              </div>
+              <div class="stat">
+                <div class="stat-value">Day 4</div>
+                <div class="stat-label">Cruise</div>
+              </div>
+            </div>
+            <p class="section-title">Interests</p>
+            <div class="interests">
+              <span class="tag">🎵 Live Music</span>
+              <span class="tag">🍹 Cocktails</span>
+              <span class="tag">🏊 Pool</span>
+              <span class="tag">🎰 Casino</span>
+              <span class="tag">🌅 Sunset</span>
+            </div>
+            <div class="actions">
+              <button class="btn btn-primary">Message</button>
+              <button class="btn btn-secondary">Add Friend</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VARIANT 5: SUNSET CRUISE -->
+    <div class="mockup-wrapper">
+      <span class="variant-label">5. Sunset Cruise</span>
+      <div class="phone-frame">
+        <div class="screen variant-sunset">
+          <div class="sun"></div>
+          <div class="water">
+            <div class="water-reflection"></div>
+          </div>
+          <div class="ship-silhouette">🚢</div>
+          <div class="birds">🕊️ 🕊️</div>
+          <div class="content">
+            <div class="profile-header">
+              <div class="avatar">👩‍🦰</div>
+              <h2 class="name">Sarah Chen</h2>
+              <p class="cruise-info">🚢 Caribbean Dream • Deck 8</p>
+            </div>
+            <div class="stats-row">
+              <div class="stat">
+                <div class="stat-value">24</div>
+                <div class="stat-label">Friends</div>
+              </div>
+              <div class="stat">
+                <div class="stat-value">12</div>
+                <div class="stat-label">Events</div>
+              </div>
+              <div class="stat">
+                <div class="stat-value">Day 4</div>
+                <div class="stat-label">Cruise</div>
+              </div>
+            </div>
+            <div class="interests">
+              <span class="tag">🎵 Live Music</span>
+              <span class="tag">🍹 Cocktails</span>
+              <span class="tag">🏊 Pool</span>
+              <span class="tag">🎰 Casino</span>
+              <span class="tag">🌅 Sunset</span>
+            </div>
+            <div class="actions">
+              <button class="btn btn-primary">Message</button>
+              <button class="btn btn-secondary">Add Friend</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

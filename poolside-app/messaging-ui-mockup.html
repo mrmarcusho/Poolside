@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poolside Messaging - Premium Cruise Chat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Ocean depths to sunset sky */
+      --bg-deep: #030712;
+      --bg-ocean: #0c1222;
+      --bg-surface: #111827;
+
+      /* Sunset gradient palette */
+      --sunset-coral: #fb7185;
+      --sunset-amber: #fbbf24;
+      --sunset-orange: #f97316;
+
+      /* Ocean palette */
+      --ocean-teal: #22d3ee;
+      --ocean-blue: #3b82f6;
+      --ocean-deep: #1e3a5f;
+
+      /* Glass effects */
+      --glass-light: rgba(255, 255, 255, 0.08);
+      --glass-medium: rgba(255, 255, 255, 0.12);
+      --glass-border: rgba(255, 255, 255, 0.1);
+
+      /* Text */
+      --text-primary: #f8fafc;
+      --text-secondary: rgba(248, 250, 252, 0.6);
+      --text-muted: rgba(248, 250, 252, 0.4);
+
+      /* Shadows */
+      --glow-sunset: 0 0 60px rgba(251, 113, 133, 0.3);
+      --glow-ocean: 0 0 40px rgba(34, 211, 238, 0.2);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-deep);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 40px;
+      padding: 40px;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 90%, rgba(251, 113, 133, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 80% 10%, rgba(34, 211, 238, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse 100% 80% at 50% 50%, rgba(30, 58, 95, 0.3) 0%, transparent 70%);
+      pointer-events: none;
+      animation: ambientShift 20s ease-in-out infinite;
+    }
+
+    @keyframes ambientShift {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.05); }
+    }
+
+    /* Phone frames */
+    .phone-frame {
+      width: 390px;
+      height: 844px;
+      background: var(--bg-ocean);
+      border-radius: 44px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.1),
+        0 25px 80px -20px rgba(0, 0, 0, 0.8),
+        0 0 100px -30px rgba(34, 211, 238, 0.3);
+      animation: phoneFloat 6s ease-in-out infinite;
+    }
+
+    .phone-frame:nth-child(2) {
+      animation-delay: -3s;
+    }
+
+    @keyframes phoneFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    /* Dynamic island */
+    .dynamic-island {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 34px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 100;
+    }
+
+    /* Screen content */
+    .screen {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding-top: 59px;
+      background: linear-gradient(180deg, var(--bg-ocean) 0%, var(--bg-deep) 100%);
+    }
+
+    /* ============ MESSAGES LIST SCREEN ============ */
+    .messages-header {
+      padding: 16px 20px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .messages-title {
+      font-size: 32px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--text-primary) 0%, var(--ocean-teal) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .compose-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--ocean-teal) 0%, var(--ocean-blue) 100%);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 4px 20px rgba(34, 211, 238, 0.4);
+    }
+
+    .compose-btn:hover {
+      transform: scale(1.1) rotate(90deg);
+      box-shadow: 0 6px 30px rgba(34, 211, 238, 0.6);
+    }
+
+    .compose-btn:active {
+      transform: scale(0.95);
+    }
+
+    .compose-btn svg {
+      width: 22px;
+      height: 22px;
+      stroke: white;
+      stroke-width: 2.5;
+    }
+
+    /* Search bar */
+    .search-container {
+      padding: 0 20px 16px;
+    }
+
+    .search-bar {
+      width: 100%;
+      height: 48px;
+      background: var(--glass-light);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .search-bar:focus-within {
+      border-color: var(--ocean-teal);
+      background: rgba(34, 211, 238, 0.08);
+      box-shadow: 0 0 30px rgba(34, 211, 238, 0.15);
+    }
+
+    .search-bar svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .search-bar input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      font-family: inherit;
+      font-size: 15px;
+      color: var(--text-primary);
+    }
+
+    .search-bar input::placeholder {
+      color: var(--text-muted);
+    }
+
+    /* Filter pills */
+    .filter-container {
+      padding: 0 20px 16px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .filter-container::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-pill {
+      padding: 10px 18px;
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      border: 1px solid transparent;
+      background: var(--glass-light);
+      color: var(--text-secondary);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .filter-pill::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--ocean-teal), var(--ocean-blue));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .filter-pill span {
+      position: relative;
+      z-index: 1;
+    }
+
+    .filter-pill:hover {
+      border-color: var(--glass-border);
+      transform: translateY(-2px);
+    }
+
+    .filter-pill.active {
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 4px 20px rgba(34, 211, 238, 0.3);
+    }
+
+    .filter-pill.active::before {
+      opacity: 1;
+    }
+
+    /* Conversation list */
+    .conversation-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 12px;
+    }
+
+    .conversation-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      margin-bottom: 4px;
+      animation: slideInConvo 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+    }
+
+    .conversation-item:nth-child(1) { animation-delay: 0.1s; }
+    .conversation-item:nth-child(2) { animation-delay: 0.15s; }
+    .conversation-item:nth-child(3) { animation-delay: 0.2s; }
+    .conversation-item:nth-child(4) { animation-delay: 0.25s; }
+    .conversation-item:nth-child(5) { animation-delay: 0.3s; }
+
+    @keyframes slideInConvo {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+    }
+
+    .conversation-item:hover {
+      background: var(--glass-light);
+    }
+
+    .conversation-item:active {
+      transform: scale(0.98);
+    }
+
+    .avatar-container {
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid transparent;
+      background: linear-gradient(var(--bg-surface), var(--bg-surface)) padding-box,
+                  linear-gradient(135deg, var(--ocean-teal), var(--sunset-coral)) border-box;
+    }
+
+    .online-indicator {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 14px;
+      height: 14px;
+      background: #22c55e;
+      border-radius: 50%;
+      border: 3px solid var(--bg-ocean);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+      50% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+    }
+
+    .conversation-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .conversation-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .conversation-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .conversation-time {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .conversation-preview {
+      font-size: 14px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .unread-badge {
+      width: 22px;
+      height: 22px;
+      background: linear-gradient(135deg, var(--sunset-coral), var(--sunset-orange));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+      animation: badgePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes badgePop {
+      from { transform: scale(0); }
+    }
+
+    /* Event chat special styling */
+    .conversation-item.event-chat .avatar {
+      background: linear-gradient(135deg, var(--sunset-amber), var(--sunset-orange)) padding-box,
+                  linear-gradient(135deg, var(--sunset-amber), var(--sunset-coral)) border-box;
+    }
+
+    .event-badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      font-size: 16px;
+      background: var(--bg-ocean);
+      border-radius: 50%;
+      padding: 2px;
+    }
+
+    /* ============ CHAT SCREEN ============ */
+    .chat-header {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(12, 18, 34, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .back-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--glass-light);
+      border: 1px solid var(--glass-border);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background: var(--glass-medium);
+      transform: translateX(-3px);
+    }
+
+    .back-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--text-primary);
+    }
+
+    .chat-user-info {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chat-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .chat-user-details h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .chat-status {
+      font-size: 12px;
+      color: #22c55e;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .chat-status::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: currentColor;
+      border-radius: 50%;
+    }
+
+    .chat-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .chat-action-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--glass-light);
+      border: 1px solid var(--glass-border);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .chat-action-btn:hover {
+      background: var(--glass-medium);
+      transform: scale(1.1);
+    }
+
+    .chat-action-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--text-secondary);
+    }
+
+    /* Messages area */
+    .messages-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .message-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .message-group.sent {
+      align-items: flex-end;
+    }
+
+    .message-group.received {
+      align-items: flex-start;
+    }
+
+    .message-bubble {
+      max-width: 280px;
+      padding: 12px 16px;
+      border-radius: 20px;
+      font-size: 15px;
+      line-height: 1.4;
+      animation: messageAppear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+      position: relative;
+    }
+
+    @keyframes messageAppear {
+      from {
+        opacity: 0;
+        transform: scale(0.8) translateY(10px);
+      }
+    }
+
+    .message-group.sent .message-bubble {
+      background: linear-gradient(135deg, var(--sunset-coral) 0%, var(--sunset-orange) 50%, var(--sunset-amber) 100%);
+      color: white;
+      border-bottom-right-radius: 6px;
+      box-shadow: 0 4px 20px rgba(251, 113, 133, 0.3);
+    }
+
+    .message-group.sent .message-bubble:first-child {
+      border-top-right-radius: 20px;
+    }
+
+    .message-group.received .message-bubble {
+      background: var(--glass-light);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      color: var(--text-primary);
+      border-bottom-left-radius: 6px;
+    }
+
+    .message-group.received .message-bubble:first-child {
+      border-top-left-radius: 20px;
+    }
+
+    .message-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 4px 0;
+    }
+
+    .message-time {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .read-receipt {
+      display: flex;
+      color: var(--ocean-teal);
+    }
+
+    .read-receipt svg {
+      width: 14px;
+      height: 14px;
+      margin-left: -6px;
+    }
+
+    .read-receipt svg:first-child {
+      margin-left: 0;
+    }
+
+    .read-receipt.read svg {
+      animation: checkAppear 0.3s ease backwards;
+    }
+
+    .read-receipt.read svg:last-child {
+      animation-delay: 0.15s;
+    }
+
+    @keyframes checkAppear {
+      from {
+        opacity: 0;
+        transform: scale(0);
+      }
+    }
+
+    /* Typing indicator */
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+    }
+
+    .typing-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .typing-dots {
+      display: flex;
+      gap: 4px;
+      padding: 12px 16px;
+      background: var(--glass-light);
+      border-radius: 20px;
+      border: 1px solid var(--glass-border);
+    }
+
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      animation: typingBounce 1.4s ease-in-out infinite;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-8px); opacity: 1; }
+    }
+
+    /* Emoji reactions bar */
+    .reactions-bar {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: var(--glass-light);
+      border-top: 1px solid var(--glass-border);
+    }
+
+    .reaction-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--bg-surface);
+      border: 1px solid var(--glass-border);
+      cursor: pointer;
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .reaction-btn:hover {
+      transform: scale(1.2) translateY(-4px);
+      background: var(--glass-medium);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .reaction-btn:active {
+      transform: scale(0.9);
+    }
+
+    /* Input area */
+    .input-area {
+      padding: 12px 16px 28px;
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      background: linear-gradient(180deg, transparent, var(--bg-deep));
+    }
+
+    .input-actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .input-action-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--glass-light);
+      border: 1px solid var(--glass-border);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .input-action-btn:hover {
+      background: var(--glass-medium);
+      transform: scale(1.1);
+    }
+
+    .input-action-btn svg {
+      width: 22px;
+      height: 22px;
+      stroke: var(--text-secondary);
+    }
+
+    .message-input-container {
+      flex: 1;
+      position: relative;
+    }
+
+    .message-input {
+      width: 100%;
+      min-height: 44px;
+      max-height: 120px;
+      padding: 12px 48px 12px 18px;
+      background: var(--glass-light);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 22px;
+      font-family: inherit;
+      font-size: 15px;
+      color: var(--text-primary);
+      resize: none;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .message-input:focus {
+      border-color: var(--ocean-teal);
+      box-shadow: 0 0 30px rgba(34, 211, 238, 0.15);
+    }
+
+    .message-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .emoji-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 22px;
+      opacity: 0.6;
+      transition: all 0.3s ease;
+    }
+
+    .emoji-btn:hover {
+      opacity: 1;
+      transform: translateY(-50%) scale(1.2);
+    }
+
+    .send-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--sunset-coral) 0%, var(--sunset-orange) 100%);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 4px 20px rgba(251, 113, 133, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .send-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--sunset-amber), var(--sunset-coral));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .send-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 30px rgba(251, 113, 133, 0.6);
+    }
+
+    .send-btn:hover::before {
+      opacity: 1;
+    }
+
+    .send-btn:active {
+      transform: scale(0.95);
+    }
+
+    .send-btn svg {
+      width: 22px;
+      height: 22px;
+      fill: white;
+      position: relative;
+      z-index: 1;
+      transition: transform 0.3s ease;
+    }
+
+    .send-btn:hover svg {
+      transform: translateX(2px);
+    }
+
+    /* Water ripple effect on click */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.4);
+      transform: scale(0);
+      animation: rippleEffect 0.6s ease-out;
+      pointer-events: none;
+    }
+
+    @keyframes rippleEffect {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+
+    /* Timestamp divider */
+    .time-divider {
+      text-align: center;
+      padding: 16px 0;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 500;
+      position: relative;
+    }
+
+    .time-divider::before,
+    .time-divider::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 60px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--glass-border));
+    }
+
+    .time-divider::before {
+      right: calc(50% + 60px);
+    }
+
+    .time-divider::after {
+      left: calc(50% + 60px);
+      background: linear-gradient(90deg, var(--glass-border), transparent);
+    }
+
+    /* Labels */
+    .screen-label {
+      position: absolute;
+      bottom: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* Hover hint for swipe */
+    .swipe-hint {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%) translateX(100%);
+      opacity: 0;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--sunset-coral);
+      font-size: 12px;
+      padding-left: 12px;
+    }
+
+    .conversation-item:hover .swipe-hint {
+      opacity: 1;
+      transform: translateY(-50%) translateX(0);
+    }
+  </style>
+</head>
+<body>
+  <!-- Messages List Screen -->
+  <div class="phone-frame" style="position: relative;">
+    <div class="dynamic-island"></div>
+    <div class="screen">
+      <div class="messages-header">
+        <h1 class="messages-title">Messages</h1>
+        <button class="compose-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="search-container">
+        <div class="search-bar">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input type="text" placeholder="Search messages...">
+        </div>
+      </div>
+
+      <div class="filter-container">
+        <div class="filter-pill active"><span>All</span></div>
+        <div class="filter-pill"><span>Unread</span></div>
+        <div class="filter-pill"><span>Friends</span></div>
+        <div class="filter-pill"><span>Events</span></div>
+      </div>
+
+      <div class="conversation-list">
+        <div class="conversation-item">
+          <div class="avatar-container">
+            <img class="avatar" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop&crop=face" alt="">
+            <div class="online-indicator"></div>
+          </div>
+          <div class="conversation-content">
+            <div class="conversation-header">
+              <span class="conversation-name">Marcus Chen</span>
+              <span class="conversation-time">2:34 PM</span>
+            </div>
+            <div class="conversation-preview">
+              See you at the pool party! 🎉
+            </div>
+          </div>
+          <div class="unread-badge">3</div>
+          <div class="swipe-hint">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Archive
+          </div>
+        </div>
+
+        <div class="conversation-item">
+          <div class="avatar-container">
+            <img class="avatar" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&h=120&fit=crop&crop=face" alt="">
+            <div class="online-indicator"></div>
+          </div>
+          <div class="conversation-content">
+            <div class="conversation-header">
+              <span class="conversation-name">Sophie Williams</span>
+              <span class="conversation-time">1:15 PM</span>
+            </div>
+            <div class="conversation-preview">
+              The sunset from deck 12 was amazing!
+            </div>
+          </div>
+          <div class="swipe-hint">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Archive
+          </div>
+        </div>
+
+        <div class="conversation-item event-chat">
+          <div class="avatar-container">
+            <div class="avatar" style="background: linear-gradient(135deg, #fbbf24, #f97316); display: flex; align-items: center; justify-content: center; font-size: 24px;">🌅</div>
+            <span class="event-badge">🎭</span>
+          </div>
+          <div class="conversation-content">
+            <div class="conversation-header">
+              <span class="conversation-name">Sunset Deck Party</span>
+              <span class="conversation-time">12:30 PM</span>
+            </div>
+            <div class="conversation-preview">
+              <strong>Alex:</strong> Who's bringing the playlist?
+            </div>
+          </div>
+          <div class="unread-badge">12</div>
+        </div>
+
+        <div class="conversation-item">
+          <div class="avatar-container">
+            <img class="avatar" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&h=120&fit=crop&crop=face" alt="">
+          </div>
+          <div class="conversation-content">
+            <div class="conversation-header">
+              <span class="conversation-name">James Rivera</span>
+              <span class="conversation-time">Yesterday</span>
+            </div>
+            <div class="conversation-preview">
+              Thanks for the dinner recommendation 👌
+            </div>
+          </div>
+        </div>
+
+        <div class="conversation-item">
+          <div class="avatar-container">
+            <img class="avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&h=120&fit=crop&crop=face" alt="">
+          </div>
+          <div class="conversation-content">
+            <div class="conversation-header">
+              <span class="conversation-name">Emma Thompson</span>
+              <span class="conversation-time">Yesterday</span>
+            </div>
+            <div class="conversation-preview">
+              Can't wait for tomorrow's excursion!
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span class="screen-label">Messages List</span>
+  </div>
+
+  <!-- Chat Screen -->
+  <div class="phone-frame" style="position: relative;">
+    <div class="dynamic-island"></div>
+    <div class="screen">
+      <div class="chat-header">
+        <button class="back-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        <div class="chat-user-info">
+          <img class="chat-avatar" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop&crop=face" alt="">
+          <div class="chat-user-details">
+            <h3>Marcus Chen</h3>
+            <span class="chat-status">Online</span>
+          </div>
+        </div>
+        <div class="chat-actions">
+          <button class="chat-action-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+          </button>
+          <button class="chat-action-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="1"/>
+              <circle cx="19" cy="12" r="1"/>
+              <circle cx="5" cy="12" r="1"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="messages-area">
+        <div class="time-divider">Today</div>
+
+        <div class="message-group received">
+          <div class="message-bubble" style="animation-delay: 0.1s">Hey! Are you coming to the pool party later?</div>
+          <div class="message-meta">
+            <span class="message-time">2:30 PM</span>
+          </div>
+        </div>
+
+        <div class="message-group sent">
+          <div class="message-bubble" style="animation-delay: 0.2s">Absolutely! What time does it start?</div>
+          <div class="message-meta">
+            <span class="message-time">2:31 PM</span>
+            <span class="read-receipt read">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </span>
+          </div>
+        </div>
+
+        <div class="message-group received">
+          <div class="message-bubble" style="animation-delay: 0.3s">It's at 4pm on Deck 12! 🌊</div>
+          <div class="message-bubble" style="animation-delay: 0.35s">The DJ is supposed to be amazing</div>
+          <div class="message-meta">
+            <span class="message-time">2:32 PM</span>
+          </div>
+        </div>
+
+        <div class="message-group sent">
+          <div class="message-bubble" style="animation-delay: 0.4s">Perfect! I'll bring the cocktails 🍹</div>
+          <div class="message-meta">
+            <span class="message-time">2:34 PM</span>
+            <span class="read-receipt read">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </span>
+          </div>
+        </div>
+
+        <div class="message-group received">
+          <div class="message-bubble" style="animation-delay: 0.5s">See you at the pool party! 🎉</div>
+          <div class="message-meta">
+            <span class="message-time">2:34 PM</span>
+          </div>
+        </div>
+
+        <div class="typing-indicator">
+          <img class="typing-avatar" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face" alt="">
+          <div class="typing-dots">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reactions-bar">
+        <button class="reaction-btn">👍</button>
+        <button class="reaction-btn">❤️</button>
+        <button class="reaction-btn">😂</button>
+        <button class="reaction-btn">🔥</button>
+        <button class="reaction-btn">🎉</button>
+      </div>
+
+      <div class="input-area">
+        <button class="input-action-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+          </svg>
+        </button>
+        <div class="message-input-container">
+          <textarea class="message-input" placeholder="Message..." rows="1"></textarea>
+          <button class="emoji-btn">😊</button>
+        </div>
+        <button class="send-btn">
+          <svg viewBox="0 0 24 24">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <span class="screen-label">Chat View</span>
+  </div>
+
+  <script>
+    // Filter pill selection
+    document.querySelectorAll('.filter-pill').forEach(pill => {
+      pill.addEventListener('click', function() {
+        document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // Ripple effect
+    document.querySelectorAll('.send-btn, .compose-btn, .reaction-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        const ripple = document.createElement('span');
+        ripple.classList.add('ripple');
+        const rect = this.getBoundingClientRect();
+        ripple.style.left = (e.clientX - rect.left) + 'px';
+        ripple.style.top = (e.clientY - rect.top) + 'px';
+        this.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 600);
+      });
+    });
+
+    // Message send animation
+    const sendBtn = document.querySelector('.send-btn');
+    const messageInput = document.querySelector('.message-input');
+
+    sendBtn.addEventListener('click', function() {
+      if (messageInput.value.trim()) {
+        const messagesArea = document.querySelector('.messages-area');
+        const typingIndicator = document.querySelector('.typing-indicator');
+
+        const newGroup = document.createElement('div');
+        newGroup.className = 'message-group sent';
+        newGroup.innerHTML = `
+          <div class="message-bubble">${messageInput.value}</div>
+          <div class="message-meta">
+            <span class="message-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+            <span class="read-receipt">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </span>
+          </div>
+        `;
+
+        messagesArea.insertBefore(newGroup, typingIndicator);
+        messageInput.value = '';
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+
+        // Animate to read after delay
+        setTimeout(() => {
+          const receipt = newGroup.querySelector('.read-receipt');
+          receipt.classList.add('read');
+          receipt.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          `;
+        }, 1500);
+      }
+    });
+
+    // Enter to send
+    messageInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendBtn.click();
+      }
+    });
+
+    // Auto-resize textarea
+    messageInput.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+  </script>
+</body>
+</html>

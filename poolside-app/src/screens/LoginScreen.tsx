@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { ProfileBackground } from '../components';
 import { useAuth } from '../context/AuthContext';
 
 interface LoginScreenProps {
@@ -41,10 +42,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSwitchToRegister }) 
   };
 
   return (
-    <LinearGradient
-      colors={['#0a0a0f', '#1a1a2e', '#0a0a0f']}
-      style={styles.gradient}
-    >
+    <View style={styles.gradient}>
+      <ProfileBackground />
       <SafeAreaView style={styles.container}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -112,7 +111,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSwitchToRegister }) 
           </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 };
 

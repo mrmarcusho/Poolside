@@ -12,6 +12,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ProfileBackground } from '../components';
 import { useRsvp } from '../context/RsvpContext';
 import { mockEvents } from '../data/mockEvents';
 import { CompactEventCard } from '../components';
@@ -61,7 +62,9 @@ export const MyPlansScreen: React.FC = () => {
   const currentEvents = activeTab === 'going' ? goingEvents : interestedEvents;
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <View style={styles.wrapper}>
+      <ProfileBackground />
+      <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <Image
           source={require('../../assets/myplans-icon.png')}
@@ -147,13 +150,16 @@ export const MyPlansScreen: React.FC = () => {
         </ScrollView>
       )}
     </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    backgroundColor: '#0a0a0f',
   },
   header: {
     paddingHorizontal: 5,

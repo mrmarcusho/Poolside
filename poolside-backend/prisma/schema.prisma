@@ -20,8 +20,9 @@ model User {
   age       Int?
   location  String?
   school    String?
-  interests String?  // JSON array of interests
-  isOnline  Boolean  @default(false)
+  interests    String?  // JSON array of interests
+  profileTheme String   @default("pool_water")  // "pool_water" | "flames" | "marble"
+  isOnline     Boolean  @default(false)
   lastSeen  DateTime @default(now())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

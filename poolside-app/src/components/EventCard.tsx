@@ -11,8 +11,11 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Event } from '../types';
 import { useRsvp } from '../context/RsvpContext';
+import { MainStackParamList } from '../navigation/MainNavigator';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = width - 32;
@@ -23,6 +26,7 @@ interface EventCardProps {
 }
 
 export const EventCard: React.FC<EventCardProps> = ({ event, onPress }) => {
+  const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const { getRsvpStatus, setRsvp } = useRsvp();
   const [isSplit, setIsSplit] = useState(false);
   const rsvpStatus = getRsvpStatus(event.id);
@@ -147,6 +151,13 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onPress }) => {
 
   const host = event.hosts[0];
 
+  const handleHostPress = () => {
+    if (host?.id) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      navigation.navigate('ViewProfile', { userId: host.id });
+    }
+  };
+
   return (
     <TouchableOpacity
       activeOpacity={0.9}
@@ -157,13 +168,15 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onPress }) => {
       <BlurView intensity={40} tint="dark" style={styles.card}>
         {/* Host Header */}
         <View style={styles.hostHeader}>
-          <View style={styles.hostAvatar}>
-            <Text style={styles.hostAvatarEmoji}>{host?.emoji || '👤'}</Text>
-          </View>
-          <View style={styles.hostInfo}>
-            <Text style={styles.hostName}>{host?.name || 'Anonymous'}</Text>
-            <Text style={styles.hostLabel}>Host</Text>
-          </View>
+          <TouchableOpacity onPress={handleHostPress} style={styles.hostTouchable} activeOpacity={0.7}>
+            <View style={styles.hostAvatar}>
+              <Text style={styles.hostAvatarEmoji}>{host?.emoji || '👤'}</Text>
+            </View>
+            <View style={styles.hostInfo}>
+              <Text style={styles.hostName}>{host?.name || 'Anonymous'}</Text>
+              <Text style={styles.hostLabel}>Host</Text>
+            </View>
+          </TouchableOpacity>
           <TouchableOpacity style={styles.moreButton}>
             <Text style={styles.moreButtonText}>•••</Text>
           </TouchableOpacity>
@@ -326,6 +339,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 12,
     paddingBottom: 10,
+  },
+  hostTouchable: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   hostAvatar: {
     width: 36,

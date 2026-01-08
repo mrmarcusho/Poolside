@@ -29,6 +29,7 @@ export class UsersService {
         location: true,
         school: true,
         interests: true,
+        profileTheme: true,
         createdAt: true,
       },
     });
@@ -64,6 +65,7 @@ export class UsersService {
         location: true,
         school: true,
         interests: true,
+        profileTheme: true,
         createdAt: true,
       },
     });
@@ -87,6 +89,7 @@ export class UsersService {
         location: true,
         school: true,
         interests: true,
+        profileTheme: true,
         createdAt: true,
       },
     });

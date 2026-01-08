@@ -2,6 +2,7 @@ import { useCallback, useState, useEffect, useRef } from 'react';
 import { View, Animated, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import {
@@ -15,6 +16,14 @@ import {
   Baloo2_700Bold,
   Baloo2_800ExtraBold,
 } from '@expo-google-fonts/baloo-2';
+import { PlayfairDisplay_700Bold } from '@expo-google-fonts/playfair-display';
+import { DancingScript_700Bold } from '@expo-google-fonts/dancing-script';
+import { SpaceMono_700Bold } from '@expo-google-fonts/space-mono';
+import { Pacifico_400Regular } from '@expo-google-fonts/pacifico';
+import { Oswald_600SemiBold } from '@expo-google-fonts/oswald';
+import { Lobster_400Regular } from '@expo-google-fonts/lobster';
+import { Outfit_400Regular, Outfit_600SemiBold } from '@expo-google-fonts/outfit';
+import { Syne_700Bold } from '@expo-google-fonts/syne';
 import * as ExpoSplashScreen from 'expo-splash-screen';
 import { MainNavigator } from './src/navigation/MainNavigator';
 import { AuthNavigator } from './src/navigation/AuthNavigator';
@@ -65,6 +74,15 @@ export default function App() {
     Montserrat_800ExtraBold,
     Baloo2_700Bold,
     Baloo2_800ExtraBold,
+    PlayfairDisplay_700Bold,
+    DancingScript_700Bold,
+    SpaceMono_700Bold,
+    Pacifico_400Regular,
+    Oswald_600SemiBold,
+    Lobster_400Regular,
+    Outfit_400Regular,
+    Outfit_600SemiBold,
+    Syne_700Bold,
   });
 
   const [showSplash, setShowSplash] = useState(true);
@@ -100,24 +118,27 @@ export default function App() {
   // Show custom splash screen with fade animation
   if (showSplash) {
     return (
-      <SafeAreaProvider>
-        <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-          <StatusBar style="light" />
-          <CustomSplashScreen opacity={splashOpacity} />
-        </View>
-      </SafeAreaProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaProvider>
+          <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+            <StatusBar style="light" />
+            <CustomSplashScreen opacity={splashOpacity} />
+          </View>
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
     );
   }
 
   return (
-    <SafeAreaProvider>
-      <AuthProvider>
-        <View style={{ flex: 1 }}>
-          <StatusBar style="light" />
-          <AppContent />
-        </View>
-        {/* TEST: Removed <Toast /> */}
-      </AuthProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <AuthProvider>
+          <View style={{ flex: 1 }}>
+            <StatusBar style="light" />
+            <AppContent />
+          </View>
+        </AuthProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { TabNavigator } from './TabNavigator';
-import { ChatScreen, EditProfileScreen, NewMessageScreen } from '../screens';
+import { ChatScreen, EditProfileScreen, NewMessageScreen, ViewProfileScreen } from '../screens';
 
 export type MainStackParamList = {
   Tabs: undefined;
@@ -15,6 +15,7 @@ export type MainStackParamList = {
   };
   NewMessage: undefined;
   EditProfile: undefined;
+  ViewProfile: { userId: string };
 };
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
@@ -50,6 +51,13 @@ export const MainNavigator: React.FC = () => {
         options={{
           animation: 'slide_from_bottom',
           presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="ViewProfile"
+        component={ViewProfileScreen}
+        options={{
+          animation: 'slide_from_right',
         }}
       />
     </Stack.Navigator>

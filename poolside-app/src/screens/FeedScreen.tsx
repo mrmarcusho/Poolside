@@ -11,8 +11,8 @@ import {
   RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
-import { EventCard, EventDetailModal, GradientBackground } from '../components';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { EventCard, EventDetailModal, ProfileBackground } from '../components';
 import { mockEvents } from '../data/mockEvents';
 import { Event } from '../types';
 import { useEvents } from '../hooks';
@@ -86,8 +86,16 @@ export const FeedScreen: React.FC = () => {
     return unsubscribe;
   }, [navigation, handleRefresh]);
 
+  // Refresh when screen comes into focus (e.g., after creating an event)
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh])
+  );
+
   return (
-    <GradientBackground>
+    <View style={styles.wrapper}>
+      <ProfileBackground />
       <SafeAreaView style={styles.container} edges={['top']}>
         <StatusBar barStyle="light-content" />
 
@@ -177,11 +185,14 @@ export const FeedScreen: React.FC = () => {
           onClose={handleCloseModal}
         />
       </SafeAreaView>
-    </GradientBackground>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+  },
   container: {
     flex: 1,
   },

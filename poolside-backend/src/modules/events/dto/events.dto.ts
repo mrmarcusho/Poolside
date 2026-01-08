@@ -14,7 +14,6 @@ export class CreateEventDto {
 
   @ApiProperty({ example: 'Short description...' })
   @IsString()
-  @MinLength(10)
   description: string;
 
   @ApiProperty({ required: false })
@@ -61,7 +60,6 @@ export class UpdateEventDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
-  @MinLength(10)
   description?: string;
 
   @ApiProperty({ required: false })

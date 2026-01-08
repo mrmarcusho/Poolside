@@ -6,6 +6,8 @@ export interface Interest {
   label: string;
 }
 
+export type ProfileTheme = 'pool_water' | 'flames' | 'marble';
+
 export interface CurrentUser {
   id: string;
   email: string;
@@ -17,6 +19,7 @@ export interface CurrentUser {
   location: string | null;
   school: string | null;
   interests: Interest[] | null;
+  profileTheme: ProfileTheme;
   createdAt: string;
 }
 
@@ -38,6 +41,7 @@ export interface UpdateProfileData {
   location?: string | null;
   school?: string | null;
   interests?: Interest[];
+  profileTheme?: ProfileTheme;
 }
 
 export const usersService = {
