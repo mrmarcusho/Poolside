@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -19,7 +19,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProfileBackground, CurvedPickerWheel, VideoBackground } from '../components';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { eventsService } from '../api/services/events';
 import { uploadsService } from '../api/services/uploads';
 import { useEventCreationAnimation } from '../context/EventCreationAnimationContext';
@@ -96,6 +96,13 @@ export const CreateEventScreen: React.FC = () => {
 
   // Splash state
   const [showSplash, setShowSplash] = useState(true);
+
+  // Reset splash when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      setShowSplash(true);
+    }, [])
+  );
 
   // Slide state
   const [currentSlide, setCurrentSlide] = useState(0);
