@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   TextInput,
   ActivityIndicator,
   StatusBar,
+  Animated as RNAnimated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
@@ -25,10 +26,17 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { usersService } from '../api/services/users';
+import { eventsService } from '../api/services/events';
 import { ProfileBackground } from '../components/ProfileBackground';
 import { DeckCarousel } from '../components/DeckCarousel';
 import { InterestsGallery, Interest } from '../components/InterestsGallery';
 import { FavoritesSearchModal } from '../components/FavoritesSearchModal';
+import { ProfileEventCard, EventTabType } from '../components/ProfileEventCard';
+import { useRsvp } from '../context/RsvpContext';
+import { useAuth } from '../context/AuthContext';
+import { mapApiEventsToEvents } from '../utils';
+import { Event } from '../types';
+import { ApiEvent } from '../api';
 
 // Spring config for bubbly animation
 const BUBBLE_SPRING_CONFIG = {
@@ -108,6 +116,17 @@ export const ProfileScreen: React.FC = () => {
   const [searchModalVisible, setSearchModalVisible] = useState(false);
   const [searchModalType, setSearchModalType] = useState<Interest['type']>('movie');
   const [editingInterestIndex, setEditingInterestIndex] = useState<number>(0);
+
+  // My Events tab state
+  const [activeEventTab, setActiveEventTab] = useState<EventTabType>('going');
+  const [hostingEvents, setHostingEvents] = useState<Event[]>([]);
+  const [isLoadingHosting, setIsLoadingHosting] = useState(false);
+  const tabSlideAnim = useRef(new RNAnimated.Value(0)).current;
+  const eventsOpacity = useRef(new RNAnimated.Value(1)).current;
+
+  // Get RSVP data
+  const { getEventsByStatus, isLoading: isLoadingRsvp } = useRsvp();
+  const { user: authUser } = useAuth();
 
   // Original values for cancel
   const [originalValues, setOriginalValues] = useState({
@@ -210,6 +229,93 @@ export const ProfileScreen: React.FC = () => {
   useEffect(() => {
     fetchProfile();
   }, []);
+
+  // Fetch hosting events
+  const fetchHostingEvents = useCallback(async () => {
+    if (!authUser?.id) return;
+
+    try {
+      setIsLoadingHosting(true);
+      const response = await eventsService.getEvents({ hostId: authUser.id });
+      const mappedEvents = mapApiEventsToEvents(response.events);
+      setHostingEvents(mappedEvents);
+    } catch (error) {
+      console.error('Failed to fetch hosting events:', error);
+      setHostingEvents([]);
+    } finally {
+      setIsLoadingHosting(false);
+    }
+  }, [authUser?.id]);
+
+  useEffect(() => {
+    fetchHostingEvents();
+  }, [fetchHostingEvents]);
+
+  // Get events based on active tab
+  const getActiveEvents = useCallback((): Event[] => {
+    switch (activeEventTab) {
+      case 'going': {
+        const goingApiEvents = getEventsByStatus('going');
+        return goingApiEvents.length > 0 ? mapApiEventsToEvents(goingApiEvents) : [];
+      }
+      case 'interested': {
+        const interestedApiEvents = getEventsByStatus('interested');
+        return interestedApiEvents.length > 0 ? mapApiEventsToEvents(interestedApiEvents) : [];
+      }
+      case 'hosting':
+        return hostingEvents;
+      default:
+        return [];
+    }
+  }, [activeEventTab, getEventsByStatus, hostingEvents]);
+
+  // Get event counts for tabs
+  const getEventCounts = useCallback(() => {
+    const goingEvents = getEventsByStatus('going');
+    const interestedEvents = getEventsByStatus('interested');
+    return {
+      going: goingEvents.length,
+      interested: interestedEvents.length,
+      hosting: hostingEvents.length,
+    };
+  }, [getEventsByStatus, hostingEvents]);
+
+  // Handle tab change with animation
+  const handleEventTabChange = (tab: EventTabType) => {
+    if (tab === activeEventTab) return;
+
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    // Calculate tab index for slide animation
+    const tabIndex = tab === 'going' ? 0 : tab === 'interested' ? 1 : 2;
+
+    // Animate tab indicator
+    RNAnimated.spring(tabSlideAnim, {
+      toValue: tabIndex,
+      stiffness: 300,
+      damping: 25,
+      mass: 1,
+      useNativeDriver: true,
+    }).start();
+
+    // Fade out, change content, fade in
+    RNAnimated.timing(eventsOpacity, {
+      toValue: 0,
+      duration: 100,
+      useNativeDriver: true,
+    }).start(() => {
+      setActiveEventTab(tab);
+      RNAnimated.timing(eventsOpacity, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }).start();
+    });
+  };
+
+  const activeEvents = getActiveEvents();
+  const eventCounts = getEventCounts();
+  const isLoadingEvents = isLoadingRsvp || isLoadingHosting;
 
   const fetchProfile = async () => {
     try {
@@ -524,6 +630,141 @@ export const ProfileScreen: React.FC = () => {
             </Animated.View>
           )}
 
+          {/* My Events Section */}
+          {!isEditMode && (
+            <View style={styles.myEventsSection}>
+              {/* Section Header */}
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionIcon}>📅</Text>
+                <Text style={styles.sectionTitle}>My Events</Text>
+              </View>
+
+              {/* Event Tabs */}
+              <View style={styles.eventTabsContainer}>
+                <TouchableOpacity
+                  style={[
+                    styles.eventTab,
+                    activeEventTab === 'going' && styles.eventTabActive,
+                  ]}
+                  onPress={() => handleEventTabChange('going')}
+                  activeOpacity={0.7}
+                >
+                  {activeEventTab === 'going' ? (
+                    <LinearGradient
+                      colors={['#667eea', '#764ba2']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={styles.eventTabGradient}
+                    >
+                      <Text style={styles.eventTabTextActive}>Going</Text>
+                      <View style={styles.tabCount}>
+                        <Text style={styles.tabCountText}>{eventCounts.going}</Text>
+                      </View>
+                    </LinearGradient>
+                  ) : (
+                    <View style={styles.eventTabInner}>
+                      <Text style={styles.eventTabText}>Going</Text>
+                      <View style={styles.tabCount}>
+                        <Text style={styles.tabCountText}>{eventCounts.going}</Text>
+                      </View>
+                    </View>
+                  )}
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.eventTab,
+                    activeEventTab === 'interested' && styles.eventTabActive,
+                  ]}
+                  onPress={() => handleEventTabChange('interested')}
+                  activeOpacity={0.7}
+                >
+                  {activeEventTab === 'interested' ? (
+                    <LinearGradient
+                      colors={['#667eea', '#764ba2']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={styles.eventTabGradient}
+                    >
+                      <Text style={styles.eventTabTextActive}>Interested</Text>
+                      <View style={styles.tabCount}>
+                        <Text style={styles.tabCountText}>{eventCounts.interested}</Text>
+                      </View>
+                    </LinearGradient>
+                  ) : (
+                    <View style={styles.eventTabInner}>
+                      <Text style={styles.eventTabText}>Interested</Text>
+                      <View style={styles.tabCount}>
+                        <Text style={styles.tabCountText}>{eventCounts.interested}</Text>
+                      </View>
+                    </View>
+                  )}
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.eventTab,
+                    activeEventTab === 'hosting' && styles.eventTabActive,
+                  ]}
+                  onPress={() => handleEventTabChange('hosting')}
+                  activeOpacity={0.7}
+                >
+                  {activeEventTab === 'hosting' ? (
+                    <LinearGradient
+                      colors={['#667eea', '#764ba2']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={styles.eventTabGradient}
+                    >
+                      <Text style={styles.eventTabTextActive}>Hosting</Text>
+                      <View style={styles.tabCount}>
+                        <Text style={styles.tabCountText}>{eventCounts.hosting}</Text>
+                      </View>
+                    </LinearGradient>
+                  ) : (
+                    <View style={styles.eventTabInner}>
+                      <Text style={styles.eventTabText}>Hosting</Text>
+                      <View style={styles.tabCount}>
+                        <Text style={styles.tabCountText}>{eventCounts.hosting}</Text>
+                      </View>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              </View>
+
+              {/* Events List */}
+              <RNAnimated.View style={[styles.eventsList, { opacity: eventsOpacity }]}>
+                {isLoadingEvents ? (
+                  <View style={styles.eventsLoading}>
+                    <ActivityIndicator size="small" color="#667eea" />
+                  </View>
+                ) : activeEvents.length === 0 ? (
+                  <View style={styles.emptyEvents}>
+                    <Text style={styles.emptyEventsEmoji}>
+                      {activeEventTab === 'hosting' ? '🎉' : '📅'}
+                    </Text>
+                    <Text style={styles.emptyEventsTitle}>
+                      No {activeEventTab} events yet
+                    </Text>
+                    <Text style={styles.emptyEventsText}>
+                      {activeEventTab === 'hosting'
+                        ? 'Create your first event to start hosting!'
+                        : 'Browse events and tap RSVP to get started'}
+                    </Text>
+                  </View>
+                ) : (
+                  activeEvents.map((event) => (
+                    <ProfileEventCard
+                      key={event.id}
+                      event={event}
+                      status={activeEventTab}
+                    />
+                  ))
+                )}
+              </RNAnimated.View>
+            </View>
+          )}
+
           {/* Interests Gallery */}
           <InterestsGallery
             interests={isEditMode ? editInterests : user.interests}
@@ -778,5 +1019,111 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#fff',
+  },
+  // My Events Section
+  myEventsSection: {
+    marginTop: 24,
+    marginBottom: 24,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 16,
+  },
+  sectionIcon: {
+    fontSize: 20,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#ffffff',
+    letterSpacing: -0.5,
+  },
+  eventTabsContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 16,
+  },
+  eventTab: {
+    borderRadius: 50,
+    overflow: 'hidden',
+  },
+  eventTabActive: {
+    shadowColor: '#667eea',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  eventTabInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderRadius: 50,
+  },
+  eventTabGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 50,
+  },
+  eventTabText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.45)',
+  },
+  eventTabTextActive: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+  tabCount: {
+    minWidth: 22,
+    height: 22,
+    paddingHorizontal: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tabCountText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#ffffff',
+  },
+  eventsList: {
+    minHeight: 100,
+  },
+  eventsLoading: {
+    paddingVertical: 40,
+    alignItems: 'center',
+  },
+  emptyEvents: {
+    alignItems: 'center',
+    paddingVertical: 40,
+    paddingHorizontal: 20,
+  },
+  emptyEventsEmoji: {
+    fontSize: 48,
+    marginBottom: 12,
+  },
+  emptyEventsTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.7)',
+    marginBottom: 6,
+  },
+  emptyEventsText: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.45)',
+    textAlign: 'center',
   },
 });

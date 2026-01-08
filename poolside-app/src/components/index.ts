@@ -1,5 +1,6 @@
 export { EventCard } from './EventCard';
 export { CompactEventCard } from './CompactEventCard';
+export { ProfileEventCard } from './ProfileEventCard';
 export { EventDetailModal } from './EventDetailModal';
 export { EventCreationOverlay } from './EventCreationOverlay';
 export { GradientBackground } from './GradientBackground';

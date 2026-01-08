@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=430, height=932, initial-scale=1.0">
+  <title>Poolside Profile - Events Section Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --glass-bg: rgba(255, 255, 255, 0.06);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --glass-highlight: rgba(255, 255, 255, 0.15);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --text-muted: rgba(255, 255, 255, 0.45);
+      --accent-going: #22c55e;
+      --accent-interested: #f59e0b;
+      --accent-hosting: #8b5cf6;
+      --gradient-start: #667eea;
+      --gradient-end: #764ba2;
+    }
+
+    body {
+      font-family: 'Sora', -apple-system, sans-serif;
+      background: #0a0a0f;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Phone Frame */
+    .phone-frame {
+      width: 430px;
+      height: 932px;
+      margin: 20px auto;
+      position: relative;
+      border-radius: 55px;
+      overflow: hidden;
+      box-shadow:
+        0 50px 100px rgba(0, 0, 0, 0.5),
+        0 0 0 12px #1a1a1f,
+        0 0 0 14px #2a2a30;
+    }
+
+    /* Animated Background */
+    .background {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 40%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 80% 20%, rgba(118, 75, 162, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse 70% 50% at 50% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+        linear-gradient(180deg, #0d0d12 0%, #0a0a0f 100%);
+      z-index: 0;
+    }
+
+    .background::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      mix-blend-mode: overlay;
+    }
+
+    /* Floating orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      animation: float 20s ease-in-out infinite;
+    }
+
+    .orb-1 {
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(102, 126, 234, 0.3) 0%, transparent 70%);
+      top: 10%;
+      left: -20%;
+      animation-delay: 0s;
+    }
+
+    .orb-2 {
+      width: 150px;
+      height: 150px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, transparent 70%);
+      top: 60%;
+      right: -10%;
+      animation-delay: -7s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(20px, -20px) scale(1.05); }
+      66% { transform: translate(-10px, 15px) scale(0.95); }
+    }
+
+    /* Scrollable Content */
+    .screen-content {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .screen-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Status Bar */
+    .status-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 28px 8px;
+      background: linear-gradient(180deg, rgba(10, 10, 15, 0.95) 0%, transparent 100%);
+    }
+
+    .time {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .status-icons {
+      display: flex;
+      gap: 6px;
+      font-size: 14px;
+    }
+
+    /* Dynamic Island */
+    .dynamic-island {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 36px;
+      background: #000;
+      border-radius: 20px;
+    }
+
+    /* Header Actions */
+    .header-actions {
+      display: flex;
+      justify-content: space-between;
+      padding: 60px 20px 16px;
+    }
+
+    .back-btn, .edit-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 50px;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .back-btn {
+      width: 44px;
+      height: 44px;
+      font-size: 24px;
+      font-weight: 300;
+    }
+
+    .edit-btn {
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .back-btn:hover, .edit-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: scale(1.02);
+    }
+
+    /* Photo Carousel */
+    .photo-carousel {
+      display: flex;
+      justify-content: center;
+      padding: 0 20px;
+      margin-bottom: 24px;
+      perspective: 1000px;
+    }
+
+    .photo-stack {
+      position: relative;
+      width: 280px;
+      height: 360px;
+    }
+
+    .photo-card {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 24px;
+      overflow: hidden;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      transition: transform 0.4s ease;
+    }
+
+    .photo-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .photo-card:nth-child(1) {
+      z-index: 3;
+      transform: rotate(-2deg);
+    }
+
+    .photo-card:nth-child(2) {
+      z-index: 2;
+      transform: rotate(3deg) translateX(15px) scale(0.96);
+      opacity: 0.7;
+    }
+
+    .photo-card:nth-child(3) {
+      z-index: 1;
+      transform: rotate(-5deg) translateX(-12px) scale(0.92);
+      opacity: 0.4;
+    }
+
+    /* Profile Info */
+    .profile-info {
+      padding: 0 24px;
+      margin-bottom: 28px;
+    }
+
+    .profile-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 4px;
+    }
+
+    .profile-name {
+      font-size: 38px;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -1px;
+      line-height: 1.1;
+    }
+
+    .message-btn {
+      padding: 10px 20px;
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: 50px;
+      color: var(--text-primary);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .message-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .profile-lastname {
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      letter-spacing: -0.5px;
+      margin-bottom: 16px;
+    }
+
+    .profile-bio {
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+
+    /* My Events Section */
+    .my-events-section {
+      padding: 0 16px;
+      margin-bottom: 32px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding: 0 8px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+    }
+
+    .section-icon {
+      font-size: 20px;
+    }
+
+    /* Event Tabs */
+    .event-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 0 4px;
+      margin-bottom: 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .event-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .event-tab {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 50px;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .event-tab:hover {
+      background: var(--glass-highlight);
+      color: var(--text-secondary);
+    }
+
+    .event-tab.active {
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      border-color: transparent;
+      color: var(--text-primary);
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .tab-count {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 22px;
+      height: 22px;
+      padding: 0 6px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 11px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .event-tab.active .tab-count {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Event Cards */
+    .events-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .event-card {
+      display: flex;
+      gap: 14px;
+      padding: 14px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 18px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .event-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    }
+
+    .event-card:hover {
+      transform: translateY(-2px);
+      background: var(--glass-highlight);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .event-thumbnail {
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+      overflow: hidden;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .event-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .event-status-badge {
+      position: absolute;
+      bottom: -4px;
+      right: -4px;
+      width: 24px;
+      height: 24px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: white;
+      border: 2px solid rgba(10, 10, 15, 0.9);
+    }
+
+    .badge-going {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+    }
+
+    .badge-interested {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+    }
+
+    .badge-hosting {
+      background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    }
+
+    .event-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .event-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .event-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .event-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .event-meta-icon {
+      font-size: 11px;
+      width: 16px;
+      text-align: center;
+    }
+
+    .event-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      color: var(--text-muted);
+      font-size: 16px;
+      align-self: center;
+    }
+
+    /* Empty State */
+    .empty-events {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .empty-emoji {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .empty-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .empty-text {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* Interests Section */
+    .interests-section {
+      padding: 0 16px 100px;
+    }
+
+    .interests-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .interest-card {
+      aspect-ratio: 1;
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+    }
+
+    .interest-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .interest-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, 0.7) 100%);
+    }
+
+    .interest-label {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      right: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-primary);
+      z-index: 1;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .interest-emoji {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(139, 92, 246, 0.2));
+    }
+
+    /* Bottom safe area */
+    .bottom-safe {
+      height: 34px;
+    }
+
+    /* Tab Bar */
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 430px;
+      height: 85px;
+      background: rgba(20, 20, 30, 0.85);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      border-top: 1px solid var(--glass-border);
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-start;
+      padding-top: 12px;
+      z-index: 1000;
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      opacity: 0.4;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .tab-item.active {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .tab-icon {
+      font-size: 22px;
+    }
+
+    /* Animation */
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .event-card {
+      animation: slideUp 0.4s ease forwards;
+    }
+
+    .event-card:nth-child(1) { animation-delay: 0.05s; }
+    .event-card:nth-child(2) { animation-delay: 0.1s; }
+    .event-card:nth-child(3) { animation-delay: 0.15s; }
+    .event-card:nth-child(4) { animation-delay: 0.2s; }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <!-- Background -->
+    <div class="background">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+    </div>
+
+    <!-- Screen Content -->
+    <div class="screen-content">
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="time">9:41</span>
+        <div class="dynamic-island"></div>
+        <div class="status-icons">
+          <span>📶</span>
+          <span>🔋</span>
+        </div>
+      </div>
+
+      <!-- Header Actions -->
+      <div class="header-actions">
+        <button class="back-btn">‹</button>
+        <button class="edit-btn">Edit Profile</button>
+      </div>
+
+      <!-- Photo Carousel -->
+      <div class="photo-carousel">
+        <div class="photo-stack">
+          <div class="photo-card">
+            <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=600&q=85" alt="Profile photo">
+          </div>
+          <div class="photo-card">
+            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=85" alt="Profile photo">
+          </div>
+          <div class="photo-card">
+            <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=600&q=85" alt="Profile photo">
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Info -->
+      <div class="profile-info">
+        <div class="profile-header">
+          <h1 class="profile-name">Sarah</h1>
+          <button class="message-btn">Message</button>
+        </div>
+        <h2 class="profile-lastname">Mitchell</h2>
+        <p class="profile-bio">First-time cruiser loving every moment! Here for the sunset deck parties, trivia nights, and making new friends. 🌊</p>
+      </div>
+
+      <!-- My Events Section -->
+      <div class="my-events-section">
+        <div class="section-header">
+          <span class="section-icon">📅</span>
+          <h3 class="section-title">My Events</h3>
+        </div>
+
+        <!-- Event Tabs -->
+        <div class="event-tabs">
+          <button class="event-tab active">
+            <span>Going</span>
+            <span class="tab-count">3</span>
+          </button>
+          <button class="event-tab">
+            <span>Interested</span>
+            <span class="tab-count">5</span>
+          </button>
+          <button class="event-tab">
+            <span>Hosting</span>
+            <span class="tab-count">2</span>
+          </button>
+        </div>
+
+        <!-- Events List -->
+        <div class="events-list">
+          <div class="event-card">
+            <div class="event-thumbnail">
+              <img src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=200&q=80" alt="Event">
+              <div class="event-status-badge badge-going">✓</div>
+            </div>
+            <div class="event-details">
+              <h4 class="event-title">Sunset Deck Party</h4>
+              <div class="event-meta">
+                <div class="event-meta-row">
+                  <span class="event-meta-icon">📅</span>
+                  <span>Today at 6:00 PM</span>
+                </div>
+                <div class="event-meta-row">
+                  <span class="event-meta-icon">📍</span>
+                  <span>Sky Deck - Deck 14</span>
+                </div>
+              </div>
+            </div>
+            <div class="event-arrow">›</div>
+          </div>
+
+          <div class="event-card">
+            <div class="event-thumbnail">
+              <img src="https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?w=200&q=80" alt="Event">
+              <div class="event-status-badge badge-going">✓</div>
+            </div>
+            <div class="event-details">
+              <h4 class="event-title">Morning Yoga Session</h4>
+              <div class="event-meta">
+                <div class="event-meta-row">
+                  <span class="event-meta-icon">📅</span>
+                  <span>Tomorrow at 7:30 AM</span>
+                </div>
+                <div class="event-meta-row">
+                  <span class="event-meta-icon">📍</span>
+                  <span>Serenity Pool - Deck 12</span>
+                </div>
+              </div>
+            </div>
+            <div class="event-arrow">›</div>
+          </div>
+
+          <div class="event-card">
+            <div class="event-thumbnail">
+              <img src="https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=200&q=80" alt="Event">
+              <div class="event-status-badge badge-going">✓</div>
+            </div>
+            <div class="event-details">
+              <h4 class="event-title">Trivia Night Championship</h4>
+              <div class="event-meta">
+                <div class="event-meta-row">
+                  <span class="event-meta-icon">📅</span>
+                  <span>Fri at 8:00 PM</span>
+                </div>
+                <div class="event-meta-row">
+                  <span class="event-meta-icon">📍</span>
+                  <span>Ocean View Lounge</span>
+                </div>
+              </div>
+            </div>
+            <div class="event-arrow">›</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interests Section -->
+      <div class="interests-section">
+        <div class="section-header">
+          <span class="section-icon">✨</span>
+          <h3 class="section-title">Interests</h3>
+        </div>
+        <div class="interests-grid">
+          <div class="interest-card">
+            <img src="https://image.tmdb.org/t/p/w300/d5NXSklXo0qyIYkgV94XAgMIckC.jpg" alt="Dune">
+            <span class="interest-label">Dune: Part Two</span>
+          </div>
+          <div class="interest-card">
+            <img src="https://i.scdn.co/image/ab6761610000e5ebee3123e593174208f9754fab" alt="Frank Ocean">
+            <span class="interest-label">Frank Ocean</span>
+          </div>
+          <div class="interest-card">
+            <img src="https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=400&q=80" alt="Sushi">
+            <span class="interest-label">Omakase Sushi</span>
+          </div>
+          <div class="interest-card">
+            <img src="https://i.scdn.co/image/ab67616d0000b2732e8ed79e177ff6011076f5f0" alt="Pink + White">
+            <span class="interest-label">Pink + White</span>
+          </div>
+          <div class="interest-card">
+            <div class="interest-emoji">🎾</div>
+            <span class="interest-label">Tennis</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-safe"></div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <div class="tab-item">
+        <span class="tab-icon">🏠</span>
+      </div>
+      <div class="tab-item">
+        <span class="tab-icon">📅</span>
+      </div>
+      <div class="tab-item">
+        <span class="tab-icon">➕</span>
+      </div>
+      <div class="tab-item">
+        <span class="tab-icon">👥</span>
+      </div>
+      <div class="tab-item active">
+        <span class="tab-icon">👤</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tab switching functionality
+    const tabs = document.querySelectorAll('.event-tab');
+    const eventsList = document.querySelector('.events-list');
+
+    const eventsData = {
+      going: [
+        { title: 'Sunset Deck Party', date: 'Today at 6:00 PM', location: 'Sky Deck - Deck 14', image: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=200&q=80', badge: 'going' },
+        { title: 'Morning Yoga Session', date: 'Tomorrow at 7:30 AM', location: 'Serenity Pool - Deck 12', image: 'https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?w=200&q=80', badge: 'going' },
+        { title: 'Trivia Night Championship', date: 'Fri at 8:00 PM', location: 'Ocean View Lounge', image: 'https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=200&q=80', badge: 'going' }
+      ],
+      interested: [
+        { title: 'Caribbean Dance Class', date: 'Today at 3:00 PM', location: 'Main Stage - Deck 5', image: 'https://images.unsplash.com/photo-1504609813442-a8924e83f76e?w=200&q=80', badge: 'interested' },
+        { title: 'Wine Tasting Evening', date: 'Tomorrow at 7:00 PM', location: 'Vintages Bar', image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=200&q=80', badge: 'interested' },
+        { title: 'Pool Volleyball Tournament', date: 'Sat at 2:00 PM', location: 'Main Pool - Deck 11', image: 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=200&q=80', badge: 'interested' },
+        { title: 'Live Jazz Night', date: 'Sat at 9:00 PM', location: 'Blue Note Lounge', image: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=200&q=80', badge: 'interested' },
+        { title: 'Stargazing Session', date: 'Sun at 10:00 PM', location: 'Observation Deck', image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=200&q=80', badge: 'interested' }
+      ],
+      hosting: [
+        { title: 'Board Game Meetup', date: 'Tomorrow at 4:00 PM', location: 'Card Room - Deck 7', image: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=200&q=80', badge: 'hosting' },
+        { title: 'Photography Walk', date: 'Sun at 6:00 AM', location: 'Promenade Deck', image: 'https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=200&q=80', badge: 'hosting' }
+      ]
+    };
+
+    const badgeIcons = {
+      going: '✓',
+      interested: '★',
+      hosting: '👑'
+    };
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        // Update active tab
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        // Get tab type from text
+        const tabType = tab.textContent.trim().toLowerCase().split(/\s/)[0];
+        const events = eventsData[tabType] || [];
+
+        // Animate out
+        eventsList.style.opacity = '0';
+        eventsList.style.transform = 'translateY(10px)';
+
+        setTimeout(() => {
+          // Update content
+          if (events.length === 0) {
+            eventsList.innerHTML = `
+              <div class="empty-events">
+                <div class="empty-emoji">${tabType === 'hosting' ? '🎉' : '📅'}</div>
+                <div class="empty-title">No ${tabType} events yet</div>
+                <div class="empty-text">${tabType === 'hosting' ? 'Create your first event to start hosting!' : 'Browse events and tap RSVP to get started'}</div>
+              </div>
+            `;
+          } else {
+            eventsList.innerHTML = events.map(event => `
+              <div class="event-card">
+                <div class="event-thumbnail">
+                  <img src="${event.image}" alt="${event.title}">
+                  <div class="event-status-badge badge-${event.badge}">${badgeIcons[event.badge]}</div>
+                </div>
+                <div class="event-details">
+                  <h4 class="event-title">${event.title}</h4>
+                  <div class="event-meta">
+                    <div class="event-meta-row">
+                      <span class="event-meta-icon">📅</span>
+                      <span>${event.date}</span>
+                    </div>
+                    <div class="event-meta-row">
+                      <span class="event-meta-icon">📍</span>
+                      <span>${event.location}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="event-arrow">›</div>
+              </div>
+            `).join('');
+          }
+
+          // Animate in
+          eventsList.style.opacity = '1';
+          eventsList.style.transform = 'translateY(0)';
+        }, 150);
+      });
+    });
+
+    // Add transition to events list
+    eventsList.style.transition = 'opacity 0.15s ease, transform 0.15s ease';
+  </script>
+</body>
+</html>
