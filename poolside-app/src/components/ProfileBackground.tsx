@@ -21,6 +21,7 @@ const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
     zIndex: 0,
+    backgroundColor: '#0a0a0f',
   },
   backgroundImage: {
     position: 'absolute',

@@ -21,6 +21,7 @@ model User {
   location  String?
   school    String?
   interests    String?  // JSON array of interests
+  photos       String?  // JSON array of photo URLs
   profileTheme String   @default("pool_water")  // "pool_water" | "flames" | "marble"
   isOnline     Boolean  @default(false)
   lastSeen  DateTime @default(now())

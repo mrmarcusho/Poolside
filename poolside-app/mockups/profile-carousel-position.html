@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile Layout - New Design</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #1a1a2e;
+      min-height: 100vh;
+      padding: 40px 20px;
+      font-family: 'Outfit', -apple-system, sans-serif;
+    }
+
+    .page-title {
+      text-align: center;
+      color: #fff;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .page-subtitle {
+      text-align: center;
+      color: rgba(255,255,255,0.5);
+      font-size: 14px;
+      margin-bottom: 40px;
+    }
+
+    .comparison {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .option-label {
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      padding: 6px 16px;
+      background: rgba(102, 126, 234, 0.3);
+      border-radius: 20px;
+    }
+
+    .option-label.recommended {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+
+    .option-description {
+      color: rgba(255,255,255,0.5);
+      font-size: 12px;
+      margin-bottom: 16px;
+      text-align: center;
+      max-width: 300px;
+    }
+
+    .phone {
+      width: 320px;
+      height: 700px;
+      background: #0a0a0f;
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.5);
+    }
+
+    /* Starry background with purple glow at top */
+    .phone::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(139, 92, 246, 0.3) 0%, transparent 50%),
+        radial-gradient(1px 1px at 20px 30px, white, transparent),
+        radial-gradient(1px 1px at 40px 70px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 50px 160px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(1px 1px at 90px 40px, white, transparent),
+        radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(1px 1px at 160px 120px, white, transparent),
+        radial-gradient(1px 1px at 200px 50px, rgba(255,255,255,0.5), transparent),
+        radial-gradient(1px 1px at 250px 90px, white, transparent),
+        radial-gradient(1px 1px at 280px 140px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 70px 200px, white, transparent),
+        radial-gradient(1px 1px at 120px 250px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(1px 1px at 180px 220px, white, transparent),
+        radial-gradient(1px 1px at 240px 280px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(1px 1px at 30px 320px, white, transparent),
+        radial-gradient(1px 1px at 100px 380px, rgba(255,255,255,0.5), transparent),
+        radial-gradient(1px 1px at 170px 350px, white, transparent),
+        radial-gradient(1px 1px at 220px 400px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 280px 360px, white, transparent),
+        radial-gradient(1px 1px at 60px 450px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(1px 1px at 140px 500px, white, transparent),
+        radial-gradient(1px 1px at 200px 480px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(1px 1px at 260px 520px, white, transparent);
+      background-color: #0a0a0f;
+      z-index: 0;
+    }
+
+    .phone-content {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      overflow-y: auto;
+      padding-bottom: 90px;
+    }
+
+    .phone-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Header buttons */
+    .header-buttons {
+      display: flex;
+      justify-content: space-between;
+      padding: 50px 20px 16px;
+    }
+
+    .back-btn {
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 20px;
+    }
+
+    .edit-btn {
+      padding: 8px 14px;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 50px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    /* Large centered profile picture */
+    .profile-picture-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 16px 24px;
+    }
+
+    .large-profile-pic {
+      width: 140px;
+      height: 140px;
+      border-radius: 70px;
+      background: rgba(60, 60, 70, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .large-profile-pic.has-image {
+      background: none;
+      overflow: hidden;
+    }
+
+    .large-profile-pic img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .large-silhouette {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .large-silhouette-head {
+      width: 50px;
+      height: 50px;
+      background: rgba(100,100,110,0.9);
+      border-radius: 50%;
+      margin-bottom: -10px;
+    }
+
+    .large-silhouette-body {
+      width: 80px;
+      height: 50px;
+      background: rgba(100,100,110,0.9);
+      border-radius: 40px 40px 0 0;
+      margin-top: 6px;
+    }
+
+    .camera-btn {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(139, 92, 246, 0.9));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      border: 3px solid #0a0a0f;
+    }
+
+    /* Centered name */
+    .profile-name-centered {
+      font-size: 32px;
+      font-weight: 800;
+      color: #fff;
+      text-align: center;
+      letter-spacing: -0.5px;
+      margin-bottom: 4px;
+    }
+
+    .profile-lastname-centered {
+      font-size: 24px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.7);
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    /* Bio centered */
+    .profile-bio-centered {
+      font-size: 14px;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.75);
+      text-align: center;
+      padding: 0 24px;
+      margin-bottom: 24px;
+    }
+
+    /* Message button */
+    .message-btn-centered {
+      padding: 12px 32px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 50px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 24px;
+    }
+
+    /* Photos section */
+    .photos-section {
+      padding: 0 16px;
+      margin-bottom: 20px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .section-icon {
+      font-size: 18px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .carousel-card {
+      width: 100%;
+      height: 200px;
+      background: linear-gradient(180deg, rgba(40,40,50,0.6) 0%, rgba(30,30,40,0.8) 100%);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .carousel-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .carousel-dots {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-top: 12px;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 50%;
+    }
+
+    .dot.active {
+      background: #fff;
+      width: 18px;
+      border-radius: 3px;
+    }
+
+    /* Empty carousel placeholder */
+    .carousel-empty {
+      width: 100%;
+      height: 160px;
+      background: rgba(40,40,50,0.4);
+      border-radius: 20px;
+      border: 2px dashed rgba(255,255,255,0.15);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .carousel-empty-icon {
+      font-size: 32px;
+      opacity: 0.4;
+    }
+
+    .carousel-empty-text {
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .carousel-empty-btn {
+      padding: 8px 16px;
+      background: rgba(102, 126, 234, 0.3);
+      border-radius: 20px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.7);
+      margin-top: 4px;
+    }
+
+    /* My Events section */
+    .my-events {
+      padding: 0 16px;
+      margin-bottom: 20px;
+    }
+
+    .event-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .event-tab {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.45);
+    }
+
+    .event-tab.active {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border: none;
+      color: #fff;
+    }
+
+    .tab-count {
+      background: rgba(255,255,255,0.15);
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    /* Add Friend button */
+    .add-friend-btn {
+      margin: 0 16px 20px;
+      padding: 16px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      border-radius: 14px;
+      text-align: center;
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    /* Bottom nav */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      background: rgba(20, 20, 30, 0.9);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding-bottom: 20px;
+    }
+
+    .nav-icon {
+      width: 24px;
+      height: 24px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 6px;
+    }
+
+    .nav-icon.active {
+      background: rgba(255,255,255,0.9);
+    }
+  </style>
+</head>
+<body>
+  <h1 class="page-title">Profile Layout - New Design</h1>
+  <p class="page-subtitle">Large profile picture at top, photos carousel below bio</p>
+
+  <div class="comparison">
+    <!-- With Photos -->
+    <div class="option">
+      <div class="option-label recommended">With Photos</div>
+      <div class="option-description">User has uploaded profile picture and gallery photos</div>
+
+      <div class="phone">
+        <div class="phone-content">
+          <div class="header-buttons">
+            <div class="back-btn">‹</div>
+            <div class="edit-btn">Edit Profile</div>
+          </div>
+
+          <!-- Large centered profile picture -->
+          <div class="profile-picture-section">
+            <div class="large-profile-pic has-image">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=85" alt="Profile">
+              <div class="camera-btn">📷</div>
+            </div>
+
+            <div class="profile-name-centered">Sarah</div>
+            <div class="profile-lastname-centered">Mitchell</div>
+
+            <div class="profile-bio-centered">First-time cruiser loving every moment! Here for the sunset deck parties and making new friends.</div>
+
+            <div class="message-btn-centered">Message</div>
+          </div>
+
+          <!-- Photos carousel -->
+          <div class="photos-section">
+            <div class="section-header">
+              <span class="section-icon">📸</span>
+              <span class="section-title">Photos</span>
+            </div>
+            <div class="carousel-card">
+              <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=600&q=85" alt="Photo">
+            </div>
+            <div class="carousel-dots">
+              <div class="dot active"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+            </div>
+          </div>
+
+          <!-- My Events -->
+          <div class="my-events">
+            <div class="section-header">
+              <span class="section-icon">📅</span>
+              <span class="section-title">My Events</span>
+            </div>
+            <div class="event-tabs">
+              <div class="event-tab active">Going <span class="tab-count">2</span></div>
+              <div class="event-tab">Interested <span class="tab-count">1</span></div>
+              <div class="event-tab">Hosting <span class="tab-count">0</span></div>
+            </div>
+          </div>
+
+          <div class="add-friend-btn">Add Friend</div>
+        </div>
+
+        <div class="bottom-nav">
+          <div class="nav-icon"></div>
+          <div class="nav-icon"></div>
+          <div class="nav-icon"></div>
+          <div class="nav-icon"></div>
+          <div class="nav-icon active"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Without Photos -->
+    <div class="option">
+      <div class="option-label">Without Photos</div>
+      <div class="option-description">User hasn't uploaded any photos yet - still looks clean</div>
+
+      <div class="phone">
+        <div class="phone-content">
+          <div class="header-buttons">
+            <div class="back-btn">‹</div>
+            <div class="edit-btn">Edit Profile</div>
+          </div>
+
+          <!-- Large centered profile picture (empty) -->
+          <div class="profile-picture-section">
+            <div class="large-profile-pic">
+              <div class="large-silhouette">
+                <div class="large-silhouette-head"></div>
+                <div class="large-silhouette-body"></div>
+              </div>
+              <div class="camera-btn">📷</div>
+            </div>
+
+            <div class="profile-name-centered">Sarah</div>
+            <div class="profile-lastname-centered">Mitchell</div>
+
+            <div class="profile-bio-centered">First-time cruiser loving every moment! Here for the sunset deck parties and making new friends.</div>
+
+            <div class="message-btn-centered">Message</div>
+          </div>
+
+          <!-- Empty photos section -->
+          <div class="photos-section">
+            <div class="section-header">
+              <span class="section-icon">📸</span>
+              <span class="section-title">Photos</span>
+            </div>
+            <div class="carousel-empty">
+              <div class="carousel-empty-icon">🖼️</div>
+              <div class="carousel-empty-text">No photos yet</div>
+              <div class="carousel-empty-btn">+ Add Photos</div>
+            </div>
+          </div>
+
+          <!-- My Events -->
+          <div class="my-events">
+            <div class="section-header">
+              <span class="section-icon">📅</span>
+              <span class="section-title">My Events</span>
+            </div>
+            <div class="event-tabs">
+              <div class="event-tab active">Going <span class="tab-count">2</span></div>
+              <div class="event-tab">Interested <span class="tab-count">1</span></div>
+              <div class="event-tab">Hosting <span class="tab-count">0</span></div>
+            </div>
+          </div>
+
+          <div class="add-friend-btn">Add Friend</div>
+        </div>
+
+        <div class="bottom-nav">
+          <div class="nav-icon"></div>
+          <div class="nav-icon"></div>
+          <div class="nav-icon"></div>
+          <div class="nav-icon"></div>
+          <div class="nav-icon active"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

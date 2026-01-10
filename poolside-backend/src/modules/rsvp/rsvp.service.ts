@@ -70,6 +70,8 @@ export class RsvpService {
     const rsvps = await this.prisma.rsvp.findMany({
       where: {
         userId,
+        // Exclude events where the user is the host (only show RSVPs to other users' events)
+        event: { hostId: { not: userId } },
         ...(status && { status: status.toUpperCase() }),
       },
       include: {

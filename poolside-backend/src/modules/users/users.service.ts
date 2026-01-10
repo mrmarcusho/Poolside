@@ -15,6 +15,15 @@ export class UsersService {
     }
   }
 
+  private parsePhotos(photos: string | null): string[] | null {
+    if (!photos) return null;
+    try {
+      return JSON.parse(photos);
+    } catch {
+      return null;
+    }
+  }
+
   async getMe(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -29,6 +38,7 @@ export class UsersService {
         location: true,
         school: true,
         interests: true,
+        photos: true,
         profileTheme: true,
         createdAt: true,
       },
@@ -41,14 +51,18 @@ export class UsersService {
     return {
       ...user,
       interests: this.parseInterests(user.interests),
+      photos: this.parsePhotos(user.photos),
     };
   }
 
   async updateMe(userId: string, dto: UpdateUserDto) {
-    // Convert interests array to JSON string for storage
+    // Convert interests and photos arrays to JSON strings for storage
     const data: any = { ...dto };
     if (dto.interests !== undefined) {
       data.interests = JSON.stringify(dto.interests);
+    }
+    if (dto.photos !== undefined) {
+      data.photos = JSON.stringify(dto.photos);
     }
 
     const user = await this.prisma.user.update({
@@ -65,6 +79,7 @@ export class UsersService {
         location: true,
         school: true,
         interests: true,
+        photos: true,
         profileTheme: true,
         createdAt: true,
       },
@@ -73,6 +88,7 @@ export class UsersService {
     return {
       ...user,
       interests: this.parseInterests(user.interests),
+      photos: this.parsePhotos(user.photos),
     };
   }
 
@@ -89,6 +105,7 @@ export class UsersService {
         location: true,
         school: true,
         interests: true,
+        photos: true,
         profileTheme: true,
         createdAt: true,
       },
@@ -101,6 +118,7 @@ export class UsersService {
     return {
       ...user,
       interests: this.parseInterests(user.interests),
+      photos: this.parsePhotos(user.photos),
     };
   }
 

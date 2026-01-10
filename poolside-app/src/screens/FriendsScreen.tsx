@@ -161,7 +161,7 @@ export const FriendsScreen: React.FC = () => {
     navigation.navigate('Chat' as never, { conversation } as never);
   };
 
-  const filters = ['All', 'Unread', 'Friends', 'Event Chats'];
+  const filters = ['All', 'Unread', 'My Events', 'Attending'];
 
   return (
     <View style={styles.container}>
@@ -170,12 +170,7 @@ export const FriendsScreen: React.FC = () => {
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Messages</Text>
-          <View style={styles.headerActions}>
-            <TouchableOpacity style={styles.headerBtn} onPress={() => navigation.navigate('NewMessage' as never)}>
-              <Ionicons name="add" size={22} color="rgba(255,255,255,0.7)" />
-            </TouchableOpacity>
-          </View>
+          <Text style={styles.title}>Event Chats</Text>
         </View>
 
         {/* Search Bar */}
@@ -184,7 +179,7 @@ export const FriendsScreen: React.FC = () => {
             <Ionicons name="search" size={18} color="rgba(255,255,255,0.4)" />
             <TextInput
               style={styles.searchInput}
-              placeholder="Search messages..."
+              placeholder="Search event chats..."
               placeholderTextColor="rgba(255,255,255,0.4)"
               value={searchText}
               onChangeText={setSearchText}
@@ -214,17 +209,10 @@ export const FriendsScreen: React.FC = () => {
             <View style={styles.emptyStateIcon}>
               <Ionicons name="chatbubbles-outline" size={64} color="rgba(102, 126, 234, 0.5)" />
             </View>
-            <Text style={styles.emptyStateTitle}>No Messages Yet</Text>
+            <Text style={styles.emptyStateTitle}>No Event Chats Yet</Text>
             <Text style={styles.emptyStateText}>
-              Start a conversation by tapping the + button above
+              Join an event to start chatting with other attendees
             </Text>
-            <TouchableOpacity
-              style={styles.emptyStateButton}
-              onPress={() => navigation.navigate('NewMessage' as never)}
-            >
-              <Ionicons name="add" size={20} color="#fff" />
-              <Text style={styles.emptyStateButtonText}>New Message</Text>
-            </TouchableOpacity>
           </View>
         ) : (
           <ScrollView

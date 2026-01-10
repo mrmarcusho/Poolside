@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poolside - Snap Scroll Feed</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Satoshi', sans-serif;
+      background: #0a0a0f;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+    }
+
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: linear-gradient(180deg, #0d1033 0%, #1a0a2e 50%, #0d1033 100%);
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 0 0 3px #1a1a2e,
+        0 0 0 6px #0a0a0f,
+        0 25px 80px rgba(102, 126, 234, 0.3);
+    }
+
+    /* Starry background */
+    .stars {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle 3s ease-in-out infinite;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    /* Header */
+    .header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 50px 20px 15px;
+      background: linear-gradient(180deg, rgba(13, 16, 51, 0.98) 0%, rgba(13, 16, 51, 0.9) 70%, transparent 100%);
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .logo {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-icons {
+      display: flex;
+      gap: 16px;
+      font-size: 18px;
+      opacity: 0.7;
+    }
+
+    .page-title {
+      font-family: 'Satoshi', sans-serif;
+      font-weight: 700;
+      font-size: 26px;
+      color: #fff;
+      margin-top: 4px;
+    }
+
+    /* Snap Scroll Container */
+    .feed-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 80px;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Hide scrollbar */
+    .feed-container::-webkit-scrollbar {
+      display: none;
+    }
+
+    .feed-container {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Spacer for header */
+    .header-spacer {
+      height: 140px;
+      scroll-snap-align: none;
+    }
+
+    /* Event Card - Full viewport snap */
+    .event-card {
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      min-height: calc(100% - 140px);
+      padding: 0 16px 20px;
+      display: flex;
+      flex-direction: column;
+      transform-origin: center center;
+      transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+    }
+
+    .card-inner {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transform-origin: center center;
+      transition: transform 0.15s ease-out, opacity 0.15s ease-out;
+    }
+
+    /* Host Header */
+    .host-header {
+      display: flex;
+      align-items: center;
+      padding: 14px 16px;
+    }
+
+    .host-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.4) 0%, rgba(118, 75, 162, 0.4) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .host-info {
+      flex: 1;
+      margin-left: 12px;
+    }
+
+    .host-name {
+      font-weight: 500;
+      font-size: 15px;
+      color: #fff;
+    }
+
+    .host-label {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .more-btn {
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.4);
+      letter-spacing: 2px;
+    }
+
+    /* Event Image */
+    .event-image {
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* Content */
+    .content {
+      padding: 18px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .event-title {
+      font-weight: 700;
+      font-size: 22px;
+      color: #fff;
+      margin-bottom: 12px;
+      letter-spacing: -0.3px;
+      line-height: 1.2;
+    }
+
+    .meta-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .meta-icon {
+      font-size: 16px;
+    }
+
+    .meta-text {
+      font-weight: 500;
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    .description {
+      font-size: 14px;
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.65);
+      flex: 1;
+    }
+
+    /* Footer */
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .attendees {
+      display: flex;
+      align-items: center;
+    }
+
+    .attendee-avatars {
+      display: flex;
+    }
+
+    .attendee-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.5) 0%, rgba(118, 75, 162, 0.5) 100%);
+      border: 2px solid rgba(30, 30, 45, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      margin-left: -10px;
+    }
+
+    .attendee-avatar:first-child {
+      margin-left: 0;
+    }
+
+    .attendee-count {
+      font-weight: 500;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-left: 10px;
+    }
+
+    .rsvp-btn {
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      border: none;
+      border-radius: 20px;
+      padding: 12px 24px;
+      font-family: 'Satoshi', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: #fff;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .rsvp-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .rsvp-btn.going {
+      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    }
+
+    /* Bottom Tab Bar */
+    .tab-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      background: rgba(10, 10, 15, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding-bottom: 20px;
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      opacity: 0.5;
+      transition: opacity 0.2s;
+    }
+
+    .tab-item.active {
+      opacity: 1;
+    }
+
+    .tab-icon {
+      font-size: 22px;
+    }
+
+    .tab-label {
+      font-size: 10px;
+      color: #fff;
+    }
+
+    /* Scroll indicator */
+    .scroll-indicator {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 50;
+    }
+
+    .scroll-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .scroll-dot.active {
+      background: #667eea;
+      height: 20px;
+      border-radius: 3px;
+    }
+
+    /* Swipe hint animation */
+    .swipe-hint {
+      position: absolute;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: bounce 2s ease-in-out infinite;
+      z-index: 60;
+      pointer-events: none;
+    }
+
+    .swipe-arrow {
+      font-size: 24px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .swipe-text {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 4px;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+      50% { transform: translateX(-50%) translateY(-10px); opacity: 0.5; }
+    }
+
+    /* Instructions panel */
+    .instructions {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 280px;
+      background: rgba(20, 20, 30, 0.95);
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .instructions h3 {
+      font-family: 'Satoshi', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+
+    .instructions p {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+
+    .instructions code {
+      background: rgba(102, 126, 234, 0.2);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      color: #667eea;
+    }
+
+    .feature-list {
+      list-style: none;
+      margin-top: 12px;
+    }
+
+    .feature-list li {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .feature-list li:last-child {
+      border-bottom: none;
+    }
+
+    .check {
+      color: #22c55e;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <!-- Stars background -->
+    <div class="stars" id="stars"></div>
+
+    <!-- Header (fixed) -->
+    <div class="header">
+      <div class="header-top">
+        <div class="logo">Poolside</div>
+        <div class="header-icons">
+          <span>🔔</span>
+          <span>⚙️</span>
+        </div>
+      </div>
+      <div class="page-title">Cruise Feed</div>
+    </div>
+
+    <!-- Scroll indicator dots -->
+    <div class="scroll-indicator">
+      <div class="scroll-dot active" data-index="0"></div>
+      <div class="scroll-dot" data-index="1"></div>
+      <div class="scroll-dot" data-index="2"></div>
+      <div class="scroll-dot" data-index="3"></div>
+    </div>
+
+    <!-- Swipe hint -->
+    <div class="swipe-hint" id="swipeHint">
+      <span class="swipe-arrow">↑</span>
+      <span class="swipe-text">Swipe to explore</span>
+    </div>
+
+    <!-- Snap Scroll Feed -->
+    <div class="feed-container" id="feedContainer">
+      <div class="header-spacer"></div>
+
+      <!-- Event Card 1 -->
+      <div class="event-card">
+        <div class="card-inner">
+          <div class="host-header">
+            <div class="host-avatar">🎭</div>
+            <div class="host-info">
+              <div class="host-name">Marcus Chen</div>
+              <div class="host-label">Host</div>
+            </div>
+            <div class="more-btn">•••</div>
+          </div>
+          <img class="event-image" src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&h=600&fit=crop" alt="Event">
+          <div class="content">
+            <div class="event-title">Sunset Deck Party</div>
+            <div class="meta-container">
+              <div class="meta-item">
+                <span class="meta-icon">📅</span>
+                <span class="meta-text">Today at 6:00 PM</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-icon">📍</span>
+                <span class="meta-text">Sky Deck - Deck 14</span>
+              </div>
+            </div>
+            <div class="description">Join us for an unforgettable sunset celebration with live DJ, tropical drinks, and amazing ocean views!</div>
+          </div>
+          <div class="footer">
+            <div class="attendees">
+              <div class="attendee-avatars">
+                <div class="attendee-avatar">😎</div>
+                <div class="attendee-avatar">🥳</div>
+                <div class="attendee-avatar">🌟</div>
+              </div>
+              <span class="attendee-count">+42 going</span>
+            </div>
+            <button class="rsvp-btn">RSVP</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Event Card 2 -->
+      <div class="event-card">
+        <div class="card-inner">
+          <div class="host-header">
+            <div class="host-avatar">🎨</div>
+            <div class="host-info">
+              <div class="host-name">Sarah Kim</div>
+              <div class="host-label">Host</div>
+            </div>
+            <div class="more-btn">•••</div>
+          </div>
+          <img class="event-image" src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=600&fit=crop" alt="Event">
+          <div class="content">
+            <div class="event-title">Wine & Canvas Night</div>
+            <div class="meta-container">
+              <div class="meta-item">
+                <span class="meta-icon">📅</span>
+                <span class="meta-text">Tomorrow at 7:30 PM</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-icon">📍</span>
+                <span class="meta-text">Art Gallery - Deck 7</span>
+              </div>
+            </div>
+            <div class="description">Express your creativity while enjoying premium wines. No experience needed - just bring your adventurous spirit!</div>
+          </div>
+          <div class="footer">
+            <div class="attendees">
+              <div class="attendee-avatars">
+                <div class="attendee-avatar">🎨</div>
+                <div class="attendee-avatar">🍷</div>
+                <div class="attendee-avatar">✨</div>
+              </div>
+              <span class="attendee-count">+28 going</span>
+            </div>
+            <button class="rsvp-btn going">✓ Going</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Event Card 3 -->
+      <div class="event-card">
+        <div class="card-inner">
+          <div class="host-header">
+            <div class="host-avatar">🎤</div>
+            <div class="host-info">
+              <div class="host-name">DJ Thunder</div>
+              <div class="host-label">Host</div>
+            </div>
+            <div class="more-btn">•••</div>
+          </div>
+          <img class="event-image" src="https://images.unsplash.com/photo-1571266028243-e4733b0f0bb0?w=800&h=600&fit=crop" alt="Event">
+          <div class="content">
+            <div class="event-title">Late Night Pool Party</div>
+            <div class="meta-container">
+              <div class="meta-item">
+                <span class="meta-icon">📅</span>
+                <span class="meta-text">Friday at 11:00 PM</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-icon">📍</span>
+                <span class="meta-text">Main Pool - Deck 12</span>
+              </div>
+            </div>
+            <div class="description">The ultimate pool party experience! Glow sticks, foam, and the best beats under the stars.</div>
+          </div>
+          <div class="footer">
+            <div class="attendees">
+              <div class="attendee-avatars">
+                <div class="attendee-avatar">🌊</div>
+                <div class="attendee-avatar">🎉</div>
+                <div class="attendee-avatar">💃</div>
+              </div>
+              <span class="attendee-count">+89 going</span>
+            </div>
+            <button class="rsvp-btn">RSVP</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Event Card 4 -->
+      <div class="event-card">
+        <div class="card-inner">
+          <div class="host-header">
+            <div class="host-avatar">🧘</div>
+            <div class="host-info">
+              <div class="host-name">Emma Lee</div>
+              <div class="host-label">Host</div>
+            </div>
+            <div class="more-btn">•••</div>
+          </div>
+          <img class="event-image" src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&h=600&fit=crop" alt="Event">
+          <div class="content">
+            <div class="event-title">Sunrise Yoga Session</div>
+            <div class="meta-container">
+              <div class="meta-item">
+                <span class="meta-icon">📅</span>
+                <span class="meta-text">Saturday at 6:30 AM</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-icon">📍</span>
+                <span class="meta-text">Wellness Center - Deck 10</span>
+              </div>
+            </div>
+            <div class="description">Start your day with peaceful ocean views and rejuvenating yoga. All skill levels welcome!</div>
+          </div>
+          <div class="footer">
+            <div class="attendees">
+              <div class="attendee-avatars">
+                <div class="attendee-avatar">🧘</div>
+                <div class="attendee-avatar">🌅</div>
+                <div class="attendee-avatar">☮️</div>
+              </div>
+              <span class="attendee-count">+15 going</span>
+            </div>
+            <button class="rsvp-btn">RSVP</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <div class="tab-item active">
+        <span class="tab-icon">🏠</span>
+        <span class="tab-label">Feed</span>
+      </div>
+      <div class="tab-item">
+        <span class="tab-icon">📅</span>
+        <span class="tab-label">My Plans</span>
+      </div>
+      <div class="tab-item">
+        <span class="tab-icon">➕</span>
+        <span class="tab-label">Create</span>
+      </div>
+      <div class="tab-item">
+        <span class="tab-icon">👥</span>
+        <span class="tab-label">Friends</span>
+      </div>
+      <div class="tab-item">
+        <span class="tab-icon">👤</span>
+        <span class="tab-label">Profile</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Instructions -->
+  <div class="instructions">
+    <h3>TikTok-Style Snap Scroll</h3>
+    <p>Each event card snaps into place as you scroll, creating an immersive browsing experience.</p>
+    <p>Key features:</p>
+    <ul class="feature-list">
+      <li><span class="check">✓</span> <code>scroll-snap-type: y mandatory</code></li>
+      <li><span class="check">✓</span> <code>scroll-snap-align: start</code></li>
+      <li><span class="check">✓</span> <code>scroll-snap-stop: always</code></li>
+      <li><span class="check">✓</span> Full viewport card height</li>
+      <li><span class="check">✓</span> <strong>Scale-up animation</strong> on enter</li>
+      <li><span class="check">✓</span> Cards start at 70% scale</li>
+      <li><span class="check">✓</span> Fade + scale as cards approach</li>
+      <li><span class="check">✓</span> Progress indicator dots</li>
+    </ul>
+    <p style="margin-top: 16px; font-size: 11px; color: rgba(255,255,255,0.4);">Try scrolling in the phone mockup →</p>
+  </div>
+
+  <script>
+    // Generate stars
+    const starsContainer = document.getElementById('stars');
+    for (let i = 0; i < 50; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      star.style.left = Math.random() * 100 + '%';
+      star.style.top = Math.random() * 100 + '%';
+      star.style.animationDelay = Math.random() * 3 + 's';
+      star.style.opacity = Math.random() * 0.5 + 0.2;
+      starsContainer.appendChild(star);
+    }
+
+    // Scroll indicator update and card scale animation
+    const feedContainer = document.getElementById('feedContainer');
+    const dots = document.querySelectorAll('.scroll-dot');
+    const swipeHint = document.getElementById('swipeHint');
+    const cards = document.querySelectorAll('.event-card');
+
+    const containerHeight = feedContainer.clientHeight;
+    const headerHeight = 140;
+    const cardViewHeight = containerHeight - headerHeight;
+
+    function updateCardScales() {
+      const scrollTop = feedContainer.scrollTop;
+
+      cards.forEach((card, index) => {
+        const cardInner = card.querySelector('.card-inner');
+        // Calculate card's position relative to viewport
+        const cardTop = headerHeight + (index * cardViewHeight) - scrollTop;
+
+        // If card is entering from below
+        if (cardTop >= cardViewHeight) {
+          // Card is below viewport - scale it down
+          const distanceFromView = cardTop - cardViewHeight;
+          const maxDistance = cardViewHeight * 0.5;
+          const progress = Math.max(0, 1 - (distanceFromView / maxDistance));
+
+          const scale = 0.7 + (0.3 * progress); // Scale from 0.7 to 1.0
+          const opacity = 0.3 + (0.7 * progress); // Opacity from 0.3 to 1.0
+
+          cardInner.style.transform = `scale(${scale})`;
+          cardInner.style.opacity = opacity;
+        } else if (cardTop <= -cardViewHeight * 0.3) {
+          // Card is above viewport (scrolled past) - scale down slightly
+          const distancePast = Math.abs(cardTop);
+          const progress = Math.min(1, distancePast / cardViewHeight);
+
+          const scale = 1 - (0.15 * progress); // Scale from 1.0 to 0.85
+          const opacity = 1 - (0.3 * progress); // Fade slightly
+
+          cardInner.style.transform = `scale(${scale})`;
+          cardInner.style.opacity = opacity;
+        } else {
+          // Card is in view - full scale
+          // Smooth transition to full scale based on how centered it is
+          const centerOffset = Math.abs(cardTop);
+          const normalizedOffset = Math.min(1, centerOffset / (cardViewHeight * 0.3));
+          const scale = 1 - (0.05 * normalizedOffset); // Subtle scale variation
+
+          cardInner.style.transform = `scale(${Math.max(0.95, scale)})`;
+          cardInner.style.opacity = 1;
+        }
+      });
+
+      // Update dots
+      const currentIndex = Math.round((scrollTop - headerHeight) / cardViewHeight);
+      dots.forEach((dot, index) => {
+        dot.classList.toggle('active', index === Math.max(0, Math.min(currentIndex, cards.length - 1)));
+      });
+
+      // Hide swipe hint after first scroll
+      if (scrollTop > 50) {
+        swipeHint.style.opacity = '0';
+        swipeHint.style.transition = 'opacity 0.3s';
+      }
+    }
+
+    feedContainer.addEventListener('scroll', updateCardScales);
+
+    // Initial update
+    updateCardScales();
+  </script>
+</body>
+</html>

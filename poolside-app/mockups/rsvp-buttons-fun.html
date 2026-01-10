@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RSVP Buttons - Poolside</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --going-gradient: linear-gradient(135deg, #00d4aa, #00f5c4, #7bffdb);
+      --going-glow: #00f5c4;
+      --interested-gradient: linear-gradient(135deg, #ff6b9d, #ff8a80, #ffab91);
+      --interested-glow: #ff6b9d;
+      --bg-dark: #0a0a1a;
+      --bg-card: rgba(255, 255, 255, 0.03);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-dark);
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(0, 212, 170, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(255, 107, 157, 0.08) 0%, transparent 50%);
+      min-height: 100vh;
+      color: white;
+      padding: 40px 20px;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      text-align: center;
+      font-family: 'Nunito', sans-serif;
+      font-size: 32px;
+      font-weight: 900;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #00f5c4, #ff6b9d);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 14px;
+      margin-bottom: 50px;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 40px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .option-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 28px;
+      padding: 36px;
+      backdrop-filter: blur(10px);
+    }
+
+    .option-card h2 {
+      font-family: 'Nunito', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+
+    .option-card p {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 32px;
+      line-height: 1.5;
+    }
+
+    .button-preview {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: center;
+    }
+
+    /* ============================================
+       STYLE 1: NEON RACE TRACK
+       ============================================ */
+    .btn-racetrack {
+      position: relative;
+      padding: 16px 40px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 17px;
+      font-weight: 800;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      background: transparent;
+      color: white;
+      overflow: visible;
+      transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .btn-racetrack::before {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 54px;
+      padding: 3px;
+      background: conic-gradient(
+        from var(--angle, 0deg),
+        transparent 0%,
+        transparent 60%,
+        var(--btn-glow) 75%,
+        var(--btn-glow) 78%,
+        transparent 85%,
+        transparent 100%
+      );
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      animation: racetrack 2s linear infinite;
+    }
+
+    .btn-racetrack::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50px;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: -1;
+    }
+
+    .btn-racetrack.going { --btn-glow: var(--going-glow); }
+    .btn-racetrack.interested { --btn-glow: var(--interested-glow); }
+
+    @property --angle {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+
+    @keyframes racetrack {
+      to { --angle: 360deg; }
+    }
+
+    .btn-racetrack:hover {
+      transform: scale(1.05);
+    }
+
+    .btn-racetrack:active {
+      transform: scale(0.95);
+    }
+
+    .btn-racetrack.clicked {
+      animation: racetrackPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes racetrackPop {
+      0% { transform: scale(0.95); }
+      40% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    /* ============================================
+       STYLE 2: GRADIENT RIVER
+       ============================================ */
+    .btn-river {
+      position: relative;
+      padding: 16px 40px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 17px;
+      font-weight: 800;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .btn-river::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50px;
+      padding: 2.5px;
+      background: linear-gradient(
+        90deg,
+        var(--river-c1) 0%,
+        var(--river-c2) 25%,
+        var(--river-c3) 50%,
+        var(--river-c2) 75%,
+        var(--river-c1) 100%
+      );
+      background-size: 200% 100%;
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      animation: riverFlow 3s linear infinite;
+    }
+
+    .btn-river.going {
+      --river-c1: #00d4aa;
+      --river-c2: #00f5c4;
+      --river-c3: #7bffdb;
+    }
+
+    .btn-river.interested {
+      --river-c1: #ff6b9d;
+      --river-c2: #ff8a80;
+      --river-c3: #ffab91;
+    }
+
+    @keyframes riverFlow {
+      to { background-position: 200% 0; }
+    }
+
+    .btn-river:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-river:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    .btn-river .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: var(--river-c2);
+      transform: scale(0);
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .btn-river .ripple.animate {
+      animation: rippleExpand 0.6s ease-out forwards;
+    }
+
+    @keyframes rippleExpand {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+
+    /* ============================================
+       STYLE 3: BOUNCY BLOB
+       ============================================ */
+    .btn-blob-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    .btn-blob {
+      position: relative;
+      padding: 16px 40px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 17px;
+      font-weight: 800;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      background: var(--blob-bg);
+      color: white;
+      z-index: 2;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 4px 20px var(--blob-shadow);
+    }
+
+    .btn-blob.going {
+      --blob-bg: linear-gradient(135deg, #00d4aa, #00f5c4);
+      --blob-shadow: rgba(0, 212, 170, 0.4);
+    }
+
+    .btn-blob.interested {
+      --blob-bg: linear-gradient(135deg, #ff6b9d, #ff8a80);
+      --blob-shadow: rgba(255, 107, 157, 0.4);
+    }
+
+    .btn-blob-bg {
+      position: absolute;
+      inset: -4px;
+      border-radius: 54px;
+      background: var(--blob-bg);
+      filter: blur(12px);
+      opacity: 0.6;
+      z-index: 1;
+      animation: blobPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes blobPulse {
+      0%, 100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.08); opacity: 0.8; }
+    }
+
+    .btn-blob:hover {
+      transform: scale(1.08);
+    }
+
+    .btn-blob:active {
+      transform: scale(0.92);
+    }
+
+    .btn-blob.clicked {
+      animation: blobSquish 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes blobSquish {
+      0% { transform: scale(0.92); }
+      30% { transform: scale(1.2, 0.85); }
+      50% { transform: scale(0.9, 1.1); }
+      70% { transform: scale(1.05, 0.95); }
+      100% { transform: scale(1); }
+    }
+
+    /* ============================================
+       STYLE 4: SPARKLE BURST
+       ============================================ */
+    .btn-sparkle-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    .btn-sparkle {
+      position: relative;
+      padding: 16px 40px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 17px;
+      font-weight: 800;
+      border: 2.5px solid var(--sparkle-border);
+      border-radius: 50px;
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.4);
+      color: white;
+      transition: all 0.2s ease;
+      overflow: hidden;
+    }
+
+    .btn-sparkle.going {
+      --sparkle-border: rgba(0, 245, 196, 0.6);
+      --sparkle-color: #00f5c4;
+    }
+
+    .btn-sparkle.interested {
+      --sparkle-border: rgba(255, 107, 157, 0.6);
+      --sparkle-color: #ff6b9d;
+    }
+
+    .btn-sparkle::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 30px;
+      height: 200%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        var(--sparkle-color),
+        transparent
+      );
+      transform: rotate(25deg);
+      animation: sparkleShine 3s ease-in-out infinite;
+    }
+
+    @keyframes sparkleShine {
+      0%, 100% { left: -50%; opacity: 0; }
+      50% { left: 150%; opacity: 1; }
+    }
+
+    .btn-sparkle:hover {
+      border-color: var(--sparkle-color);
+      box-shadow: 0 0 20px var(--sparkle-color), inset 0 0 20px rgba(255, 255, 255, 0.05);
+    }
+
+    .btn-sparkle:active {
+      transform: scale(0.96);
+    }
+
+    .sparkle-particles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .sparkle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: var(--sparkle-color);
+      border-radius: 50%;
+      opacity: 0;
+      box-shadow: 0 0 10px var(--sparkle-color);
+    }
+
+    .sparkle.burst {
+      animation: sparkleBurst 0.8s ease-out forwards;
+    }
+
+    @keyframes sparkleBurst {
+      0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0);
+        opacity: 0;
+      }
+    }
+
+    /* ============================================
+       STYLE 5: ELASTIC PRESS
+       ============================================ */
+    .btn-elastic {
+      position: relative;
+      padding: 16px 40px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 17px;
+      font-weight: 800;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      background: var(--elastic-bg);
+      color: white;
+      transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow:
+        0 6px 0 var(--elastic-shadow),
+        0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-elastic.going {
+      --elastic-bg: linear-gradient(180deg, #00f5c4, #00d4aa);
+      --elastic-shadow: #00a080;
+    }
+
+    .btn-elastic.interested {
+      --elastic-bg: linear-gradient(180deg, #ff8a80, #ff6b9d);
+      --elastic-shadow: #cc4466;
+    }
+
+    .btn-elastic:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 8px 0 var(--elastic-shadow),
+        0 12px 25px rgba(0, 0, 0, 0.35);
+    }
+
+    .btn-elastic:active {
+      transform: translateY(4px);
+      box-shadow:
+        0 2px 0 var(--elastic-shadow),
+        0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-elastic.clicked {
+      animation: elasticBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes elasticBounce {
+      0% { transform: translateY(4px); }
+      30% { transform: translateY(-8px); }
+      50% { transform: translateY(2px); }
+      70% { transform: translateY(-3px); }
+      100% { transform: translateY(0); }
+    }
+
+    /* ============================================
+       STYLE 6: DOUBLE ORBIT
+       ============================================ */
+    .btn-orbit-container {
+      position: relative;
+      display: inline-block;
+      padding: 8px;
+    }
+
+    .btn-orbit {
+      position: relative;
+      padding: 16px 40px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 17px;
+      font-weight: 800;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      z-index: 2;
+      transition: all 0.2s ease;
+    }
+
+    .orbit-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 58px;
+      pointer-events: none;
+    }
+
+    .orbit-dot {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: var(--orbit-color);
+      border-radius: 50%;
+      box-shadow: 0 0 15px var(--orbit-color), 0 0 30px var(--orbit-color);
+      animation: orbit 3s linear infinite;
+    }
+
+    .orbit-dot:nth-child(2) {
+      animation-delay: -1.5s;
+      width: 6px;
+      height: 6px;
+      opacity: 0.6;
+    }
+
+    .btn-orbit-container.going {
+      --orbit-color: #00f5c4;
+    }
+
+    .btn-orbit-container.interested {
+      --orbit-color: #ff6b9d;
+    }
+
+    @keyframes orbit {
+      from {
+        offset-distance: 0%;
+      }
+      to {
+        offset-distance: 100%;
+      }
+    }
+
+    .orbit-dot {
+      offset-path: path('M 4,32 A 120,32 0 1,1 240,32 A 120,32 0 1,1 4,32');
+    }
+
+    .btn-orbit:hover {
+      background: rgba(0, 0, 0, 0.8);
+      box-shadow: 0 0 30px var(--orbit-color);
+    }
+
+    .btn-orbit:active {
+      transform: scale(0.96);
+    }
+
+    .btn-orbit.clicked {
+      animation: orbitPulse 0.4s ease-out;
+    }
+
+    @keyframes orbitPulse {
+      0% { transform: scale(0.96); box-shadow: 0 0 30px var(--orbit-color); }
+      50% { transform: scale(1.08); box-shadow: 0 0 50px var(--orbit-color); }
+      100% { transform: scale(1); box-shadow: none; }
+    }
+
+    /* ============================================
+       STYLE 7: CONFETTI EXPLOSION
+       ============================================ */
+    .btn-confetti-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    .btn-confetti {
+      position: relative;
+      padding: 16px 40px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 17px;
+      font-weight: 800;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      background: var(--confetti-bg);
+      color: white;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 4px 15px var(--confetti-shadow);
+      overflow: hidden;
+    }
+
+    .btn-confetti.going {
+      --confetti-bg: linear-gradient(135deg, #00d4aa, #00f5c4);
+      --confetti-shadow: rgba(0, 212, 170, 0.4);
+    }
+
+    .btn-confetti.interested {
+      --confetti-bg: linear-gradient(135deg, #ff6b9d, #ff8a80);
+      --confetti-shadow: rgba(255, 107, 157, 0.4);
+    }
+
+    .btn-confetti::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transform: skewX(-20deg);
+      animation: shimmer 4s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0%, 100% { left: -100%; }
+      50% { left: 150%; }
+    }
+
+    .btn-confetti:hover {
+      transform: scale(1.06);
+      box-shadow: 0 8px 25px var(--confetti-shadow);
+    }
+
+    .btn-confetti:active {
+      transform: scale(0.94);
+    }
+
+    .btn-confetti.clicked {
+      animation: confettiPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes confettiPop {
+      0% { transform: scale(0.94); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    .confetti-piece {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .confetti-piece.burst {
+      animation: confettiFly 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+
+    @keyframes confettiFly {
+      0% {
+        transform: translate(-50%, -50%) rotate(0deg) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) rotate(var(--rot)) scale(0);
+        opacity: 0;
+      }
+    }
+
+    /* ============================================
+       STYLE 8: LIQUID FILL
+       ============================================ */
+    .btn-liquid {
+      position: relative;
+      padding: 16px 40px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 17px;
+      font-weight: 800;
+      border: 2.5px solid var(--liquid-color);
+      border-radius: 50px;
+      cursor: pointer;
+      background: transparent;
+      color: var(--liquid-color);
+      overflow: hidden;
+      transition: all 0.4s ease;
+      z-index: 1;
+    }
+
+    .btn-liquid.going {
+      --liquid-color: #00f5c4;
+    }
+
+    .btn-liquid.interested {
+      --liquid-color: #ff6b9d;
+    }
+
+    .btn-liquid::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 0%;
+      background: var(--liquid-color);
+      transition: height 0.4s ease;
+      z-index: -1;
+      border-radius: 0 0 47px 47px;
+    }
+
+    .btn-liquid:hover::before {
+      height: 100%;
+      border-radius: 47px;
+    }
+
+    .btn-liquid:hover {
+      color: #0a0a1a;
+    }
+
+    .btn-liquid:active {
+      transform: scale(0.96);
+    }
+
+    .btn-liquid.filled {
+      color: #0a0a1a;
+      border-color: var(--liquid-color);
+    }
+
+    .btn-liquid.filled::before {
+      height: 100%;
+      border-radius: 47px;
+    }
+
+    .btn-liquid.clicked {
+      animation: liquidWobble 0.6s ease-out;
+    }
+
+    @keyframes liquidWobble {
+      0%, 100% { transform: scale(1); }
+      25% { transform: scale(1.08, 0.94); }
+      50% { transform: scale(0.96, 1.06); }
+      75% { transform: scale(1.02, 0.98); }
+    }
+
+    /* Status labels */
+    .status-label {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 8px;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+    }
+
+    .status-label.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .status-label.going {
+      background: rgba(0, 245, 196, 0.2);
+      color: #00f5c4;
+    }
+
+    .status-label.interested {
+      background: rgba(255, 107, 157, 0.2);
+      color: #ff6b9d;
+    }
+  </style>
+</head>
+<body>
+  <h1>RSVP Button Concepts</h1>
+  <p class="subtitle">Click each button to see the satisfying press animation</p>
+
+  <div class="options-grid">
+    <!-- Style 1: Neon Race Track -->
+    <div class="option-card">
+      <h2>Neon Race Track</h2>
+      <p>A glowing light races around the border continuously. Pops with energy when clicked.</p>
+      <div class="button-preview">
+        <button class="btn-racetrack going" onclick="handleClick(this, 'going')">
+          Going
+        </button>
+        <button class="btn-racetrack interested" onclick="handleClick(this, 'interested')">
+          Interested
+        </button>
+      </div>
+    </div>
+
+    <!-- Style 2: Gradient River -->
+    <div class="option-card">
+      <h2>Gradient River</h2>
+      <p>Smooth flowing gradient border. Ripple effect expands from click point.</p>
+      <div class="button-preview">
+        <button class="btn-river going" onclick="handleRiverClick(event, this, 'going')">
+          Going
+        </button>
+        <button class="btn-river interested" onclick="handleRiverClick(event, this, 'interested')">
+          Interested
+        </button>
+      </div>
+    </div>
+
+    <!-- Style 3: Bouncy Blob -->
+    <div class="option-card">
+      <h2>Bouncy Blob</h2>
+      <p>Soft pulsing glow at rest. Squishes and bounces like jelly when pressed.</p>
+      <div class="button-preview">
+        <div class="btn-blob-container">
+          <div class="btn-blob-bg going"></div>
+          <button class="btn-blob going" onclick="handleClick(this, 'going')">
+            Going
+          </button>
+        </div>
+        <div class="btn-blob-container">
+          <div class="btn-blob-bg interested"></div>
+          <button class="btn-blob interested" onclick="handleClick(this, 'interested')">
+            Interested
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Style 4: Sparkle Burst -->
+    <div class="option-card">
+      <h2>Sparkle Burst</h2>
+      <p>Shimmering light sweeps across. Sparkles explode outward on click.</p>
+      <div class="button-preview">
+        <div class="btn-sparkle-container going">
+          <button class="btn-sparkle going" onclick="handleSparkleClick(this, 'going')">
+            Going
+          </button>
+          <div class="sparkle-particles going"></div>
+        </div>
+        <div class="btn-sparkle-container interested">
+          <button class="btn-sparkle interested" onclick="handleSparkleClick(this, 'interested')">
+            Interested
+          </button>
+          <div class="sparkle-particles interested"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Style 5: Elastic Press -->
+    <div class="option-card">
+      <h2>Elastic Press</h2>
+      <p>Arcade-style 3D button. Physically depresses and bounces back up.</p>
+      <div class="button-preview">
+        <button class="btn-elastic going" onclick="handleClick(this, 'going')">
+          Going
+        </button>
+        <button class="btn-elastic interested" onclick="handleClick(this, 'interested')">
+          Interested
+        </button>
+      </div>
+    </div>
+
+    <!-- Style 6: Double Orbit -->
+    <div class="option-card">
+      <h2>Double Orbit</h2>
+      <p>Glowing orbs orbit the button continuously. Pulses brightly on click.</p>
+      <div class="button-preview">
+        <div class="btn-orbit-container going">
+          <div class="orbit-ring">
+            <div class="orbit-dot"></div>
+            <div class="orbit-dot"></div>
+          </div>
+          <button class="btn-orbit" onclick="handleClick(this, 'going')">
+            Going
+          </button>
+        </div>
+        <div class="btn-orbit-container interested">
+          <div class="orbit-ring">
+            <div class="orbit-dot"></div>
+            <div class="orbit-dot"></div>
+          </div>
+          <button class="btn-orbit" onclick="handleClick(this, 'interested')">
+            Interested
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Style 7: Confetti Explosion -->
+    <div class="option-card">
+      <h2>Confetti Explosion</h2>
+      <p>Subtle shimmer at rest. Colorful confetti bursts out when clicked.</p>
+      <div class="button-preview">
+        <div class="btn-confetti-container">
+          <button class="btn-confetti going" onclick="handleConfettiClick(this, 'going')">
+            Going
+          </button>
+        </div>
+        <div class="btn-confetti-container">
+          <button class="btn-confetti interested" onclick="handleConfettiClick(this, 'interested')">
+            Interested
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Style 8: Liquid Fill -->
+    <div class="option-card">
+      <h2>Liquid Fill</h2>
+      <p>Fills from bottom on hover. Wobbles like liquid when selected.</p>
+      <div class="button-preview">
+        <button class="btn-liquid going" onclick="handleLiquidClick(this, 'going')">
+          Going
+        </button>
+        <button class="btn-liquid interested" onclick="handleLiquidClick(this, 'interested')">
+          Interested
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Basic click handler with pop animation
+    function handleClick(btn, type) {
+      btn.classList.add('clicked');
+      setTimeout(() => btn.classList.remove('clicked'), 500);
+    }
+
+    // River ripple effect
+    function handleRiverClick(event, btn, type) {
+      const rect = btn.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple';
+      ripple.style.left = x + 'px';
+      ripple.style.top = y + 'px';
+      ripple.style.width = ripple.style.height = Math.max(rect.width, rect.height) + 'px';
+
+      btn.appendChild(ripple);
+      setTimeout(() => ripple.classList.add('animate'), 10);
+      setTimeout(() => ripple.remove(), 600);
+    }
+
+    // Sparkle burst effect
+    function handleSparkleClick(btn, type) {
+      const container = btn.parentElement.querySelector('.sparkle-particles');
+      const rect = btn.getBoundingClientRect();
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+
+      for (let i = 0; i < 12; i++) {
+        const sparkle = document.createElement('div');
+        sparkle.className = 'sparkle';
+        const angle = (i / 12) * Math.PI * 2;
+        const distance = 50 + Math.random() * 30;
+        sparkle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+        sparkle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+        sparkle.style.left = centerX + 'px';
+        sparkle.style.top = centerY + 'px';
+        sparkle.style.background = type === 'going' ? '#00f5c4' : '#ff6b9d';
+        sparkle.style.boxShadow = `0 0 10px ${type === 'going' ? '#00f5c4' : '#ff6b9d'}`;
+        container.appendChild(sparkle);
+        setTimeout(() => sparkle.classList.add('burst'), 10);
+        setTimeout(() => sparkle.remove(), 800);
+      }
+    }
+
+    // Confetti explosion
+    function handleConfettiClick(btn, type) {
+      btn.classList.add('clicked');
+      setTimeout(() => btn.classList.remove('clicked'), 500);
+
+      const container = btn.parentElement;
+      const rect = btn.getBoundingClientRect();
+      const colors = type === 'going'
+        ? ['#00f5c4', '#00d4aa', '#7bffdb', '#ffffff']
+        : ['#ff6b9d', '#ff8a80', '#ffab91', '#ffffff'];
+
+      for (let i = 0; i < 20; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 60 + Math.random() * 60;
+        const rotation = Math.random() * 720 - 360;
+        piece.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+        piece.style.setProperty('--ty', Math.sin(angle) * distance - 40 + 'px');
+        piece.style.setProperty('--rot', rotation + 'deg');
+        piece.style.left = rect.width / 2 + 'px';
+        piece.style.top = rect.height / 2 + 'px';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        piece.style.width = (6 + Math.random() * 6) + 'px';
+        piece.style.height = (6 + Math.random() * 6) + 'px';
+        container.appendChild(piece);
+        setTimeout(() => piece.classList.add('burst'), 10);
+        setTimeout(() => piece.remove(), 1000);
+      }
+    }
+
+    // Liquid fill toggle
+    function handleLiquidClick(btn, type) {
+      btn.classList.toggle('filled');
+      btn.classList.add('clicked');
+      setTimeout(() => btn.classList.remove('clicked'), 600);
+    }
+  </script>
+</body>
+</html>

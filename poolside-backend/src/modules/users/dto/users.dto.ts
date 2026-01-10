@@ -47,6 +47,12 @@ export class UpdateUserDto {
   @IsOptional()
   interests?: { emoji: string; label: string }[];
 
+  @ApiProperty({ required: false, type: [String] })
+  @IsArray()
+  @IsOptional()
+  @IsString({ each: true })
+  photos?: string[];
+
   @ApiProperty({ required: false, enum: ['pool_water', 'flames', 'marble'] })
   @IsString()
   @IsOptional()
@@ -83,6 +89,9 @@ export class UserResponseDto {
 
   @ApiProperty({ nullable: true, type: [Object] })
   interests: { emoji: string; label: string }[] | null;
+
+  @ApiProperty({ nullable: true, type: [String] })
+  photos: string[] | null;
 
   @ApiProperty({ enum: ['pool_water', 'flames', 'marble'] })
   profileTheme: string;

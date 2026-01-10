@@ -1,8 +1,15 @@
-import React, { useRef, useEffect, useCallback } from 'react';
-import { View, StyleSheet, Image, TouchableWithoutFeedback, Animated } from 'react-native';
+import React, { useRef, useEffect, useCallback, useState } from 'react';
+import { View, StyleSheet, Image, TouchableWithoutFeedback, Animated, Dimensions } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const TAB_BAR_MARGIN = 20;
+const TAB_BAR_WIDTH = SCREEN_WIDTH - (TAB_BAR_MARGIN * 2);
+const NUM_TABS = 5;
+const TAB_WIDTH = TAB_BAR_WIDTH / NUM_TABS;
+const ACTIVE_INDICATOR_SIZE = 40;
 import {
   FeedScreen,
   MyPlansScreen,
@@ -105,6 +112,20 @@ const CustomTabBar = ({ state, descriptors, navigation }: any) => {
   const feedTabRef = useRef<View>(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
+  // Animated position for the white circle indicator
+  const indicatorPosition = useRef(new Animated.Value(state.index * TAB_WIDTH)).current;
+
+  // Animate indicator when active tab changes
+  useEffect(() => {
+    Animated.spring(indicatorPosition, {
+      toValue: state.index * TAB_WIDTH,
+      stiffness: 180,
+      damping: 20,
+      mass: 1,
+      useNativeDriver: true,
+    }).start();
+  }, [state.index, indicatorPosition]);
+
   // Measure feed tab position on mount
   const measureFeedTab = useCallback(() => {
     if (feedTabRef.current) {
@@ -146,100 +167,114 @@ const CustomTabBar = ({ state, descriptors, navigation }: any) => {
   }, [animationState.isAnimating, pulseAnim]);
 
   return (
-    <BlurView intensity={80} tint="dark" style={styles.tabBar}>
-      {state.routes.map((route: any, index: number) => {
-        const { options } = descriptors[route.key];
-        const isFocused = state.index === index;
-        const isFeedTab = route.name === 'Feed';
+    <View style={styles.tabBarContainer}>
+      <BlurView intensity={60} tint="light" style={styles.tabBar}>
+        {/* Animated white circle indicator */}
+        <Animated.View
+          style={[
+            styles.activeIndicator,
+            {
+              transform: [
+                { translateX: Animated.add(indicatorPosition, (TAB_WIDTH - ACTIVE_INDICATOR_SIZE) / 2) },
+              ],
+            },
+          ]}
+        />
 
-        const onPress = () => {
-          Haptics.impactAsync(
-            route.name === 'Create'
-              ? Haptics.ImpactFeedbackStyle.Medium
-              : Haptics.ImpactFeedbackStyle.Light
-          );
+        {state.routes.map((route: any, index: number) => {
+          const { options } = descriptors[route.key];
+          const isFocused = state.index === index;
+          const isFeedTab = route.name === 'Feed';
 
-          const event = navigation.emit({
-            type: 'tabPress',
-            target: route.key,
-            canPreventDefault: true,
-          });
+          const onPress = () => {
+            Haptics.impactAsync(
+              route.name === 'Create'
+                ? Haptics.ImpactFeedbackStyle.Medium
+                : Haptics.ImpactFeedbackStyle.Light
+            );
 
-          if (!isFocused && !event.defaultPrevented) {
-            navigation.navigate(route.name);
-          }
-        };
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
 
-        const getIcon = () => {
-          switch (route.name) {
-            case 'Feed':
-              return (
-                <Animated.View
-                  style={[
-                    animationState.isAnimating && {
-                      transform: [{ scale: pulseAnim }],
-                    },
-                  ]}
-                >
+            if (!isFocused && !event.defaultPrevented) {
+              navigation.navigate(route.name);
+            }
+          };
+
+          const getIcon = () => {
+            switch (route.name) {
+              case 'Feed':
+                return (
+                  <Animated.View
+                    style={[
+                      animationState.isAnimating && {
+                        transform: [{ scale: pulseAnim }],
+                      },
+                    ]}
+                  >
+                    <Image
+                      source={require('../../assets/home-icon.png')}
+                      style={[styles.homeIcon, isFocused && styles.iconFocused]}
+                      resizeMode="contain"
+                    />
+                  </Animated.View>
+                );
+              case 'MyPlans':
+                return (
                   <Image
-                    source={require('../../assets/home-icon.png')}
-                    style={[styles.homeIcon, isFocused && styles.iconFocused]}
+                    source={require('../../assets/calendar-icon.png')}
+                    style={[styles.iconImage, isFocused && styles.iconFocused]}
                     resizeMode="contain"
                   />
-                </Animated.View>
-              );
-            case 'MyPlans':
-              return (
-                <Image
-                  source={require('../../assets/calendar-icon.png')}
-                  style={[styles.iconImage, isFocused && styles.iconFocused]}
-                  resizeMode="contain"
-                />
-              );
-            case 'Create':
-              return (
-                <Image
-                  source={require('../../assets/create-icon.png')}
-                  style={[styles.createButtonImage, isFocused && styles.iconFocused]}
-                  resizeMode="contain"
-                />
-              );
-            case 'Friends':
-              return (
-                <Image
-                  source={require('../../assets/friends-icon.png')}
-                  style={[styles.friendsIcon, isFocused && styles.iconFocused]}
-                  resizeMode="contain"
-                />
-              );
-            case 'Profile':
-              return (
-                <Image
-                  source={require('../../assets/profile-icon.png')}
-                  style={[styles.profileIcon, isFocused && styles.iconFocused]}
-                  resizeMode="contain"
-                />
-              );
-            default:
-              return null;
-          }
-        };
+                );
+              case 'Create':
+                return (
+                  <Image
+                    source={require('../../assets/create-icon.png')}
+                    style={[styles.createButtonImage, isFocused && styles.iconFocused]}
+                    resizeMode="contain"
+                  />
+                );
+              case 'Friends':
+                return (
+                  <Image
+                    source={require('../../assets/friends-icon.png')}
+                    style={[styles.friendsIcon, isFocused && styles.iconFocused]}
+                    resizeMode="contain"
+                  />
+                );
+              case 'Profile':
+                return (
+                  <Image
+                    source={require('../../assets/profile-icon.png')}
+                    style={[styles.profileIcon, isFocused && styles.iconFocused]}
+                    resizeMode="contain"
+                  />
+                );
+              default:
+                return null;
+            }
+          };
 
-        return (
-          <View
-            key={route.key}
-            style={styles.tabButton}
-            ref={isFeedTab ? feedTabRef : undefined}
-            collapsable={false}
-            onLayout={isFeedTab ? measureFeedTab : undefined}
-          >
-            <AnimatedNavIcon active={isFocused} onPress={onPress}>
-              {getIcon()}
-            </AnimatedNavIcon>
-          </View>
-        );
-      })}
-    </BlurView>
+          return (
+            <View
+              key={route.key}
+              style={styles.tabButton}
+              ref={isFeedTab ? feedTabRef : undefined}
+              collapsable={false}
+              onLayout={isFeedTab ? measureFeedTab : undefined}
+            >
+              <AnimatedNavIcon active={isFocused} onPress={onPress}>
+                {getIcon()}
+              </AnimatedNavIcon>
+            </View>
+          );
+        })}
+      </BlurView>
+    </View>
   );
 };
 
@@ -249,7 +284,9 @@ export const TabNavigator: React.FC = () => {
       tabBar={(props) => <CustomTabBar {...props} />}
       screenOptions={{
         headerShown: false,
-        lazy: true,
+        lazy: false,
+        animation: 'shift',
+        animationDuration: 600,
       }}
       sceneContainerStyle={{ backgroundColor: '#0a0a0f' }}
     >
@@ -263,54 +300,69 @@ export const TabNavigator: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  tabBar: {
+  tabBarContainer: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
+    bottom: 30,
+    left: TAB_BAR_MARGIN,
+    right: TAB_BAR_MARGIN,
+  },
+  tabBar: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(20, 20, 30, 0.7)',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)',
-    height: 85,
-    paddingTop: 10,
-    paddingBottom: 25,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderRadius: 28,
+    height: 56,
     justifyContent: 'space-around',
     alignItems: 'center',
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    elevation: 12,
+  },
+  activeIndicator: {
+    position: 'absolute',
+    width: ACTIVE_INDICATOR_SIZE,
+    height: ACTIVE_INDICATOR_SIZE,
+    borderRadius: ACTIVE_INDICATOR_SIZE / 2,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    left: 0,
   },
   tabButton: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    height: '100%',
   },
   tabIconContainer: {
     alignItems: 'center',
     justifyContent: 'center',
   },
   homeIcon: {
-    width: 28,
-    height: 28,
+    width: 22,
+    height: 22,
     opacity: 0.4,
   },
   iconImage: {
-    width: 28,
-    height: 28,
+    width: 22,
+    height: 22,
     opacity: 0.4,
   },
   createButtonImage: {
-    width: 40,
-    height: 30,
+    width: 32,
+    height: 24,
     opacity: 0.4,
   },
   friendsIcon: {
-    width: 32,
-    height: 50,
+    width: 24,
+    height: 38,
     opacity: 0.4,
   },
   profileIcon: {
-    width: 32,
-    height: 50,
+    width: 24,
+    height: 38,
     opacity: 0.4,
   },
   iconFocused: {

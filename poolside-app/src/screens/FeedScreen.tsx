@@ -3,31 +3,203 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   StatusBar,
   TouchableOpacity,
   Image,
+  ImageBackground,
   ActivityIndicator,
   RefreshControl,
+  Dimensions,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { EventCard, EventDetailModal, ProfileBackground } from '../components';
+import Animated, {
+  useSharedValue,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useAnimatedReaction,
+  interpolate,
+  Extrapolation,
+  withDelay,
+  withSpring,
+  SharedValue,
+} from 'react-native-reanimated';
+import { EventCard, EventDetailModal } from '../components';
 import { mockEvents } from '../data/mockEvents';
 import { Event } from '../types';
 import { useEvents } from '../hooks';
 import { mapApiEventsToEvents } from '../utils';
 
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+// Layout constants
+const HEADER_HEIGHT = 110; // Logo + title area
+const TAB_BAR_HEIGHT = 85; // Bottom tab bar
+const STAGGER_DELAY = 120; // ms between each card for entrance animation
+
+// Spring config matching the original FadeInUp animation
+const ENTRANCE_SPRING = { damping: 12, stiffness: 100, mass: 0.8 };
+
+// Animated Event Card wrapper with scale effect
+interface AnimatedEventCardProps {
+  event: Event;
+  index: number;
+  scrollY: Animated.SharedValue<number>;
+  cardHeight: number;
+  onPress: () => void;
+  trigger: SharedValue<number>;
+  isInitialMount: boolean;
+}
+
+const AnimatedEventCard: React.FC<AnimatedEventCardProps> = ({
+  event,
+  index,
+  scrollY,
+  cardHeight,
+  onPress,
+  trigger,
+  isInitialMount,
+}) => {
+  // Entrance animation shared values (replaces FadeInUp entering prop)
+  const entranceOpacity = useSharedValue(0);
+  const entranceTranslateY = useSharedValue(50);
+
+  // Trigger entrance animation when trigger changes (on tab focus)
+  // Runs on UI thread - no React state, no delay
+  useAnimatedReaction(
+    () => trigger.value,
+    (current, previous) => {
+      if (previous !== null && current !== previous) {
+        // Calculate which card is currently visible based on scroll position
+        const currentScrollY = scrollY.value;
+        const firstVisibleIndex = Math.floor(currentScrollY / cardHeight);
+
+        // Cards above viewport: instant (no delay)
+        // Cards at/below viewport: stagger from first visible
+        const isAboveViewport = index < firstVisibleIndex;
+
+        if (isAboveViewport) {
+          // Instant - already scrolled past these
+          entranceOpacity.value = 1;
+          entranceTranslateY.value = 0;
+        } else {
+          // Reset to initial state for animation
+          entranceOpacity.value = 0;
+          entranceTranslateY.value = 50;
+
+          // Stagger relative to first visible card
+          const relativeIndex = index - firstVisibleIndex;
+          const delay = relativeIndex * STAGGER_DELAY;
+          entranceOpacity.value = withDelay(delay, withSpring(1, ENTRANCE_SPRING));
+          entranceTranslateY.value = withDelay(delay, withSpring(0, ENTRANCE_SPRING));
+        }
+      }
+    }
+  );
+
+  // Initial animation on mount - always stagger from top
+  useEffect(() => {
+    if (isInitialMount) {
+      const delay = index * STAGGER_DELAY;
+      entranceOpacity.value = withDelay(delay, withSpring(1, ENTRANCE_SPRING));
+      entranceTranslateY.value = withDelay(delay, withSpring(0, ENTRANCE_SPRING));
+    } else {
+      // Not initial mount, show instantly
+      entranceOpacity.value = 1;
+      entranceTranslateY.value = 0;
+    }
+  }, []);
+
+  // Entrance animation style
+  const entranceAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: entranceOpacity.value,
+      transform: [{ translateY: entranceTranslateY.value }],
+    };
+  });
+
+  // Scroll-based scale animation (separate from entrance animation)
+  const scrollAnimatedStyle = useAnimatedStyle(() => {
+    const cardStart = index * cardHeight;
+    const cardEnd = (index + 1) * cardHeight;
+
+    // Calculate how far the card is from being fully in view
+    const inputRange = [
+      cardStart - cardHeight,  // Card is one full card below viewport
+      cardStart,               // Card is at the top of viewport
+      cardEnd,                 // Card is scrolled past
+    ];
+
+    // Scale: starts at 0.75, scales up to 1.0 when in view, scales down when scrolled past
+    const scale = interpolate(
+      scrollY.value,
+      inputRange,
+      [0.75, 1, 0.92],
+      Extrapolation.CLAMP
+    );
+
+    // Opacity: fades in as card approaches
+    const scrollOpacity = interpolate(
+      scrollY.value,
+      inputRange,
+      [0.4, 1, 0.7],
+      Extrapolation.CLAMP
+    );
+
+    return {
+      transform: [{ scale }],
+      opacity: scrollOpacity,
+    };
+  });
+
+  return (
+    // Outer: handles stagger entrance animation (translateY + fade)
+    <Animated.View
+      style={[styles.cardWrapper, { height: cardHeight }, entranceAnimatedStyle]}
+    >
+      {/* Inner: handles scroll-based scale animation */}
+      <Animated.View style={[styles.cardInner, scrollAnimatedStyle]}>
+        <EventCard event={event} onPress={onPress} />
+      </Animated.View>
+    </Animated.View>
+  );
+};
+
 export const FeedScreen: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [isInitialMount, setIsInitialMount] = useState(true);
+  const insets = useSafeAreaInsets();
+
+  // Mark initial mount as complete after first render
+  useEffect(() => {
+    // Small delay to ensure initial animations have started
+    const timer = setTimeout(() => setIsInitialMount(false), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Calculate card height based on available space
+  const cardHeight = SCREEN_HEIGHT - HEADER_HEIGHT - TAB_BAR_HEIGHT - insets.top;
+
+  // Scroll position for animations
+  const scrollY = useSharedValue(0);
+
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollY.value = event.contentOffset.y;
+    },
+  });
 
   // Fetch events from API
   const { events: apiEvents, isLoading, error, refresh } = useEvents();
 
   // Track if initial load has completed
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+
+  // Animation trigger to re-trigger stagger animation on tab focus
+  // Using shared value instead of React state to avoid re-render delay
+  const animationTrigger = useSharedValue(0);
 
   // Mark as loaded once we finish loading for the first time
   useEffect(() => {
@@ -86,16 +258,21 @@ export const FeedScreen: React.FC = () => {
     return unsubscribe;
   }, [navigation, handleRefresh]);
 
-  // Refresh when screen comes into focus (e.g., after creating an event)
+  // Play stagger animation when switching to this tab
   useFocusEffect(
     useCallback(() => {
-      refresh();
-    }, [refresh])
+      // Trigger stagger animation by incrementing shared value
+      // Direct mutation - no React state, no re-render, no delay
+      animationTrigger.value = animationTrigger.value + 1;
+    }, [])
   );
 
   return (
-    <View style={styles.wrapper}>
-      <ProfileBackground />
+    <ImageBackground
+      source={require('../assets/images/feed-background.png')}
+      style={styles.wrapper}
+      resizeMode="cover"
+    >
       <SafeAreaView style={styles.container} edges={['top']}>
         <StatusBar barStyle="light-content" />
 
@@ -123,28 +300,31 @@ export const FeedScreen: React.FC = () => {
           <Text style={styles.pageTitle}>Cruise Feed</Text>
         </View>
 
-        {/* Refresh Spinner */}
-        {refreshing && (
-          <View style={styles.refreshIndicator}>
-            <ActivityIndicator size="small" color="#667eea" />
-          </View>
-        )}
-
-        {/* Events Feed with scroll fade */}
+        {/* Events Feed with snap scroll */}
         <View style={styles.feedContainer}>
-          
+
           {isLoading && !refreshing ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color="#667eea" />
             </View>
+          ) : events.length === 0 && hasLoadedOnce ? (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyStateEmoji}>🌊</Text>
+              <Text style={styles.emptyStateTitle}>No Events Yet</Text>
+              <Text style={styles.emptyStateText}>
+                Be the first to create an event for this cruise!
+              </Text>
+            </View>
           ) : (
-            <ScrollView
+            <Animated.ScrollView
               style={styles.feed}
-              contentContainerStyle={[
-                styles.feedContent,
-                events.length === 0 && styles.emptyFeedContent,
-              ]}
+              contentContainerStyle={styles.feedContent}
               showsVerticalScrollIndicator={false}
+              onScroll={scrollHandler}
+              scrollEventThrottle={16}
+              snapToInterval={cardHeight}
+              snapToAlignment="start"
+              decelerationRate="fast"
               refreshControl={
                 <RefreshControl
                   refreshing={refreshing}
@@ -154,27 +334,22 @@ export const FeedScreen: React.FC = () => {
                 />
               }
             >
-              {events.length === 0 && hasLoadedOnce ? (
-                <View style={styles.emptyState}>
-                  <Text style={styles.emptyStateEmoji}>🌊</Text>
-                  <Text style={styles.emptyStateTitle}>No Events Yet</Text>
-                  <Text style={styles.emptyStateText}>
-                    Be the first to create an event for this cruise!
-                  </Text>
-                </View>
-              ) : (
-                events.map((event) => (
-                  <EventCard
-                    key={event.id}
-                    event={event}
-                    onPress={() => handleEventPress(event)}
-                  />
-                ))
-              )}
+              {events.map((event, index) => (
+                <AnimatedEventCard
+                  key={event.id}
+                  event={event}
+                  index={index}
+                  scrollY={scrollY}
+                  cardHeight={cardHeight}
+                  onPress={() => handleEventPress(event)}
+                  trigger={animationTrigger}
+                  isInitialMount={isInitialMount}
+                />
+              ))}
 
-              {/* Bottom padding for tab bar */}
-              <View style={{ height: 100 }} />
-            </ScrollView>
+              {/* Bottom padding for last card */}
+              <View style={{ height: TAB_BAR_HEIGHT }} />
+            </Animated.ScrollView>
           )}
         </View>
 
@@ -185,7 +360,7 @@ export const FeedScreen: React.FC = () => {
           onClose={handleCloseModal}
         />
       </SafeAreaView>
-    </View>
+    </ImageBackground>
   );
 };
 
@@ -220,19 +395,15 @@ const styles = StyleSheet.create({
   },
   headerIcon: {
     fontSize: 20,
-    opacity: 0.7,
+    opacity: 0.8,
   },
   titleContainer: {
     paddingHorizontal: 20,
     paddingBottom: 6,
     marginTop: -10,
   },
-  refreshIndicator: {
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
   pageTitle: {
-    fontFamily: 'Montserrat_700Bold',
+    fontFamily: 'Satoshi-Bold',
     fontSize: 28,
     color: '#ffffff',
   },
@@ -243,7 +414,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   feedContent: {
-    paddingTop: 4,
+    // No padding needed - cards handle their own layout
+  },
+  cardWrapper: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cardInner: {
+    flex: 1,
+    width: '100%',
   },
   emptyFeedContent: {
     flex: 1,
@@ -267,13 +446,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   emptyStateTitle: {
-    fontFamily: 'Montserrat_700Bold',
+    fontFamily: 'Satoshi-Bold',
     fontSize: 24,
     color: '#ffffff',
     marginBottom: 8,
   },
   emptyStateText: {
-    fontFamily: 'Montserrat_400Regular',
+    fontFamily: 'Satoshi-Regular',
     fontSize: 16,
     color: 'rgba(255,255,255,0.6)',
     textAlign: 'center',

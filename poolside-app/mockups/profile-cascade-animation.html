@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=375, initial-scale=1.0">
+  <title>Profile Cascade Animation Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+    }
+
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: linear-gradient(180deg, #0a0a0f 0%, #12121a 100%);
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+    }
+
+    .stars {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image:
+        radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.3), transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.2), transparent),
+        radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,0.4), transparent),
+        radial-gradient(2px 2px at 130px 80px, rgba(255,255,255,0.2), transparent),
+        radial-gradient(1px 1px at 160px 120px, rgba(255,255,255,0.3), transparent),
+        radial-gradient(2px 2px at 200px 50px, rgba(255,255,255,0.25), transparent),
+        radial-gradient(1px 1px at 250px 100px, rgba(255,255,255,0.35), transparent),
+        radial-gradient(2px 2px at 300px 70px, rgba(255,255,255,0.2), transparent),
+        radial-gradient(1px 1px at 350px 150px, rgba(255,255,255,0.3), transparent);
+      pointer-events: none;
+    }
+
+    .screen {
+      padding: 60px 20px 20px;
+      height: 100%;
+      overflow-y: auto;
+    }
+
+    /* Cascade animation - SUBTLE version: smooth settle, minimal bounce, professional */
+    @keyframes cascadeIn {
+      0% {
+        opacity: 0;
+        transform: translate(35px, 20px);
+      }
+      70% {
+        opacity: 1;
+        transform: translate(-2px, -1px);
+      }
+      100% {
+        opacity: 1;
+        transform: translate(0, 0);
+      }
+    }
+
+    .cascade {
+      opacity: 0;
+      animation: cascadeIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    /* Stagger delays - balanced for subtle feel */
+    .delay-0 { animation-delay: 0ms; }
+    .delay-1 { animation-delay: 50ms; }
+    .delay-2 { animation-delay: 100ms; }
+    .delay-3 { animation-delay: 150ms; }
+    .delay-4 { animation-delay: 200ms; }
+    .delay-5 { animation-delay: 250ms; }
+    .delay-6 { animation-delay: 300ms; }
+    .delay-7 { animation-delay: 350ms; }
+    .delay-8 { animation-delay: 400ms; }
+    .delay-9 { animation-delay: 450ms; }
+    .delay-10 { animation-delay: 500ms; }
+
+    .profile-pic {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      border: 3px solid rgba(255,255,255,0.2);
+    }
+
+    .name {
+      text-align: center;
+      color: #fff;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .bio {
+      text-align: center;
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+      margin-bottom: 20px;
+      padding: 0 20px;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .btn {
+      padding: 10px 24px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #fff;
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    .section-header {
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .photos-grid {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+
+    .photo-card {
+      width: 100px;
+      height: 140px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #1a1a2e 0%, #2a2a4e 100%);
+      flex-shrink: 0;
+    }
+
+    .event-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .tab {
+      padding: 8px 16px;
+      border-radius: 16px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid transparent;
+    }
+
+    .tab.active {
+      color: #fff;
+      border-color: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.1);
+    }
+
+    .interests-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .interest-tag {
+      padding: 8px 14px;
+      border-radius: 16px;
+      background: rgba(102, 126, 234, 0.15);
+      color: #667eea;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .add-friend-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      margin-top: 20px;
+    }
+
+    /* Replay button */
+    .replay-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      padding: 12px 24px;
+      border-radius: 30px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+      z-index: 1000;
+    }
+
+    .replay-btn:hover {
+      transform: scale(1.05);
+    }
+
+    /* Animation info */
+    .info-panel {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.8);
+      padding: 20px;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 13px;
+      max-width: 280px;
+    }
+
+    .info-panel h3 {
+      margin-bottom: 12px;
+      color: #667eea;
+    }
+
+    .info-panel ul {
+      list-style: none;
+      line-height: 1.8;
+    }
+
+    .info-panel li::before {
+      content: "→ ";
+      color: #667eea;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="stars"></div>
+    <div class="screen" id="screen">
+      <!-- Profile Picture -->
+      <div class="cascade delay-0 profile-pic">
+        <span>🌊</span>
+      </div>
+
+      <!-- Name -->
+      <div class="cascade delay-1 name">Sarah Johnson</div>
+
+      <!-- Bio -->
+      <div class="cascade delay-2 bio">
+        Adventure seeker • Coffee lover • Currently cruising the Caribbean
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="cascade delay-3 buttons">
+        <button class="btn btn-primary">Edit Profile</button>
+        <button class="btn btn-outline">Share</button>
+      </div>
+
+      <!-- Photos Section -->
+      <div class="section">
+        <div class="cascade delay-4 section-header">
+          <span>📸</span> Photos
+        </div>
+        <div class="cascade delay-5 photos-grid">
+          <div class="photo-card"></div>
+          <div class="photo-card"></div>
+          <div class="photo-card"></div>
+          <div class="photo-card"></div>
+        </div>
+      </div>
+
+      <!-- My Events Section -->
+      <div class="section">
+        <div class="cascade delay-6 section-header">
+          <span>🎉</span> My Events
+        </div>
+        <div class="cascade delay-7 event-tabs">
+          <div class="tab active">Going</div>
+          <div class="tab">Interested</div>
+          <div class="tab">Hosting</div>
+        </div>
+      </div>
+
+      <!-- Interests Section -->
+      <div class="section">
+        <div class="cascade delay-8 section-header">
+          <span>✨</span> Interests
+        </div>
+        <div class="cascade delay-9 interests-grid">
+          <span class="interest-tag">🎵 Live Music</span>
+          <span class="interest-tag">🍹 Cocktails</span>
+          <span class="interest-tag">🏊 Swimming</span>
+          <span class="interest-tag">📷 Photography</span>
+          <span class="interest-tag">🌅 Sunsets</span>
+        </div>
+      </div>
+
+      <!-- Add Friend Button -->
+      <button class="cascade delay-10 add-friend-btn">
+        + Add Friend
+      </button>
+    </div>
+  </div>
+
+  <div class="info-panel">
+    <h3>Subtle Cascade</h3>
+    <ul>
+      <li>Elements enter from bottom-right</li>
+      <li>Stagger delay: 50ms per element</li>
+      <li>Smooth ease with tiny settle</li>
+      <li>Total duration: ~650ms</li>
+      <li>Professional, refined feel</li>
+    </ul>
+  </div>
+
+  <button class="replay-btn" onclick="replayAnimation()">
+    ↻ Replay Animation
+  </button>
+
+  <script>
+    function replayAnimation() {
+      const elements = document.querySelectorAll('.cascade');
+      elements.forEach(el => {
+        el.style.animation = 'none';
+        el.offsetHeight; // Trigger reflow
+        el.style.animation = null;
+      });
+    }
+  </script>
+</body>
+</html>

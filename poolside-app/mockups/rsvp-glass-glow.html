@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RSVP Glass Buttons - Poolside</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: linear-gradient(135deg, #b8a4c9 0%, #a890ba 50%, #c4b0d4 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      font-size: 24px;
+      color: #4a3a5c;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .subtitle {
+      color: rgba(74, 58, 92, 0.6);
+      font-size: 14px;
+      margin-bottom: 50px;
+      text-align: center;
+    }
+
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      align-items: center;
+    }
+
+    /* Glass Button with Glowing Ring */
+    .btn-glass {
+      position: relative;
+      padding: 20px 50px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: #3a3a5c;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      background: linear-gradient(145deg,
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(255, 255, 255, 0.85) 50%,
+        rgba(245, 245, 250, 0.9) 100%
+      );
+      box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 1),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      overflow: visible;
+      z-index: 1;
+    }
+
+    .btn-glass:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 1),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-glass:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    /* Glowing ring container */
+    .glow-ring {
+      position: absolute;
+      inset: -4px;
+      border-radius: 20px;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    /* The rotating glow */
+    .glow-ring::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      padding: 3px;
+      background: conic-gradient(
+        from var(--angle, 0deg),
+        transparent 0%,
+        transparent 50%,
+        var(--glow-color) 70%,
+        var(--glow-bright) 75%,
+        var(--glow-color) 80%,
+        transparent 95%,
+        transparent 100%
+      );
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      animation: rotateGlow 2.5s linear infinite;
+    }
+
+    /* Glow aura behind */
+    .glow-ring::after {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 22px;
+      background: conic-gradient(
+        from var(--angle, 0deg),
+        transparent 0%,
+        transparent 50%,
+        var(--glow-color) 70%,
+        var(--glow-bright) 75%,
+        var(--glow-color) 80%,
+        transparent 95%,
+        transparent 100%
+      );
+      filter: blur(12px);
+      opacity: 0.6;
+      animation: rotateGlow 2.5s linear infinite;
+      z-index: -2;
+    }
+
+    @property --angle {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+
+    @keyframes rotateGlow {
+      to {
+        --angle: 360deg;
+      }
+    }
+
+    /* Going button - Green glow */
+    .btn-glass.going .glow-ring {
+      --glow-color: #22c55e;
+      --glow-bright: #4ade80;
+    }
+
+    /* Interested button - Orange glow */
+    .btn-glass.interested .glow-ring {
+      --glow-color: #f97316;
+      --glow-bright: #fb923c;
+    }
+
+    /* Label */
+    .label {
+      margin-top: 8px;
+      font-size: 13px;
+      color: rgba(74, 58, 92, 0.5);
+      text-align: center;
+    }
+
+    /* Click animation */
+    .btn-glass.clicked {
+      animation: clickPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes clickPop {
+      0% { transform: scale(0.98); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    /* Demo in dark context */
+    .dark-demo {
+      margin-top: 60px;
+      padding: 50px;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border-radius: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      align-items: center;
+    }
+
+    .dark-demo h2 {
+      color: #fff;
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>RSVP Buttons</h1>
+  <p class="subtitle">Frosted glass with racing glow ring</p>
+
+  <div class="button-container">
+    <div>
+      <button class="btn-glass going" onclick="handleClick(this)">
+        <span class="glow-ring"></span>
+        Going
+      </button>
+      <p class="label">Green glow</p>
+    </div>
+
+    <div>
+      <button class="btn-glass interested" onclick="handleClick(this)">
+        <span class="glow-ring"></span>
+        Interested
+      </button>
+      <p class="label">Orange glow</p>
+    </div>
+  </div>
+
+  <!-- Dark background demo -->
+  <div class="dark-demo">
+    <h2>On Dark Background</h2>
+    <button class="btn-glass going" onclick="handleClick(this)">
+      <span class="glow-ring"></span>
+      Going
+    </button>
+    <button class="btn-glass interested" onclick="handleClick(this)">
+      <span class="glow-ring"></span>
+      Interested
+    </button>
+  </div>
+
+  <script>
+    function handleClick(btn) {
+      btn.classList.add('clicked');
+      setTimeout(() => btn.classList.remove('clicked'), 400);
+    }
+  </script>
+</body>
+</html>

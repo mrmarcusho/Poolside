@@ -4,11 +4,16 @@ import { BlurView } from 'expo-blur';
 import LottieView from 'lottie-react-native';
 
 interface LottieBackgroundProps {
+  source?: any;
   style?: object;
   blurIntensity?: number;
 }
 
+// Default animation source
+const defaultSource = require('../assets/animations/gradient-background.json');
+
 export const LottieBackground: React.FC<LottieBackgroundProps> = ({
+  source = defaultSource,
   style,
   blurIntensity = 50, // Lighter blur to preserve vibrant colors
 }) => {
@@ -37,7 +42,7 @@ export const LottieBackground: React.FC<LottieBackgroundProps> = ({
       <View style={styles.animationWrapper}>
         <LottieView
           ref={animationRef}
-          source={require('../assets/animations/gradient-background.json')}
+          source={source}
           loop={false}
           speed={isReversed ? -1 : 1}
           resizeMode="cover"

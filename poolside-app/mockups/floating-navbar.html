@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Floating Nav Bar with Slide Transitions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #fff;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: rgba(255,255,255,0.5);
+            font-size: 14px;
+        }
+
+        /* Phone Frame */
+        .phone-frame {
+            width: 375px;
+            height: 750px;
+            background: #0a0a0f;
+            border-radius: 50px;
+            overflow: hidden;
+            position: relative;
+            border: 4px solid #222;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.6);
+        }
+
+        /* Dynamic Island */
+        .dynamic-island {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 34px;
+            background: #000;
+            border-radius: 20px;
+            z-index: 100;
+        }
+
+        /* Pages Container */
+        .pages-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 400%; /* 4 pages */
+            height: calc(100% - 100px);
+            display: flex;
+            transition: transform 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .page {
+            width: 25%;
+            height: 100%;
+            padding: 70px 20px 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+            margin-top: 20px;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 24px;
+        }
+
+        /* Page Content Cards */
+        .card {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .card-meta {
+            font-size: 12px;
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* Page specific colors */
+        .page-feed { background: linear-gradient(180deg, rgba(102, 126, 234, 0.1) 0%, transparent 30%); }
+        .page-events { background: linear-gradient(180deg, rgba(245, 158, 11, 0.1) 0%, transparent 30%); }
+        .page-notifications { background: linear-gradient(180deg, rgba(239, 68, 68, 0.1) 0%, transparent 30%); }
+        .page-profile { background: linear-gradient(180deg, rgba(139, 92, 246, 0.1) 0%, transparent 30%); }
+
+        /* Floating Nav Bar */
+        .nav-bar {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(20, 20, 25, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 40px;
+            padding: 8px;
+            display: flex;
+            gap: 4px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow:
+                0 10px 40px rgba(0,0,0,0.4),
+                0 0 0 1px rgba(255,255,255,0.05) inset;
+            z-index: 100;
+        }
+
+        .nav-item {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            position: relative;
+        }
+
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+            transition: all 0.3s ease;
+        }
+
+        /* Inactive state */
+        .nav-item:not(.active) svg {
+            stroke: rgba(255,255,255,0.5);
+            fill: none;
+        }
+
+        .nav-item:not(.active):hover svg {
+            stroke: rgba(255,255,255,0.8);
+        }
+
+        /* Active state */
+        .nav-item.active {
+            background: #fff;
+            box-shadow:
+                0 4px 15px rgba(255,255,255,0.2),
+                0 0 20px rgba(255,255,255,0.1);
+        }
+
+        .nav-item.active svg {
+            stroke: #0a0a0f;
+            fill: #0a0a0f;
+        }
+
+        /* Sliding indicator (alternative style) */
+        .nav-indicator {
+            position: absolute;
+            width: 56px;
+            height: 56px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+            box-shadow:
+                0 4px 15px rgba(255,255,255,0.2),
+                0 0 20px rgba(255,255,255,0.1);
+            z-index: -1;
+        }
+
+        /* Page transition indicator */
+        .transition-indicator {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: #fff;
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        /* Instructions */
+        .instructions {
+            margin-top: 32px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 20px;
+            max-width: 400px;
+        }
+
+        .instructions h3 {
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .instructions ul {
+            list-style: none;
+        }
+
+        .instructions li {
+            color: rgba(255,255,255,0.6);
+            font-size: 13px;
+            padding: 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .instructions li::before {
+            content: '→';
+            color: #667eea;
+        }
+
+        /* Comparison section */
+        .comparison {
+            display: flex;
+            gap: 40px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .comparison-item {
+            text-align: center;
+        }
+
+        .comparison-label {
+            color: rgba(255,255,255,0.5);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+
+        /* Mini nav previews */
+        .mini-nav {
+            background: rgba(20, 20, 25, 0.95);
+            border-radius: 30px;
+            padding: 6px;
+            display: flex;
+            gap: 4px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .mini-nav-item {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .mini-nav-item.active {
+            background: #fff;
+        }
+
+        /* Animation keyframes */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .nav-item.active {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Swipe hint */
+        .swipe-hint {
+            position: absolute;
+            bottom: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.3);
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .swipe-hint svg {
+            width: 16px;
+            height: 16px;
+            stroke: rgba(255,255,255,0.3);
+            animation: swipeHint 2s ease-in-out infinite;
+        }
+
+        @keyframes swipeHint {
+            0%, 100% { transform: translateX(0); opacity: 0.3; }
+            50% { transform: translateX(5px); opacity: 0.6; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Floating Nav Bar with Slide Transitions</h1>
+        <p>Click the nav icons to see the page slide animation</p>
+    </div>
+
+    <div class="phone-frame">
+        <div class="dynamic-island"></div>
+
+        <!-- Pages -->
+        <div class="pages-container" id="pagesContainer">
+            <!-- Feed Page -->
+            <div class="page page-feed">
+                <div class="page-title">Cruise Feed</div>
+                <div class="page-subtitle">See what's happening on the ship</div>
+                <div class="card">
+                    <div class="card-title">Pool Party Vibes 🏊</div>
+                    <div class="card-meta">Today at 3:00 PM • Deck 12</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Gaming Tournament 🎮</div>
+                    <div class="card-meta">Tomorrow at 2:00 PM • Game Lounge</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Movie Night 🎬</div>
+                    <div class="card-meta">Tonight at 8:00 PM • Theater</div>
+                </div>
+            </div>
+
+            <!-- Events Page -->
+            <div class="page page-events">
+                <div class="page-title">My Events</div>
+                <div class="page-subtitle">Events you're attending</div>
+                <div class="card">
+                    <div class="card-title">Going (3)</div>
+                    <div class="card-meta">Pool Party, Karaoke, Sunset Yoga</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Interested (5)</div>
+                    <div class="card-meta">Browse your saved events</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Hosting (1)</div>
+                    <div class="card-meta">Room 128 After Party</div>
+                </div>
+            </div>
+
+            <!-- Notifications Page -->
+            <div class="page page-notifications">
+                <div class="page-title">Notifications</div>
+                <div class="page-subtitle">Stay updated</div>
+                <div class="card">
+                    <div class="card-title">Sarah joined Pool Party 🎉</div>
+                    <div class="card-meta">2 minutes ago</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">New event near you!</div>
+                    <div class="card-meta">10 minutes ago</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Marcus sent you a message</div>
+                    <div class="card-meta">1 hour ago</div>
+                </div>
+            </div>
+
+            <!-- Profile Page -->
+            <div class="page page-profile">
+                <div class="page-title">Profile</div>
+                <div class="page-subtitle">Your cruise identity</div>
+                <div class="card">
+                    <div class="card-title">Sarah Chen</div>
+                    <div class="card-meta">Room 456 • Deck 8</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">12 Friends</div>
+                    <div class="card-meta">Made on this cruise</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">8 Events Attended</div>
+                    <div class="card-meta">This voyage</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page Dots -->
+        <div class="transition-indicator">
+            <div class="dot active" data-page="0"></div>
+            <div class="dot" data-page="1"></div>
+            <div class="dot" data-page="2"></div>
+            <div class="dot" data-page="3"></div>
+        </div>
+
+        <!-- Floating Nav Bar -->
+        <div class="nav-bar">
+            <div class="nav-item active" data-page="0" onclick="switchPage(0)">
+                <!-- Home Icon -->
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+            </div>
+            <div class="nav-item" data-page="1" onclick="switchPage(1)">
+                <!-- Calendar Icon -->
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+            </div>
+            <div class="nav-item" data-page="2" onclick="switchPage(2)">
+                <!-- Bell Icon -->
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+            </div>
+            <div class="nav-item" data-page="3" onclick="switchPage(3)">
+                <!-- User Icon -->
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="instructions">
+        <h3>✨ Features</h3>
+        <ul>
+            <li>Floating pill-shaped nav bar with blur backdrop</li>
+            <li>Active tab has white circular background</li>
+            <li>Icons change from outline to filled when active</li>
+            <li>Smooth page slide transition (0.4s ease)</li>
+            <li>Page indicator dots animate with tab</li>
+            <li>Subtle pulse animation on active icon</li>
+        </ul>
+    </div>
+
+    <div class="comparison">
+        <div class="comparison-item">
+            <div class="comparison-label">Current Style</div>
+            <div class="mini-nav">
+                <div class="mini-nav-item active">🏠</div>
+                <div class="mini-nav-item">📅</div>
+                <div class="mini-nav-item">➕</div>
+                <div class="mini-nav-item">💬</div>
+                <div class="mini-nav-item">👤</div>
+            </div>
+        </div>
+        <div class="comparison-item">
+            <div class="comparison-label">New Style</div>
+            <div class="mini-nav" style="background: rgba(20, 20, 25, 0.98);">
+                <div class="mini-nav-item active" style="box-shadow: 0 4px 15px rgba(255,255,255,0.15);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#0a0a0f" stroke="#0a0a0f" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    </svg>
+                </div>
+                <div class="mini-nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                </div>
+                <div class="mini-nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                </div>
+                <div class="mini-nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 0;
+        const pagesContainer = document.getElementById('pagesContainer');
+        const navItems = document.querySelectorAll('.nav-item');
+        const dots = document.querySelectorAll('.dot');
+
+        function switchPage(pageIndex) {
+            if (pageIndex === currentPage) return;
+
+            currentPage = pageIndex;
+
+            // Slide pages
+            pagesContainer.style.transform = `translateX(-${pageIndex * 25}%)`;
+
+            // Update nav items
+            navItems.forEach((item, index) => {
+                if (index === pageIndex) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+
+            // Update dots
+            dots.forEach((dot, index) => {
+                if (index === pageIndex) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+
+        // Add touch/swipe support
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        pagesContainer.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        pagesContainer.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0 && currentPage < 3) {
+                    // Swipe left - next page
+                    switchPage(currentPage + 1);
+                } else if (diff < 0 && currentPage > 0) {
+                    // Swipe right - previous page
+                    switchPage(currentPage - 1);
+                }
+            }
+        }
+
+        // Keyboard navigation for demo
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' && currentPage < 3) {
+                switchPage(currentPage + 1);
+            } else if (e.key === 'ArrowLeft' && currentPage > 0) {
+                switchPage(currentPage - 1);
+            }
+        });
+    </script>
+</body>
+</html>

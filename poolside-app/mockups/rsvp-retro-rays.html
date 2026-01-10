@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RSVP Retro Buttons - Poolside</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bowlby+One+SC&family=Outfit:wght@600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-family: 'Bowlby One SC', cursive;
+      font-size: 28px;
+      color: #fff;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .subtitle {
+      color: rgba(255,255,255,0.5);
+      font-size: 14px;
+      margin-bottom: 60px;
+      text-align: center;
+    }
+
+    /* Demo container simulating a card/section */
+    .demo-section {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 24px;
+      padding: 40px;
+      border: 1px solid rgba(255,255,255,0.08);
+      overflow: hidden;
+    }
+
+    .demo-section h2 {
+      font-family: 'Bowlby One SC', cursive;
+      font-size: 22px;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .demo-section p {
+      color: rgba(255,255,255,0.5);
+      font-size: 14px;
+      margin-bottom: 30px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Retro 3D Button Style */
+    .btn-retro {
+      position: relative;
+      padding: 14px 32px;
+      font-family: 'Bowlby One SC', cursive;
+      font-size: 16px;
+      letter-spacing: 1px;
+      border: 3px solid #1a1a2e;
+      border-radius: 12px;
+      cursor: pointer;
+      background: var(--btn-color);
+      color: #1a1a2e;
+      transition: all 0.1s ease;
+      box-shadow:
+        5px 5px 0 #1a1a2e,
+        6px 6px 0 rgba(0,0,0,0.3);
+      z-index: 2;
+    }
+
+    .btn-retro.going {
+      --btn-color: #c8f464;
+      --ray-color-1: #c8f464;
+      --ray-color-2: #a8e030;
+      --ray-color-3: #7bff7b;
+    }
+
+    .btn-retro.interested {
+      --btn-color: #ff9f43;
+      --ray-color-1: #ff9f43;
+      --ray-color-2: #ffc048;
+      --ray-color-3: #ffe066;
+    }
+
+    .btn-retro:hover {
+      transform: translate(1px, 1px);
+      box-shadow:
+        4px 4px 0 #1a1a2e,
+        5px 5px 0 rgba(0,0,0,0.3);
+    }
+
+    .btn-retro:active {
+      transform: translate(4px, 4px);
+      box-shadow:
+        1px 1px 0 #1a1a2e,
+        2px 2px 0 rgba(0,0,0,0.3);
+    }
+
+    /* Ray burst overlay */
+    .ray-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      border-radius: 24px;
+      z-index: 1;
+    }
+
+    .ray {
+      position: absolute;
+      top: 50%;
+      height: 200%;
+      width: 30px;
+      transform: translateY(-50%);
+      opacity: 0;
+    }
+
+    .ray.left {
+      right: 50%;
+      transform-origin: right center;
+    }
+
+    .ray.right {
+      left: 50%;
+      transform-origin: left center;
+    }
+
+    /* Different ray colors and angles */
+    .ray:nth-child(1) { background: var(--ray-1); transform: translateY(-50%) rotate(-15deg); }
+    .ray:nth-child(2) { background: var(--ray-2); transform: translateY(-50%) rotate(-5deg); width: 25px; }
+    .ray:nth-child(3) { background: var(--ray-3); transform: translateY(-50%) rotate(5deg); width: 35px; }
+    .ray:nth-child(4) { background: var(--ray-1); transform: translateY(-50%) rotate(15deg); width: 20px; }
+    .ray:nth-child(5) { background: var(--ray-2); transform: translateY(-50%) rotate(25deg); }
+    .ray:nth-child(6) { background: var(--ray-3); transform: translateY(-50%) rotate(-25deg); width: 28px; }
+
+    .ray:nth-child(7) { background: var(--ray-1); transform: translateY(-50%) rotate(-15deg); }
+    .ray:nth-child(8) { background: var(--ray-2); transform: translateY(-50%) rotate(-5deg); width: 25px; }
+    .ray:nth-child(9) { background: var(--ray-3); transform: translateY(-50%) rotate(5deg); width: 35px; }
+    .ray:nth-child(10) { background: var(--ray-1); transform: translateY(-50%) rotate(15deg); width: 20px; }
+    .ray:nth-child(11) { background: var(--ray-2); transform: translateY(-50%) rotate(25deg); }
+    .ray:nth-child(12) { background: var(--ray-3); transform: translateY(-50%) rotate(-25deg); width: 28px; }
+
+    /* Going button rays - green/lime */
+    .ray-container.going {
+      --ray-1: #c8f464;
+      --ray-2: #a8e030;
+      --ray-3: #7bff7b;
+    }
+
+    /* Interested button rays - orange/yellow */
+    .ray-container.interested {
+      --ray-1: #ff9f43;
+      --ray-2: #ffc048;
+      --ray-3: #ffe066;
+    }
+
+    /* Ray animation */
+    .ray.animate-left {
+      animation: rayShootLeft 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    .ray.animate-right {
+      animation: rayShootRight 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes rayShootLeft {
+      0% {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0) scaleX(0) rotate(var(--rot, 0deg));
+      }
+      30% {
+        opacity: 1;
+        transform: translateY(-50%) translateX(-100px) scaleX(15) rotate(var(--rot, 0deg));
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-50%) translateX(-300px) scaleX(20) rotate(var(--rot, 0deg));
+      }
+    }
+
+    @keyframes rayShootRight {
+      0% {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0) scaleX(0) rotate(var(--rot, 0deg));
+      }
+      30% {
+        opacity: 1;
+        transform: translateY(-50%) translateX(100px) scaleX(15) rotate(var(--rot, 0deg));
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-50%) translateX(300px) scaleX(20) rotate(var(--rot, 0deg));
+      }
+    }
+
+    /* Flash overlay */
+    .flash-overlay {
+      position: absolute;
+      inset: 0;
+      background: var(--flash-color, #fff);
+      opacity: 0;
+      pointer-events: none;
+      border-radius: 24px;
+      z-index: 3;
+    }
+
+    .flash-overlay.going { --flash-color: #c8f464; }
+    .flash-overlay.interested { --flash-color: #ff9f43; }
+
+    .flash-overlay.animate {
+      animation: flashPulse 0.4s ease-out forwards;
+    }
+
+    @keyframes flashPulse {
+      0% { opacity: 0.8; }
+      100% { opacity: 0; }
+    }
+
+    /* Selected state */
+    .btn-retro.selected {
+      transform: translate(4px, 4px);
+      box-shadow:
+        1px 1px 0 #1a1a2e,
+        2px 2px 0 rgba(0,0,0,0.3);
+    }
+
+    .btn-retro.selected::after {
+      content: '✓';
+      margin-left: 8px;
+    }
+
+    /* Status indicator */
+    .status {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.6);
+      min-height: 24px;
+    }
+
+    .status.going { color: #c8f464; }
+    .status.interested { color: #ff9f43; }
+
+    /* Multiple demo sections */
+    .demos {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .demo-section.alt {
+      background: linear-gradient(135deg, rgba(200, 244, 100, 0.05), rgba(255, 159, 67, 0.05));
+    }
+  </style>
+</head>
+<body>
+  <h1>RSVP BUTTONS</h1>
+  <p class="subtitle">Retro arcade style with ray burst animation</p>
+
+  <div class="demos">
+    <!-- Demo 1: Standard -->
+    <div class="demo-section">
+      <h2>Pool Party</h2>
+      <p>Deck 12 • Saturday 3:00 PM</p>
+
+      <div class="ray-container going" id="rays1">
+        <!-- Left rays -->
+        <div class="ray left" style="--rot: -20deg;"></div>
+        <div class="ray left" style="--rot: -10deg;"></div>
+        <div class="ray left" style="--rot: 0deg;"></div>
+        <div class="ray left" style="--rot: 10deg;"></div>
+        <div class="ray left" style="--rot: 20deg;"></div>
+        <div class="ray left" style="--rot: 30deg;"></div>
+        <!-- Right rays -->
+        <div class="ray right" style="--rot: -20deg;"></div>
+        <div class="ray right" style="--rot: -10deg;"></div>
+        <div class="ray right" style="--rot: 0deg;"></div>
+        <div class="ray right" style="--rot: 10deg;"></div>
+        <div class="ray right" style="--rot: 20deg;"></div>
+        <div class="ray right" style="--rot: 30deg;"></div>
+      </div>
+      <div class="flash-overlay going" id="flash1"></div>
+
+      <div class="button-row">
+        <button class="btn-retro going" onclick="handleRetroClick(this, 'going', 'rays1', 'flash1', 'status1')">
+          GOING
+        </button>
+        <button class="btn-retro interested" onclick="handleRetroClick(this, 'interested', 'rays1', 'flash1', 'status1')">
+          INTERESTED
+        </button>
+      </div>
+
+      <div class="status" id="status1"></div>
+    </div>
+
+    <!-- Demo 2: Alternative -->
+    <div class="demo-section alt">
+      <h2>Sunset Social</h2>
+      <p>Sky Lounge • Sunday 6:00 PM</p>
+
+      <div class="ray-container interested" id="rays2">
+        <div class="ray left" style="--rot: -25deg;"></div>
+        <div class="ray left" style="--rot: -12deg;"></div>
+        <div class="ray left" style="--rot: 0deg;"></div>
+        <div class="ray left" style="--rot: 12deg;"></div>
+        <div class="ray left" style="--rot: 25deg;"></div>
+        <div class="ray left" style="--rot: -6deg;"></div>
+        <div class="ray right" style="--rot: -25deg;"></div>
+        <div class="ray right" style="--rot: -12deg;"></div>
+        <div class="ray right" style="--rot: 0deg;"></div>
+        <div class="ray right" style="--rot: 12deg;"></div>
+        <div class="ray right" style="--rot: 25deg;"></div>
+        <div class="ray right" style="--rot: 6deg;"></div>
+      </div>
+      <div class="flash-overlay interested" id="flash2"></div>
+
+      <div class="button-row">
+        <button class="btn-retro going" onclick="handleRetroClick(this, 'going', 'rays2', 'flash2', 'status2')">
+          GOING
+        </button>
+        <button class="btn-retro interested" onclick="handleRetroClick(this, 'interested', 'rays2', 'flash2', 'status2')">
+          INTERESTED
+        </button>
+      </div>
+
+      <div class="status" id="status2"></div>
+    </div>
+  </div>
+
+  <script>
+    function handleRetroClick(btn, type, raysId, flashId, statusId) {
+      const rayContainer = document.getElementById(raysId);
+      const flash = document.getElementById(flashId);
+      const status = document.getElementById(statusId);
+      const rays = rayContainer.querySelectorAll('.ray');
+
+      // Update ray container color based on button type
+      rayContainer.className = 'ray-container ' + type;
+      flash.className = 'flash-overlay ' + type;
+
+      // Reset and trigger ray animations
+      rays.forEach((ray, i) => {
+        ray.classList.remove('animate-left', 'animate-right');
+        void ray.offsetWidth; // Force reflow
+
+        // Add staggered delay
+        ray.style.animationDelay = (i * 0.02) + 's';
+
+        if (ray.classList.contains('left')) {
+          ray.classList.add('animate-left');
+        } else {
+          ray.classList.add('animate-right');
+        }
+      });
+
+      // Flash effect
+      flash.classList.remove('animate');
+      void flash.offsetWidth;
+      flash.classList.add('animate');
+
+      // Update button states
+      const buttons = btn.parentElement.querySelectorAll('.btn-retro');
+      buttons.forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+
+      // Update status
+      status.textContent = type === 'going' ? "You're going!" : "You're interested";
+      status.className = 'status ' + type;
+
+      // Clean up animations
+      setTimeout(() => {
+        rays.forEach(ray => {
+          ray.classList.remove('animate-left', 'animate-right');
+          ray.style.animationDelay = '';
+        });
+      }, 800);
+    }
+  </script>
+</body>
+</html>

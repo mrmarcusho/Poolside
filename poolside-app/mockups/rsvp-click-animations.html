@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RSVP Click Animations - Poolside</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+      color: white;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #22c55e, #f97316);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: rgba(255,255,255,0.5);
+      font-size: 14px;
+      margin-bottom: 50px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .option {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .option h3 {
+      font-size: 16px;
+      margin-bottom: 6px;
+    }
+
+    .option p {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    /* Base Glass Button */
+    .btn-glass {
+      position: relative;
+      padding: 18px 44px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: #3a3a5c;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      background: linear-gradient(145deg,
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(255, 255, 255, 0.85) 50%,
+        rgba(245, 245, 250, 0.9) 100%
+      );
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      transition: transform 0.15s ease;
+      overflow: visible;
+    }
+
+    .glow-ring {
+      position: absolute;
+      inset: -3px;
+      border-radius: 17px;
+      z-index: -1;
+      --glow-color: #22c55e;
+      --glow-bright: #4ade80;
+    }
+
+    .glow-ring::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 17px;
+      padding: 2.5px;
+      background: conic-gradient(
+        from var(--angle, 0deg),
+        transparent 0%, transparent 50%,
+        var(--glow-color) 70%, var(--glow-bright) 75%,
+        var(--glow-color) 80%, transparent 95%
+      );
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      animation: rotateGlow 2.5s linear infinite;
+    }
+
+    .glow-ring::after {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 19px;
+      background: conic-gradient(
+        from var(--angle, 0deg),
+        transparent 0%, transparent 50%,
+        var(--glow-color) 70%, var(--glow-bright) 75%,
+        var(--glow-color) 80%, transparent 95%
+      );
+      filter: blur(10px);
+      opacity: 0.5;
+      animation: rotateGlow 2.5s linear infinite;
+      z-index: -2;
+    }
+
+    @property --angle {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+
+    @keyframes rotateGlow {
+      to { --angle: 360deg; }
+    }
+
+    /* ===== ANIMATION 1: Confetti Burst ===== */
+    .confetti-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .confetti {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      top: 50%;
+      left: 50%;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .confetti.burst {
+      animation: confettiFly 0.8s cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
+    }
+
+    @keyframes confettiFly {
+      0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+      100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0); opacity: 0; }
+    }
+
+    /* ===== ANIMATION 2: Ripple Shockwave ===== */
+    .ripple-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .ripple-wave {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #22c55e;
+      border-radius: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0;
+    }
+
+    .ripple-wave.animate {
+      animation: rippleExpand 0.7s ease-out forwards;
+    }
+
+    .ripple-wave:nth-child(2) { animation-delay: 0.1s; }
+    .ripple-wave:nth-child(3) { animation-delay: 0.2s; }
+
+    @keyframes rippleExpand {
+      0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(8); opacity: 0; }
+    }
+
+    /* ===== ANIMATION 3: Elastic Squish ===== */
+    .btn-squish.clicked {
+      animation: elasticSquish 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes elasticSquish {
+      0% { transform: scale(1); }
+      20% { transform: scale(0.85, 1.15); }
+      40% { transform: scale(1.15, 0.85); }
+      60% { transform: scale(0.95, 1.05); }
+      80% { transform: scale(1.02, 0.98); }
+      100% { transform: scale(1); }
+    }
+
+    /* ===== ANIMATION 4: Glow Pulse Burst ===== */
+    .btn-pulse .glow-ring.pulse::before,
+    .btn-pulse .glow-ring.pulse::after {
+      animation: glowPulseBurst 0.5s ease-out forwards, rotateGlow 2.5s linear infinite !important;
+    }
+
+    @keyframes glowPulseBurst {
+      0% { opacity: 1; }
+      50% { opacity: 1; transform: scale(1.4); }
+      100% { opacity: 0.5; transform: scale(1); }
+    }
+
+    .btn-pulse.clicked {
+      animation: pulsePop 0.4s ease-out;
+    }
+
+    @keyframes pulsePop {
+      0% { transform: scale(0.95); }
+      50% { transform: scale(1.08); box-shadow: 0 0 40px #22c55e; }
+      100% { transform: scale(1); }
+    }
+
+    /* ===== ANIMATION 5: Particle Explosion ===== */
+    .particle-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: var(--glow-bright);
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      opacity: 0;
+      box-shadow: 0 0 8px var(--glow-color);
+    }
+
+    .particle.explode {
+      animation: particleExplode 0.7s cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
+    }
+
+    @keyframes particleExplode {
+      0% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
+      100% { transform: translate(calc(-50% + var(--px)), calc(-50% + var(--py))) scale(0); opacity: 0; }
+    }
+
+    /* ===== ANIMATION 6: Checkmark Morph ===== */
+    .check-container {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .checkmark {
+      width: 24px;
+      height: 24px;
+      opacity: 0;
+      transform: scale(0);
+    }
+
+    .checkmark.show {
+      animation: checkPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes checkPop {
+      0% { opacity: 0; transform: scale(0) rotate(-45deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+
+    .checkmark path {
+      stroke: #22c55e;
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+
+    .checkmark.show path {
+      stroke-dasharray: 30;
+      stroke-dashoffset: 30;
+      animation: checkDraw 0.3s ease-out 0.1s forwards;
+    }
+
+    @keyframes checkDraw {
+      to { stroke-dashoffset: 0; }
+    }
+
+    /* ===== ANIMATION 7: Bounce & Shine ===== */
+    .btn-shine {
+      overflow: hidden;
+    }
+
+    .shine-streak {
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+      transform: skewX(-20deg);
+      pointer-events: none;
+    }
+
+    .shine-streak.animate {
+      animation: shineAcross 0.5s ease-out forwards;
+    }
+
+    @keyframes shineAcross {
+      to { left: 150%; }
+    }
+
+    .btn-shine.clicked {
+      animation: bounceUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes bounceUp {
+      0% { transform: scale(0.95); }
+      40% { transform: scale(1.1) translateY(-5px); }
+      100% { transform: scale(1) translateY(0); }
+    }
+
+    /* ===== ANIMATION 8: Ring Burst ===== */
+    .ring-burst-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .ring-burst {
+      position: absolute;
+      inset: -3px;
+      border: 3px solid #4ade80;
+      border-radius: 17px;
+      opacity: 0;
+      transform: scale(1);
+    }
+
+    .ring-burst.animate {
+      animation: ringExpand 0.6s ease-out forwards;
+    }
+
+    @keyframes ringExpand {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1.5); border-width: 1px; }
+    }
+
+    .btn-ring.clicked {
+      animation: clickPop 0.35s ease-out;
+    }
+
+    @keyframes clickPop {
+      0% { transform: scale(0.95); }
+      50% { transform: scale(1.06); }
+      100% { transform: scale(1); }
+    }
+
+    /* Button text states */
+    .btn-text {
+      transition: opacity 0.2s;
+    }
+
+    .btn-glass.success .btn-text {
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Click Animations</h1>
+  <p class="subtitle">Click each button to preview the animation</p>
+
+  <div class="grid">
+    <!-- 1. Confetti Burst -->
+    <div class="option">
+      <h3>Confetti Burst</h3>
+      <p>Colorful confetti particles explode outward in celebration</p>
+      <button class="btn-glass" onclick="triggerConfetti(this)">
+        <span class="glow-ring"></span>
+        <span class="btn-text">Going</span>
+        <div class="confetti-container"></div>
+      </button>
+    </div>
+
+    <!-- 2. Ripple Shockwave -->
+    <div class="option">
+      <h3>Ripple Shockwave</h3>
+      <p>Expanding rings pulse outward like a drop in water</p>
+      <button class="btn-glass" onclick="triggerRipple(this)">
+        <span class="glow-ring"></span>
+        <span class="btn-text">Going</span>
+        <div class="ripple-container">
+          <div class="ripple-wave"></div>
+          <div class="ripple-wave"></div>
+          <div class="ripple-wave"></div>
+        </div>
+      </button>
+    </div>
+
+    <!-- 3. Elastic Squish -->
+    <div class="option">
+      <h3>Elastic Squish</h3>
+      <p>Button squishes like jelly then bounces back satisfyingly</p>
+      <button class="btn-glass btn-squish" onclick="triggerSquish(this)">
+        <span class="glow-ring"></span>
+        <span class="btn-text">Going</span>
+      </button>
+    </div>
+
+    <!-- 4. Glow Pulse Burst -->
+    <div class="option">
+      <h3>Glow Pulse Burst</h3>
+      <p>The glowing ring intensifies and bursts brighter momentarily</p>
+      <button class="btn-glass btn-pulse" onclick="triggerPulse(this)" style="--glow-color: #22c55e;">
+        <span class="glow-ring"></span>
+        <span class="btn-text">Going</span>
+      </button>
+    </div>
+
+    <!-- 5. Particle Explosion -->
+    <div class="option">
+      <h3>Particle Explosion</h3>
+      <p>Glowing particles scatter outward from the center</p>
+      <button class="btn-glass" onclick="triggerParticles(this)">
+        <span class="glow-ring"></span>
+        <span class="btn-text">Going</span>
+        <div class="particle-container"></div>
+      </button>
+    </div>
+
+    <!-- 6. Checkmark Morph -->
+    <div class="option">
+      <h3>Checkmark Pop</h3>
+      <p>Text morphs into a satisfying animated checkmark</p>
+      <button class="btn-glass" onclick="triggerCheck(this)">
+        <span class="glow-ring"></span>
+        <span class="btn-text">Going</span>
+        <div class="check-container">
+          <svg class="checkmark" viewBox="0 0 24 24">
+            <path d="M4 12l6 6L20 6"/>
+          </svg>
+        </div>
+      </button>
+    </div>
+
+    <!-- 7. Bounce & Shine -->
+    <div class="option">
+      <h3>Bounce & Shine</h3>
+      <p>Button bounces up with a light streak sweeping across</p>
+      <button class="btn-glass btn-shine" onclick="triggerShine(this)">
+        <span class="glow-ring"></span>
+        <span class="btn-text">Going</span>
+        <div class="shine-streak"></div>
+      </button>
+    </div>
+
+    <!-- 8. Ring Burst -->
+    <div class="option">
+      <h3>Ring Burst</h3>
+      <p>The border ring expands outward and fades away</p>
+      <button class="btn-glass btn-ring" onclick="triggerRingBurst(this)">
+        <span class="glow-ring"></span>
+        <span class="btn-text">Going</span>
+        <div class="ring-burst-container">
+          <div class="ring-burst"></div>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // 1. Confetti
+    function triggerConfetti(btn) {
+      const container = btn.querySelector('.confetti-container');
+      const colors = ['#22c55e', '#4ade80', '#86efac', '#ffffff', '#fbbf24'];
+
+      for (let i = 0; i < 20; i++) {
+        const conf = document.createElement('div');
+        conf.className = 'confetti';
+        const angle = (Math.random() * Math.PI * 2);
+        const dist = 50 + Math.random() * 60;
+        conf.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+        conf.style.setProperty('--ty', Math.sin(angle) * dist - 20 + 'px');
+        conf.style.background = colors[Math.floor(Math.random() * colors.length)];
+        conf.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        conf.style.width = (5 + Math.random() * 6) + 'px';
+        conf.style.height = (5 + Math.random() * 6) + 'px';
+        container.appendChild(conf);
+        setTimeout(() => conf.classList.add('burst'), 10);
+        setTimeout(() => conf.remove(), 800);
+      }
+
+      btn.style.transform = 'scale(0.95)';
+      setTimeout(() => btn.style.transform = 'scale(1.05)', 100);
+      setTimeout(() => btn.style.transform = 'scale(1)', 250);
+    }
+
+    // 2. Ripple
+    function triggerRipple(btn) {
+      const waves = btn.querySelectorAll('.ripple-wave');
+      waves.forEach(w => {
+        w.classList.remove('animate');
+        void w.offsetWidth;
+        w.classList.add('animate');
+      });
+
+      btn.style.transform = 'scale(0.95)';
+      setTimeout(() => btn.style.transform = 'scale(1)', 150);
+    }
+
+    // 3. Squish
+    function triggerSquish(btn) {
+      btn.classList.remove('clicked');
+      void btn.offsetWidth;
+      btn.classList.add('clicked');
+      setTimeout(() => btn.classList.remove('clicked'), 600);
+    }
+
+    // 4. Pulse
+    function triggerPulse(btn) {
+      const ring = btn.querySelector('.glow-ring');
+      ring.classList.remove('pulse');
+      btn.classList.remove('clicked');
+      void btn.offsetWidth;
+      ring.classList.add('pulse');
+      btn.classList.add('clicked');
+      setTimeout(() => {
+        ring.classList.remove('pulse');
+        btn.classList.remove('clicked');
+      }, 500);
+    }
+
+    // 5. Particles
+    function triggerParticles(btn) {
+      const container = btn.querySelector('.particle-container');
+
+      for (let i = 0; i < 16; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const angle = (i / 16) * Math.PI * 2;
+        const dist = 45 + Math.random() * 30;
+        p.style.setProperty('--px', Math.cos(angle) * dist + 'px');
+        p.style.setProperty('--py', Math.sin(angle) * dist + 'px');
+        container.appendChild(p);
+        setTimeout(() => p.classList.add('explode'), 10);
+        setTimeout(() => p.remove(), 700);
+      }
+
+      btn.style.transform = 'scale(0.95)';
+      setTimeout(() => btn.style.transform = 'scale(1.06)', 80);
+      setTimeout(() => btn.style.transform = 'scale(1)', 200);
+    }
+
+    // 6. Checkmark
+    function triggerCheck(btn) {
+      const text = btn.querySelector('.btn-text');
+      const check = btn.querySelector('.checkmark');
+
+      btn.classList.add('success');
+      check.classList.add('show');
+
+      btn.style.transform = 'scale(0.95)';
+      setTimeout(() => btn.style.transform = 'scale(1.05)', 100);
+      setTimeout(() => btn.style.transform = 'scale(1)', 250);
+
+      setTimeout(() => {
+        check.classList.remove('show');
+        btn.classList.remove('success');
+      }, 1500);
+    }
+
+    // 7. Shine
+    function triggerShine(btn) {
+      const shine = btn.querySelector('.shine-streak');
+      shine.classList.remove('animate');
+      btn.classList.remove('clicked');
+      void btn.offsetWidth;
+      shine.style.left = '-100%';
+      shine.classList.add('animate');
+      btn.classList.add('clicked');
+      setTimeout(() => btn.classList.remove('clicked'), 500);
+    }
+
+    // 8. Ring Burst
+    function triggerRingBurst(btn) {
+      const ring = btn.querySelector('.ring-burst');
+      ring.classList.remove('animate');
+      btn.classList.remove('clicked');
+      void btn.offsetWidth;
+      ring.classList.add('animate');
+      btn.classList.add('clicked');
+      setTimeout(() => {
+        ring.classList.remove('animate');
+        btn.classList.remove('clicked');
+      }, 600);
+    }
+  </script>
+</body>
+</html>

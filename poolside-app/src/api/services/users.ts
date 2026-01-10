@@ -19,6 +19,7 @@ export interface CurrentUser {
   location: string | null;
   school: string | null;
   interests: Interest[] | null;
+  photos: string[] | null;
   profileTheme: ProfileTheme;
   createdAt: string;
 }
@@ -41,6 +42,7 @@ export interface UpdateProfileData {
   location?: string | null;
   school?: string | null;
   interests?: Interest[];
+  photos?: string[];
   profileTheme?: ProfileTheme;
 }
 

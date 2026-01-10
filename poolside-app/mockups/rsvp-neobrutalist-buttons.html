@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RSVP Neobrutalist Buttons - Poolside</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      gap: 40px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 900;
+      color: #fff;
+      text-align: center;
+    }
+
+    .subtitle {
+      color: rgba(255,255,255,0.5);
+      font-size: 14px;
+      margin-top: -30px;
+      text-align: center;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    /* Going Button - Green with pink hover */
+    .btn-going {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0.8em 1.5em;
+      background-color: #4ade80;
+      cursor: pointer;
+      box-shadow: 4px 6px 0px black;
+      border: 4px solid black;
+      border-radius: 15px;
+      position: relative;
+      overflow: hidden;
+      z-index: 100;
+      transition: box-shadow 250ms, transform 250ms, filter 50ms;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.1em;
+      font-weight: 800;
+      color: black;
+    }
+
+    .btn-going:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 3px 0px black;
+    }
+
+    .btn-going:active {
+      filter: saturate(0.75);
+      transform: translate(4px, 4px);
+      box-shadow: 0px 0px 0px black;
+    }
+
+    .btn-going::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-color: #22c55e;
+      z-index: -1;
+      transform: translateX(-100%);
+      transition: transform 250ms;
+    }
+
+    .btn-going:hover::after {
+      transform: translateX(0);
+    }
+
+    /* Interested Button - Orange with yellow hover */
+    .btn-interested {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0.8em 1.5em;
+      background-color: #fb923c;
+      cursor: pointer;
+      box-shadow: 4px 6px 0px black;
+      border: 4px solid black;
+      border-radius: 15px;
+      position: relative;
+      overflow: hidden;
+      z-index: 100;
+      transition: box-shadow 250ms, transform 250ms, filter 50ms;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.1em;
+      font-weight: 800;
+      color: black;
+    }
+
+    .btn-interested:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 3px 0px black;
+    }
+
+    .btn-interested:active {
+      filter: saturate(0.75);
+      transform: translate(4px, 4px);
+      box-shadow: 0px 0px 0px black;
+    }
+
+    .btn-interested::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-color: #f97316;
+      z-index: -1;
+      transform: translateX(-100%);
+      transition: transform 250ms;
+    }
+
+    .btn-interested:hover::after {
+      transform: translateX(0);
+    }
+
+    /* Demo Card */
+    .demo-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 24px;
+      padding: 30px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .demo-card h2 {
+      color: #fff;
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    .demo-card p {
+      color: rgba(255,255,255,0.5);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    .card-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    /* Compact versions for card */
+    .btn-going.compact,
+    .btn-interested.compact {
+      padding: 0.5em 1em;
+      font-size: 0.9em;
+      border-width: 3px;
+      box-shadow: 3px 4px 0px black;
+      border-radius: 10px;
+    }
+
+    .btn-going.compact:hover,
+    .btn-interested.compact:hover {
+      box-shadow: 1.5px 2px 0px black;
+    }
+
+    /* Selected state */
+    .btn-going.selected {
+      background-color: #22c55e;
+    }
+
+    .btn-going.selected::after {
+      transform: translateX(0);
+    }
+
+    .btn-interested.selected {
+      background-color: #f97316;
+    }
+
+    .btn-interested.selected::after {
+      transform: translateX(0);
+    }
+
+    /* Section labels */
+    .section-label {
+      color: rgba(255,255,255,0.4);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>RSVP Neobrutalist Buttons</h1>
+  <p class="subtitle">Hover and click to see the animations</p>
+
+  <!-- Full Size Buttons -->
+  <div class="section">
+    <p class="section-label">Full Size (for modals)</p>
+    <div class="button-row">
+      <button class="btn-going">Going</button>
+      <button class="btn-interested">Interested</button>
+    </div>
+  </div>
+
+  <!-- Compact Buttons -->
+  <div class="section">
+    <p class="section-label">Compact Size (for cards)</p>
+    <div class="button-row">
+      <button class="btn-going compact">Going</button>
+      <button class="btn-interested compact">Interested</button>
+    </div>
+  </div>
+
+  <!-- Selected States -->
+  <div class="section">
+    <p class="section-label">Selected States</p>
+    <div class="button-row">
+      <button class="btn-going selected">✓ Going</button>
+      <button class="btn-interested selected">✓ Interested</button>
+    </div>
+  </div>
+
+  <!-- In Context -->
+  <div class="demo-card">
+    <h2>Pool Party 🎉</h2>
+    <p>Deck 12 • Saturday 3:00 PM</p>
+    <div class="card-buttons">
+      <button class="btn-going compact" onclick="toggleButton(this, 'going')">Going</button>
+      <button class="btn-interested compact" onclick="toggleButton(this, 'interested')">Interested</button>
+    </div>
+  </div>
+
+  <script>
+    function toggleButton(btn, type) {
+      const parent = btn.parentElement;
+      const buttons = parent.querySelectorAll('button');
+
+      // Remove selected from all buttons in this group
+      buttons.forEach(b => {
+        b.classList.remove('selected');
+        b.textContent = b.textContent.replace('✓ ', '');
+      });
+
+      // Toggle this button
+      if (!btn.classList.contains('selected')) {
+        btn.classList.add('selected');
+        btn.textContent = '✓ ' + btn.textContent;
+      }
+    }
+  </script>
+</body>
+</html>

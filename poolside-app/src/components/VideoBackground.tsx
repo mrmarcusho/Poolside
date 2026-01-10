@@ -28,6 +28,7 @@ const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
     overflow: 'hidden',
+    backgroundColor: '#0a0a0f',
   },
   video: {
     position: 'absolute',

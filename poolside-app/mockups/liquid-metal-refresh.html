@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liquid Metal Refresh - Poolside</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #c0c0c0, #e8e8e8, #a0a0a0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 60px;
+      font-size: 14px;
+    }
+
+    .demo-container {
+      width: 320px;
+      height: 500px;
+      background: rgba(0,0,0,0.4);
+      border-radius: 40px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .phone-header {
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .phone-header span {
+      font-size: 14px;
+      color: rgba(255,255,255,0.6);
+    }
+
+    .refresh-area {
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* Liquid Metal Drop */
+    .liquid-metal {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .metal-drop {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg,
+        #e8e8e8 0%,
+        #c0c0c0 20%,
+        #808080 40%,
+        #c0c0c0 60%,
+        #e8e8e8 80%,
+        #a0a0a0 100%
+      );
+      background-size: 200% 200%;
+      border-radius: 50%;
+      position: relative;
+      box-shadow:
+        0 5px 30px rgba(200, 200, 200, 0.3),
+        inset 0 -5px 20px rgba(0,0,0,0.3),
+        inset 0 5px 20px rgba(255,255,255,0.5);
+      opacity: 0;
+      transform: scale(0) translateY(-30px);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .metal-drop.visible {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+
+    .metal-drop.loading {
+      animation: metalWobble 1.5s ease-in-out infinite, metalShine 2s linear infinite;
+    }
+
+    .metal-drop.bursting {
+      animation: burst 0.5s ease-out forwards;
+    }
+
+    @keyframes metalWobble {
+      0%, 100% {
+        border-radius: 50%;
+        transform: scale(1) translateY(0);
+      }
+      25% {
+        border-radius: 45% 55% 60% 40% / 55% 45% 55% 45%;
+        transform: scale(1.05, 0.95) translateY(2px);
+      }
+      50% {
+        border-radius: 55% 45% 45% 55% / 45% 55% 45% 55%;
+        transform: scale(0.95, 1.05) translateY(-2px);
+      }
+      75% {
+        border-radius: 40% 60% 55% 45% / 60% 40% 60% 40%;
+        transform: scale(1.02, 0.98) translateY(1px);
+      }
+    }
+
+    @keyframes metalShine {
+      0% { background-position: 0% 0%; }
+      100% { background-position: 200% 200%; }
+    }
+
+    @keyframes burst {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.5);
+        opacity: 0.8;
+      }
+      100% {
+        transform: scale(0);
+        opacity: 0;
+      }
+    }
+
+    /* Burst Particles */
+    .particles-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .particle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 10px;
+      height: 10px;
+      background: linear-gradient(135deg, #e8e8e8, #a0a0a0);
+      border-radius: 50%;
+      box-shadow: 0 2px 10px rgba(200, 200, 200, 0.5);
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0);
+    }
+
+    .particle.burst {
+      animation: particleFly 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+
+    @keyframes particleFly {
+      0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0);
+        opacity: 0;
+      }
+    }
+
+    .particle:nth-child(1) { --tx: 0px; --ty: -60px; animation-delay: 0s; }
+    .particle:nth-child(2) { --tx: 52px; --ty: -30px; animation-delay: 0.02s; }
+    .particle:nth-child(3) { --tx: 52px; --ty: 30px; animation-delay: 0.04s; }
+    .particle:nth-child(4) { --tx: 0px; --ty: 60px; animation-delay: 0.06s; }
+    .particle:nth-child(5) { --tx: -52px; --ty: 30px; animation-delay: 0.08s; }
+    .particle:nth-child(6) { --tx: -52px; --ty: -30px; animation-delay: 0.1s; }
+    .particle:nth-child(7) { --tx: 30px; --ty: -52px; animation-delay: 0.03s; }
+    .particle:nth-child(8) { --tx: -30px; --ty: -52px; animation-delay: 0.05s; }
+    .particle:nth-child(9) { --tx: 30px; --ty: 52px; animation-delay: 0.07s; }
+    .particle:nth-child(10) { --tx: -30px; --ty: 52px; animation-delay: 0.09s; }
+    .particle:nth-child(11) { --tx: 60px; --ty: 0px; animation-delay: 0.04s; }
+    .particle:nth-child(12) { --tx: -60px; --ty: 0px; animation-delay: 0.06s; }
+
+    /* Splash Ring */
+    .splash-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(200, 200, 200, 0.8);
+      border-radius: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0;
+    }
+
+    .splash-ring.burst {
+      animation: ringExpand 0.6s ease-out forwards;
+    }
+
+    @keyframes ringExpand {
+      0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
+        border-width: 3px;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(3);
+        opacity: 0;
+        border-width: 1px;
+      }
+    }
+
+    /* Success Checkmark */
+    .checkmark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0;
+      font-size: 28px;
+    }
+
+    .checkmark.show {
+      animation: checkPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s forwards;
+    }
+
+    @keyframes checkPop {
+      0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* Mock Content */
+    .content-area {
+      padding: 20px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 50%;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .card-body {
+      height: 60px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 8px;
+    }
+
+    /* Controls */
+    .controls {
+      margin-top: 40px;
+      display: flex;
+      gap: 16px;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #c0c0c0, #e8e8e8);
+      color: #1a1a2e;
+    }
+
+    .btn-primary:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 30px rgba(200, 200, 200, 0.3);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.15);
+    }
+
+    .status {
+      margin-top: 20px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      height: 20px;
+    }
+
+    /* Pull indicator */
+    .pull-indicator {
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .pull-indicator.visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <h1>Liquid Metal Refresh</h1>
+  <p class="subtitle">Mercury-like drop that wobbles while loading, then bursts on completion</p>
+
+  <div class="demo-container">
+    <div class="phone-header">
+      <span>Cruise Feed</span>
+    </div>
+
+    <div class="pull-indicator" id="pullIndicator">Pull to refresh</div>
+
+    <div class="refresh-area">
+      <div class="liquid-metal">
+        <div class="metal-drop" id="metalDrop"></div>
+        <div class="particles-container" id="particles">
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+        </div>
+        <div class="splash-ring" id="splashRing"></div>
+        <div class="checkmark" id="checkmark">✓</div>
+      </div>
+    </div>
+
+    <div class="content-area">
+      <div class="card">
+        <div class="card-header">
+          <div class="avatar"></div>
+          <div>
+            <div class="card-title">Pool Party</div>
+            <div class="card-subtitle">Deck 12 • 3:00 PM</div>
+          </div>
+        </div>
+        <div class="card-body"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="avatar"></div>
+          <div>
+            <div class="card-title">Sunset Social</div>
+            <div class="card-subtitle">Sky Lounge • 6:00 PM</div>
+          </div>
+        </div>
+        <div class="card-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-primary" onclick="simulateRefresh()">Simulate Refresh</button>
+    <button class="btn btn-secondary" onclick="resetDemo()">Reset</button>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <script>
+    const metalDrop = document.getElementById('metalDrop');
+    const particles = document.querySelectorAll('.particle');
+    const splashRing = document.getElementById('splashRing');
+    const checkmark = document.getElementById('checkmark');
+    const pullIndicator = document.getElementById('pullIndicator');
+    const status = document.getElementById('status');
+
+    let isRefreshing = false;
+
+    function simulateRefresh() {
+      if (isRefreshing) return;
+      isRefreshing = true;
+
+      // Reset everything first
+      resetDemo();
+
+      // Phase 1: Drop appears (user pulls down)
+      status.textContent = 'Pulling down...';
+      pullIndicator.classList.add('visible');
+
+      setTimeout(() => {
+        metalDrop.classList.add('visible');
+        status.textContent = 'Release to refresh...';
+      }, 300);
+
+      // Phase 2: Loading begins (wobbling)
+      setTimeout(() => {
+        pullIndicator.classList.remove('visible');
+        metalDrop.classList.add('loading');
+        status.textContent = 'Refreshing...';
+      }, 800);
+
+      // Phase 3: Burst animation (refresh complete)
+      setTimeout(() => {
+        metalDrop.classList.remove('loading');
+        metalDrop.classList.add('bursting');
+
+        // Trigger particles
+        particles.forEach(p => p.classList.add('burst'));
+
+        // Trigger splash ring
+        splashRing.classList.add('burst');
+
+        status.textContent = 'Complete!';
+      }, 3000);
+
+      // Phase 4: Show checkmark
+      setTimeout(() => {
+        checkmark.classList.add('show');
+      }, 3200);
+
+      // Phase 5: Hide checkmark and reset
+      setTimeout(() => {
+        checkmark.classList.remove('show');
+        checkmark.style.opacity = '0';
+        status.textContent = 'Ready';
+        isRefreshing = false;
+      }, 4500);
+    }
+
+    function resetDemo() {
+      metalDrop.classList.remove('visible', 'loading', 'bursting');
+      particles.forEach(p => p.classList.remove('burst'));
+      splashRing.classList.remove('burst');
+      checkmark.classList.remove('show');
+      checkmark.style.opacity = '';
+      pullIndicator.classList.remove('visible');
+      status.textContent = '';
+    }
+
+    // Auto-play on load
+    setTimeout(simulateRefresh, 1000);
+  </script>
+</body>
+</html>

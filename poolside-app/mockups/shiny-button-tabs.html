@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shiny Glowing Button Tabs - Mockup</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #fff;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: rgba(255,255,255,0.5);
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .section {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            padding: 32px;
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Tab Container */
+        .tabs-container {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* Base Tab Button */
+        .tab-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            position: relative;
+        }
+
+        /* Inactive Tab */
+        .tab-btn.inactive {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.45);
+        }
+
+        .tab-btn.inactive:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* ===== SHINY BLUE BUTTON STYLES ===== */
+
+        /* Active Going - Blue with White Glow */
+        .tab-btn.active-going {
+            background: linear-gradient(180deg,
+                rgba(255, 255, 255, 0.25) 0%,
+                rgba(255, 255, 255, 0.05) 40%,
+                transparent 40%
+            ), linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #fff;
+            border: 1.5px solid rgba(255, 255, 255, 0.5);
+            box-shadow:
+                /* Outer color glow */
+                0 0 20px rgba(59, 130, 246, 0.5),
+                0 0 40px rgba(59, 130, 246, 0.3),
+                /* White glow on border */
+                0 0 8px rgba(255, 255, 255, 0.4),
+                0 0 15px rgba(255, 255, 255, 0.2),
+                /* Inner white glow (inset) */
+                inset 0 1px 2px rgba(255, 255, 255, 0.4),
+                inset 0 -1px 2px rgba(0, 0, 0, 0.1);
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+
+        /* Active Interested - Orange with White Glow */
+        .tab-btn.active-interested {
+            background: linear-gradient(180deg,
+                rgba(255, 255, 255, 0.25) 0%,
+                rgba(255, 255, 255, 0.05) 40%,
+                transparent 40%
+            ), linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #fff;
+            border: 1.5px solid rgba(255, 255, 255, 0.5);
+            box-shadow:
+                0 0 20px rgba(245, 158, 11, 0.5),
+                0 0 40px rgba(245, 158, 11, 0.3),
+                0 0 8px rgba(255, 255, 255, 0.4),
+                0 0 15px rgba(255, 255, 255, 0.2),
+                inset 0 1px 2px rgba(255, 255, 255, 0.4),
+                inset 0 -1px 2px rgba(0, 0, 0, 0.1);
+            animation: glowPulseOrange 2s ease-in-out infinite;
+        }
+
+        /* Active Hosting - Purple with White Glow */
+        .tab-btn.active-hosting {
+            background: linear-gradient(180deg,
+                rgba(255, 255, 255, 0.25) 0%,
+                rgba(255, 255, 255, 0.05) 40%,
+                transparent 40%
+            ), linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: #fff;
+            border: 1.5px solid rgba(255, 255, 255, 0.5);
+            box-shadow:
+                0 0 20px rgba(139, 92, 246, 0.5),
+                0 0 40px rgba(139, 92, 246, 0.3),
+                0 0 8px rgba(255, 255, 255, 0.4),
+                0 0 15px rgba(255, 255, 255, 0.2),
+                inset 0 1px 2px rgba(255, 255, 255, 0.4),
+                inset 0 -1px 2px rgba(0, 0, 0, 0.1);
+            animation: glowPulsePurple 2s ease-in-out infinite;
+        }
+
+        /* Glow Pulse Animations */
+        @keyframes glowPulse {
+            0%, 100% {
+                box-shadow:
+                    0 0 20px rgba(59, 130, 246, 0.5),
+                    0 0 40px rgba(59, 130, 246, 0.3),
+                    0 0 8px rgba(255, 255, 255, 0.4),
+                    0 0 15px rgba(255, 255, 255, 0.2),
+                    inset 0 1px 2px rgba(255, 255, 255, 0.4),
+                    inset 0 -1px 2px rgba(0, 0, 0, 0.1);
+                border-color: rgba(255, 255, 255, 0.5);
+            }
+            50% {
+                box-shadow:
+                    0 0 25px rgba(59, 130, 246, 0.6),
+                    0 0 50px rgba(59, 130, 246, 0.4),
+                    0 0 12px rgba(255, 255, 255, 0.6),
+                    0 0 20px rgba(255, 255, 255, 0.3),
+                    inset 0 1px 3px rgba(255, 255, 255, 0.5),
+                    inset 0 -1px 2px rgba(0, 0, 0, 0.1);
+                border-color: rgba(255, 255, 255, 0.7);
+            }
+        }
+
+        @keyframes glowPulseOrange {
+            0%, 100% {
+                box-shadow:
+                    0 0 20px rgba(245, 158, 11, 0.5),
+                    0 0 40px rgba(245, 158, 11, 0.3),
+                    0 0 8px rgba(255, 255, 255, 0.4),
+                    0 0 15px rgba(255, 255, 255, 0.2),
+                    inset 0 1px 2px rgba(255, 255, 255, 0.4),
+                    inset 0 -1px 2px rgba(0, 0, 0, 0.1);
+                border-color: rgba(255, 255, 255, 0.5);
+            }
+            50% {
+                box-shadow:
+                    0 0 25px rgba(245, 158, 11, 0.6),
+                    0 0 50px rgba(245, 158, 11, 0.4),
+                    0 0 12px rgba(255, 255, 255, 0.6),
+                    0 0 20px rgba(255, 255, 255, 0.3),
+                    inset 0 1px 3px rgba(255, 255, 255, 0.5),
+                    inset 0 -1px 2px rgba(0, 0, 0, 0.1);
+                border-color: rgba(255, 255, 255, 0.7);
+            }
+        }
+
+        @keyframes glowPulsePurple {
+            0%, 100% {
+                box-shadow:
+                    0 0 20px rgba(139, 92, 246, 0.5),
+                    0 0 40px rgba(139, 92, 246, 0.3),
+                    0 0 8px rgba(255, 255, 255, 0.4),
+                    0 0 15px rgba(255, 255, 255, 0.2),
+                    inset 0 1px 2px rgba(255, 255, 255, 0.4),
+                    inset 0 -1px 2px rgba(0, 0, 0, 0.1);
+                border-color: rgba(255, 255, 255, 0.5);
+            }
+            50% {
+                box-shadow:
+                    0 0 25px rgba(139, 92, 246, 0.6),
+                    0 0 50px rgba(139, 92, 246, 0.4),
+                    0 0 12px rgba(255, 255, 255, 0.6),
+                    0 0 20px rgba(255, 255, 255, 0.3),
+                    inset 0 1px 3px rgba(255, 255, 255, 0.5),
+                    inset 0 -1px 2px rgba(0, 0, 0, 0.1);
+                border-color: rgba(255, 255, 255, 0.7);
+            }
+        }
+
+        /* Icon styling */
+        .tab-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .tab-btn.active-going .tab-icon {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .tab-btn.active-interested .tab-icon {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .tab-btn.active-hosting .tab-icon {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .tab-btn.inactive .tab-icon {
+            background: rgba(255,255,255,0.08);
+        }
+
+        /* Count Badge */
+        .tab-count {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .tab-btn.inactive .tab-count {
+            background: rgba(255,255,255,0.08);
+        }
+
+        /* Phone Frame for Context */
+        .phone-frame {
+            width: 375px;
+            margin: 0 auto;
+            background: #0a0a0f;
+            border-radius: 40px;
+            padding: 20px;
+            border: 3px solid #333;
+        }
+
+        .my-events-section {
+            padding: 16px;
+        }
+
+        .my-events-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .my-events-header span {
+            font-size: 20px;
+        }
+
+        .my-events-header h3 {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        /* Event Card Preview */
+        .event-card-preview {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 18px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-top: 16px;
+        }
+
+        .event-thumb {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+        }
+
+        .event-badge {
+            position: absolute;
+            bottom: -4px;
+            right: -4px;
+            width: 24px;
+            height: 24px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #fff;
+            border: 2px solid #0a0a0f;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+
+        .event-details {
+            flex: 1;
+        }
+
+        .event-details h4 {
+            color: #fff;
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .event-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .event-meta span {
+            color: rgba(255,255,255,0.45);
+            font-size: 12px;
+        }
+
+        .event-arrow {
+            color: rgba(255,255,255,0.3);
+            font-size: 20px;
+        }
+
+        /* Comparison View */
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-top: 24px;
+        }
+
+        .comparison-item {
+            text-align: center;
+        }
+
+        .comparison-label {
+            color: rgba(255,255,255,0.5);
+            font-size: 12px;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Current Style */
+        .current-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        /* New Shiny Style */
+        .new-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            background: linear-gradient(180deg,
+                rgba(255, 255, 255, 0.3) 0%,
+                rgba(255, 255, 255, 0.08) 40%,
+                transparent 40%
+            ), linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #fff;
+            border: 1.5px solid rgba(255, 255, 255, 0.5);
+            box-shadow:
+                0 0 20px rgba(59, 130, 246, 0.5),
+                0 0 40px rgba(59, 130, 246, 0.3),
+                0 0 8px rgba(255, 255, 255, 0.4),
+                0 0 15px rgba(255, 255, 255, 0.2),
+                inset 0 1px 2px rgba(255, 255, 255, 0.4),
+                inset 0 -1px 2px rgba(0, 0, 0, 0.1);
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+
+        /* Interactive Demo */
+        .demo-tabs {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .demo-tab {
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.45);
+        }
+
+        .demo-tab.active {
+            background: linear-gradient(180deg,
+                rgba(255, 255, 255, 0.3) 0%,
+                rgba(255, 255, 255, 0.08) 40%,
+                transparent 40%
+            ), linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #fff;
+            border: 1.5px solid rgba(255, 255, 255, 0.5);
+            box-shadow:
+                0 0 20px rgba(59, 130, 246, 0.5),
+                0 0 40px rgba(59, 130, 246, 0.3),
+                0 0 8px rgba(255, 255, 255, 0.4),
+                0 0 15px rgba(255, 255, 255, 0.2),
+                inset 0 1px 2px rgba(255, 255, 255, 0.4),
+                inset 0 -1px 2px rgba(0, 0, 0, 0.1);
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+
+        .demo-tab:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Color variations section */
+        .color-variations {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .variation {
+            text-align: center;
+        }
+
+        .variation-label {
+            color: rgba(255,255,255,0.5);
+            font-size: 11px;
+            margin-top: 12px;
+            text-transform: uppercase;
+        }
+
+        /* All Blue Option */
+        .all-blue-demo {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            padding: 24px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Shiny Glowing Button Tabs</h1>
+            <p>For the "My Events" section on Profile Page</p>
+        </div>
+
+        <!-- Side by Side Comparison -->
+        <div class="section">
+            <div class="section-title">
+                <span>🔄</span> Before vs After
+            </div>
+            <div class="comparison">
+                <div class="comparison-item">
+                    <div class="comparison-label">Current Style</div>
+                    <button class="current-btn">
+                        <span>Going</span>
+                        <span style="background: rgba(255,255,255,0.15); padding: 2px 8px; border-radius: 10px; font-size: 12px;">3</span>
+                    </button>
+                </div>
+                <div class="comparison-item">
+                    <div class="comparison-label">New Shiny Style</div>
+                    <button class="new-btn">
+                        <span style="background: rgba(255,255,255,0.2); padding: 4px 6px; border-radius: 6px;">✓</span>
+                        <span>Going</span>
+                        <span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 12px;">3</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Color Variations -->
+        <div class="section">
+            <div class="section-title">
+                <span>🎨</span> Color Options for Each Tab
+            </div>
+            <div class="color-variations">
+                <div class="variation">
+                    <button class="tab-btn active-going">
+                        <span class="tab-icon">✓</span>
+                        <span>Going</span>
+                        <span class="tab-count">3</span>
+                    </button>
+                    <div class="variation-label">Blue Glow</div>
+                </div>
+                <div class="variation">
+                    <button class="tab-btn active-interested">
+                        <span class="tab-icon">★</span>
+                        <span>Interested</span>
+                        <span class="tab-count">5</span>
+                    </button>
+                    <div class="variation-label">Orange Glow</div>
+                </div>
+                <div class="variation">
+                    <button class="tab-btn active-hosting">
+                        <span class="tab-icon">👑</span>
+                        <span>Hosting</span>
+                        <span class="tab-count">2</span>
+                    </button>
+                    <div class="variation-label">Purple Glow</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- All Blue Option -->
+        <div class="section">
+            <div class="section-title">
+                <span>💙</span> Option: All Blue (Consistent Brand Color)
+            </div>
+            <p style="color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 16px;">
+                Click tabs to see the transition effect
+            </p>
+            <div class="all-blue-demo">
+                <button class="demo-tab active" onclick="setActiveTab(this)">
+                    Going
+                </button>
+                <button class="demo-tab" onclick="setActiveTab(this)">
+                    Interested
+                </button>
+                <button class="demo-tab" onclick="setActiveTab(this)">
+                    Hosting
+                </button>
+            </div>
+        </div>
+
+        <!-- In Context -->
+        <div class="section">
+            <div class="section-title">
+                <span>📱</span> In Context (Profile Screen)
+            </div>
+            <div class="phone-frame">
+                <div class="my-events-section">
+                    <div class="my-events-header">
+                        <span>📅</span>
+                        <h3>My Events</h3>
+                    </div>
+
+                    <div class="tabs-container">
+                        <button class="tab-btn active-going">
+                            <span class="tab-icon">✓</span>
+                            <span>Going</span>
+                            <span class="tab-count">3</span>
+                        </button>
+                        <button class="tab-btn inactive">
+                            <span class="tab-icon">★</span>
+                            <span>Interested</span>
+                            <span class="tab-count">5</span>
+                        </button>
+                        <button class="tab-btn inactive">
+                            <span class="tab-icon">👑</span>
+                            <span>Hosting</span>
+                            <span class="tab-count">2</span>
+                        </button>
+                    </div>
+
+                    <div class="event-card-preview">
+                        <div class="event-thumb">
+                            <div class="event-badge">✓</div>
+                        </div>
+                        <div class="event-details">
+                            <h4>Pool Party Vibes</h4>
+                            <div class="event-meta">
+                                <span>📅 Today at 3:00 PM</span>
+                                <span>📍 Deck 12 - Main Pool</span>
+                            </div>
+                        </div>
+                        <span class="event-arrow">›</span>
+                    </div>
+
+                    <div class="event-card-preview">
+                        <div class="event-thumb" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                            <div class="event-badge">✓</div>
+                        </div>
+                        <div class="event-details">
+                            <h4>Gaming Tournament</h4>
+                            <div class="event-meta">
+                                <span>📅 Tomorrow at 2:00 PM</span>
+                                <span>📍 Deck 8 - Game Lounge</span>
+                            </div>
+                        </div>
+                        <span class="event-arrow">›</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CSS Code Reference -->
+        <div class="section">
+            <div class="section-title">
+                <span>💻</span> React Native Implementation
+            </div>
+            <pre style="background: rgba(0,0,0,0.4); padding: 16px; border-radius: 12px; color: #a0ffa0; font-size: 11px; overflow-x: auto; white-space: pre-wrap;">
+/* Glowing White Border + Inner Shine */
+
+// Use LinearGradient for the inner white shine
+&lt;LinearGradient
+  colors={['rgba(255,255,255,0.3)', 'rgba(255,255,255,0.05)', 'transparent']}
+  locations={[0, 0.4, 0.4]}
+  style={styles.buttonGradient}
+&gt;
+  {/* Button content */}
+&lt;/LinearGradient&gt;
+
+// Styles
+buttonContainer: {
+  borderRadius: 50,
+  borderWidth: 1.5,
+  borderColor: 'rgba(255, 255, 255, 0.5)',
+  // iOS shadow for outer glow
+  shadowColor: '#3b82f6',
+  shadowOffset: { width: 0, height: 0 },
+  shadowOpacity: 0.5,
+  shadowRadius: 15,
+  // Android
+  elevation: 10,
+},
+
+// For white border glow, wrap in outer View:
+outerGlow: {
+  shadowColor: '#ffffff',
+  shadowOffset: { width: 0, height: 0 },
+  shadowOpacity: 0.4,
+  shadowRadius: 8,
+},</pre>
+        </div>
+    </div>
+
+    <script>
+        function setActiveTab(clickedTab) {
+            const tabs = document.querySelectorAll('.demo-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            clickedTab.classList.add('active');
+        }
+    </script>
+</body>
+</html>

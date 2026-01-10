@@ -10,10 +10,11 @@ import {
   ActivityIndicator,
   StatusBar,
   Animated as RNAnimated,
+  Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
 import Animated, {
@@ -22,16 +23,20 @@ import Animated, {
   withSpring,
   withDelay,
   withTiming,
+  withSequence,
   runOnJS,
   Easing,
 } from 'react-native-reanimated';
 import { usersService } from '../api/services/users';
+import { uploadsService } from '../api/services/uploads';
 import { eventsService } from '../api/services/events';
 import { ProfileBackground } from '../components/ProfileBackground';
 import { DeckCarousel } from '../components/DeckCarousel';
 import { InterestsGallery, Interest } from '../components/InterestsGallery';
 import { FavoritesSearchModal } from '../components/FavoritesSearchModal';
 import { ProfileEventCard, EventTabType } from '../components/ProfileEventCard';
+import { PhotoManagementModal } from '../components/PhotoManagementModal';
+import { ScreenWrapper } from '../components/ScreenWrapper';
 import { useRsvp } from '../context/RsvpContext';
 import { useAuth } from '../context/AuthContext';
 import { mapApiEventsToEvents } from '../utils';
@@ -42,6 +47,15 @@ import { ApiEvent } from '../api';
 const BUBBLE_SPRING_CONFIG = {
   damping: 12,
   stiffness: 180,
+  mass: 0.8,
+};
+
+// Stagger delay between elements (ms)
+const CASCADE_STAGGER = 50;
+// Subtle cascade spring config
+const CASCADE_SPRING = {
+  damping: 18,
+  stiffness: 120,
   mass: 0.8,
 };
 
@@ -81,14 +95,6 @@ const sampleInterests: Interest[] = [
   },
 ];
 
-// Sample photos for the carousel
-const samplePhotos = [
-  'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=600&q=85',
-  'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=85',
-  'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=600&q=85',
-  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&q=85',
-  'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600&q=85',
-];
 
 interface UserProfile {
   id: string;
@@ -97,6 +103,7 @@ interface UserProfile {
   bio: string;
   photos: string[];
   interests: Interest[];
+  profilePicture: string | null;
 }
 
 export const ProfileScreen: React.FC = () => {
@@ -111,11 +118,25 @@ export const ProfileScreen: React.FC = () => {
   const [editBio, setEditBio] = useState('');
   const [editPhotos, setEditPhotos] = useState<string[]>([]);
   const [editInterests, setEditInterests] = useState<Interest[]>([]);
+  const [editProfilePicture, setEditProfilePicture] = useState<string | null>(null);
 
   // Favorites search modal state
   const [searchModalVisible, setSearchModalVisible] = useState(false);
   const [searchModalType, setSearchModalType] = useState<Interest['type']>('movie');
   const [editingInterestIndex, setEditingInterestIndex] = useState<number>(0);
+
+  // Photo management modal state
+  const [photoModalVisible, setPhotoModalVisible] = useState(false);
+
+  // Cascade animation shared values (0 = hidden, 1 = visible)
+  const cascade0 = useSharedValue(0); // Profile picture
+  const cascade1 = useSharedValue(0); // Name
+  const cascade2 = useSharedValue(0); // Bio
+  const cascade3 = useSharedValue(0); // Buttons
+  const cascade4 = useSharedValue(0); // Photos
+  const cascade5 = useSharedValue(0); // My Events
+  const cascade6 = useSharedValue(0); // Interests
+  const cascade7 = useSharedValue(0); // Add Friend
 
   // My Events tab state
   const [activeEventTab, setActiveEventTab] = useState<EventTabType>('going');
@@ -135,6 +156,7 @@ export const ProfileScreen: React.FC = () => {
     bio: '',
     photos: [] as string[],
     interests: [] as Interest[],
+    profilePicture: null as string | null,
   });
 
   // Animation state - tracks if edit content should be shown
@@ -192,6 +214,64 @@ export const ProfileScreen: React.FC = () => {
     ],
   }));
 
+  // Cascade animated styles - subtle entrance from bottom-right
+  const cascadeStyle0 = useAnimatedStyle(() => ({
+    opacity: cascade0.value,
+    transform: [
+      { translateX: 35 * (1 - cascade0.value) },
+      { translateY: 20 * (1 - cascade0.value) },
+    ],
+  }));
+  const cascadeStyle1 = useAnimatedStyle(() => ({
+    opacity: cascade1.value,
+    transform: [
+      { translateX: 35 * (1 - cascade1.value) },
+      { translateY: 20 * (1 - cascade1.value) },
+    ],
+  }));
+  const cascadeStyle2 = useAnimatedStyle(() => ({
+    opacity: cascade2.value,
+    transform: [
+      { translateX: 35 * (1 - cascade2.value) },
+      { translateY: 20 * (1 - cascade2.value) },
+    ],
+  }));
+  const cascadeStyle3 = useAnimatedStyle(() => ({
+    opacity: cascade3.value,
+    transform: [
+      { translateX: 35 * (1 - cascade3.value) },
+      { translateY: 20 * (1 - cascade3.value) },
+    ],
+  }));
+  const cascadeStyle4 = useAnimatedStyle(() => ({
+    opacity: cascade4.value,
+    transform: [
+      { translateX: 35 * (1 - cascade4.value) },
+      { translateY: 20 * (1 - cascade4.value) },
+    ],
+  }));
+  const cascadeStyle5 = useAnimatedStyle(() => ({
+    opacity: cascade5.value,
+    transform: [
+      { translateX: 35 * (1 - cascade5.value) },
+      { translateY: 20 * (1 - cascade5.value) },
+    ],
+  }));
+  const cascadeStyle6 = useAnimatedStyle(() => ({
+    opacity: cascade6.value,
+    transform: [
+      { translateX: 35 * (1 - cascade6.value) },
+      { translateY: 20 * (1 - cascade6.value) },
+    ],
+  }));
+  const cascadeStyle7 = useAnimatedStyle(() => ({
+    opacity: cascade7.value,
+    transform: [
+      { translateX: 35 * (1 - cascade7.value) },
+      { translateY: 20 * (1 - cascade7.value) },
+    ],
+  }));
+
   // Trigger enter animation
   const animateIn = () => {
     setShowEditContent(true);
@@ -229,6 +309,49 @@ export const ProfileScreen: React.FC = () => {
   useEffect(() => {
     fetchProfile();
   }, []);
+
+  // Replay cascade animation when screen is focused (tab switch)
+  // Uses withSequence to smoothly fade out then cascade in, avoiding black screen bug
+  useFocusEffect(
+    useCallback(() => {
+      const FADE_OUT_DURATION = 50; // Quick fade out to avoid black screen
+
+      // Animate out smoothly, then cascade back in
+      // This prevents the instant opacity=0 that causes black screens
+      cascade0.value = withSequence(
+        withTiming(0, { duration: FADE_OUT_DURATION }),
+        withDelay(0 * CASCADE_STAGGER, withSpring(1, CASCADE_SPRING))
+      );
+      cascade1.value = withSequence(
+        withTiming(0, { duration: FADE_OUT_DURATION }),
+        withDelay(1 * CASCADE_STAGGER, withSpring(1, CASCADE_SPRING))
+      );
+      cascade2.value = withSequence(
+        withTiming(0, { duration: FADE_OUT_DURATION }),
+        withDelay(2 * CASCADE_STAGGER, withSpring(1, CASCADE_SPRING))
+      );
+      cascade3.value = withSequence(
+        withTiming(0, { duration: FADE_OUT_DURATION }),
+        withDelay(3 * CASCADE_STAGGER, withSpring(1, CASCADE_SPRING))
+      );
+      cascade4.value = withSequence(
+        withTiming(0, { duration: FADE_OUT_DURATION }),
+        withDelay(4 * CASCADE_STAGGER, withSpring(1, CASCADE_SPRING))
+      );
+      cascade5.value = withSequence(
+        withTiming(0, { duration: FADE_OUT_DURATION }),
+        withDelay(5 * CASCADE_STAGGER, withSpring(1, CASCADE_SPRING))
+      );
+      cascade6.value = withSequence(
+        withTiming(0, { duration: FADE_OUT_DURATION }),
+        withDelay(6 * CASCADE_STAGGER, withSpring(1, CASCADE_SPRING))
+      );
+      cascade7.value = withSequence(
+        withTiming(0, { duration: FADE_OUT_DURATION }),
+        withDelay(7 * CASCADE_STAGGER, withSpring(1, CASCADE_SPRING))
+      );
+    }, [])
+  );
 
   // Fetch hosting events
   const fetchHostingEvents = useCallback(async () => {
@@ -327,27 +450,29 @@ export const ProfileScreen: React.FC = () => {
       const firstName = nameParts[0] || 'Sarah';
       const lastName = nameParts.slice(1).join(' ') || 'Mitchell';
 
-      // Use sample data for demo, will use API data in production
-      const photos = apiUser.avatar ? [apiUser.avatar] : samplePhotos;
+      // Use user's photos or empty array
+      const photos = apiUser.photos || [];
 
       setUser({
         id: apiUser.id,
         firstName,
         lastName,
-        bio: apiUser.bio || "First-time cruiser loving every moment! Here for the sunset deck parties, trivia nights, and making new friends. Always down for poolside hangs or exploring ports together. Let's make this voyage unforgettable!",
+        bio: apiUser.bio || '',
         photos,
         interests: sampleInterests,
+        profilePicture: apiUser.avatar || null,
       });
     } catch (error) {
       console.error('Failed to fetch profile:', error);
-      // Use sample data on error
+      // Use empty data on error
       setUser({
         id: '0',
-        firstName: 'Sarah',
-        lastName: 'Mitchell',
-        bio: "First-time cruiser loving every moment! Here for the sunset deck parties, trivia nights, and making new friends. Always down for poolside hangs or exploring ports together. Let's make this voyage unforgettable!",
-        photos: samplePhotos,
+        firstName: '',
+        lastName: '',
+        bio: '',
+        photos: [],
         interests: sampleInterests,
+        profilePicture: null,
       });
     } finally {
       setIsLoading(false);
@@ -374,6 +499,7 @@ export const ProfileScreen: React.FC = () => {
       bio: user.bio,
       photos: [...user.photos],
       interests: [...user.interests],
+      profilePicture: user.profilePicture,
     });
 
     // Initialize edit fields
@@ -382,6 +508,7 @@ export const ProfileScreen: React.FC = () => {
     setEditBio(user.bio);
     setEditPhotos([...user.photos]);
     setEditInterests([...user.interests]);
+    setEditProfilePicture(user.profilePicture);
 
     setIsEditMode(true);
     animateIn();
@@ -399,6 +526,7 @@ export const ProfileScreen: React.FC = () => {
       bio: editBio,
       photos: editPhotos,
       interests: editInterests,
+      profilePicture: editProfilePicture,
     });
 
     // Animate out then exit edit mode
@@ -409,9 +537,24 @@ export const ProfileScreen: React.FC = () => {
 
     // Persist to backend
     try {
+      let avatarUrl = user.profilePicture;
+
+      // Check if profile picture changed and needs upload
+      if (editProfilePicture && editProfilePicture !== user.profilePicture) {
+        // If it's a local file URI, upload it first
+        if (editProfilePicture.startsWith('file://')) {
+          const uploadResult = await uploadsService.uploadImage(editProfilePicture);
+          avatarUrl = uploadResult.url;
+        } else {
+          avatarUrl = editProfilePicture;
+        }
+      }
+
       await usersService.updateProfile({
         name: `${editFirstName} ${editLastName}`.trim(),
         bio: editBio,
+        photos: editPhotos,
+        avatar: avatarUrl,
       });
     } catch (error) {
       console.error('Failed to save profile:', error);
@@ -427,6 +570,7 @@ export const ProfileScreen: React.FC = () => {
     setEditBio(originalValues.bio);
     setEditPhotos(originalValues.photos);
     setEditInterests(originalValues.interests);
+    setEditProfilePicture(originalValues.profilePicture);
 
     // Animate out then exit edit mode
     animateOut(() => {
@@ -461,6 +605,66 @@ export const ProfileScreen: React.FC = () => {
 
     if (!result.canceled && result.assets[0]) {
       setEditPhotos([...editPhotos, result.assets[0].uri]);
+    }
+  };
+
+  const handleOpenPhotoModal = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setPhotoModalVisible(true);
+  };
+
+  const handleSavePhotos = async (newPhotos: string[]) => {
+    if (user) {
+      setUser({ ...user, photos: newPhotos });
+      setEditPhotos(newPhotos);
+
+      // Persist to backend immediately
+      try {
+        await usersService.updateProfile({ photos: newPhotos });
+      } catch (error) {
+        console.error('Failed to save photos:', error);
+      }
+    }
+  };
+
+  const handleChangeProfilePicture = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    // Request permission
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Sorry, we need camera roll permissions to change your profile picture.');
+      return;
+    }
+
+    // Launch image picker
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      const newPictureUri = result.assets[0].uri;
+
+      if (isEditMode) {
+        // If in edit mode, just update the edit state (will be uploaded on save)
+        setEditProfilePicture(newPictureUri);
+      } else {
+        // If not in edit mode, upload and save directly to the server
+        try {
+          // Upload the image first
+          const uploadResult = await uploadsService.uploadImage(newPictureUri);
+          // Save the uploaded URL to profile
+          await usersService.updateProfile({ avatar: uploadResult.url });
+          // Refresh user data
+          fetchProfile();
+        } catch (error) {
+          console.error('Failed to update profile picture:', error);
+          alert('Failed to update profile picture. Please try again.');
+        }
+      }
     }
   };
 
@@ -502,6 +706,7 @@ export const ProfileScreen: React.FC = () => {
   const displayFirstName = isEditMode ? editFirstName : user.firstName;
   const displayLastName = isEditMode ? editLastName : user.lastName;
   const displayBio = isEditMode ? editBio : user.bio;
+  const displayProfilePicture = isEditMode ? editProfilePicture : user.profilePicture;
 
   return (
     <View style={styles.container}>
@@ -517,11 +722,11 @@ export const ProfileScreen: React.FC = () => {
         </BlurView>
       </TouchableOpacity>
 
-      {/* Edit Profile Button (hidden in edit mode) */}
+      {/* Settings Button (hidden in edit mode) */}
       {!isEditMode && (
-        <TouchableOpacity style={styles.editProfileButton} onPress={handleEditPress}>
-          <BlurView intensity={12} tint="light" style={styles.editProfileBlur}>
-            <Text style={styles.editProfileText}>Edit Profile</Text>
+        <TouchableOpacity style={styles.settingsButton} onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}>
+          <BlurView intensity={12} tint="light" style={styles.settingsButtonBlur}>
+            <Text style={styles.settingsButtonIcon}>⚙️</Text>
           </BlurView>
         </TouchableOpacity>
       )}
@@ -533,72 +738,58 @@ export const ProfileScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
         keyboardDismissMode="on-drag"
       >
-        {/* Photo Carousel */}
-        <View style={styles.carouselSection}>
-          {showEditContent ? (
-            <Animated.View style={carouselAnimStyle}>
-              <DeckCarousel
-                photos={displayPhotos}
-                isEditMode={isEditMode}
-                onRemovePhoto={handleRemovePhoto}
-                onAddPhoto={handleAddPhoto}
-              />
-            </Animated.View>
-          ) : (
-            <DeckCarousel
-              photos={displayPhotos}
-              isEditMode={isEditMode}
-              onRemovePhoto={handleRemovePhoto}
-              onAddPhoto={handleAddPhoto}
-            />
-          )}
-        </View>
-
         {/* Profile Section */}
         <View style={styles.profileSection}>
-          {/* Name Header */}
-          <View style={styles.profileHeader}>
-            {showEditContent ? (
-              <Animated.View style={[styles.editFieldContainer, firstNameAnimStyle]}>
-                <TextInput
-                  style={styles.profileNameInput}
-                  value={editFirstName}
-                  onChangeText={setEditFirstName}
-                  placeholder="First Name"
-                  placeholderTextColor="rgba(255,255,255,0.3)"
+          {/* Large Centered Profile Picture */}
+          <Animated.View style={[styles.profilePictureSection, cascadeStyle0]}>
+            <TouchableOpacity
+              style={styles.largeProfilePicContainer}
+              onPress={handleChangeProfilePicture}
+              activeOpacity={0.7}
+            >
+              {displayProfilePicture ? (
+                <Image
+                  source={{ uri: displayProfilePicture }}
+                  style={styles.largeProfilePic}
                 />
-              </Animated.View>
-            ) : (
-              <Text style={styles.profileName}>{displayFirstName}</Text>
-            )}
+              ) : (
+                <View style={styles.largeProfilePicPlaceholder}>
+                  <View style={styles.largeSilhouetteHead} />
+                  <View style={styles.largeSilhouetteBody} />
+                </View>
+              )}
+              <View style={styles.cameraButton}>
+                <Text style={styles.cameraButtonIcon}>📷</Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
 
-            {!isEditMode && (
-              <TouchableOpacity style={styles.messageButton} onPress={handleMessagePress}>
-                <Text style={styles.messageButtonText}>Message</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-
-          {/* Last Name */}
+          {/* Centered Name (First + Last on one line) */}
           {showEditContent ? (
-            <Animated.View style={[styles.editFieldContainer, lastNameAnimStyle]}>
+            <Animated.View style={[styles.editFieldContainer, firstNameAnimStyle]}>
               <TextInput
-                style={styles.profileLastNameInput}
-                value={editLastName}
-                onChangeText={setEditLastName}
-                placeholder="Last Name"
+                style={styles.profileNameInputCentered}
+                value={`${editFirstName} ${editLastName}`}
+                onChangeText={(text) => {
+                  const parts = text.split(' ');
+                  setEditFirstName(parts[0] || '');
+                  setEditLastName(parts.slice(1).join(' ') || '');
+                }}
+                placeholder="Full Name"
                 placeholderTextColor="rgba(255,255,255,0.3)"
               />
             </Animated.View>
           ) : (
-            <Text style={styles.profileLastName}>{displayLastName}</Text>
+            <Animated.View style={cascadeStyle1}>
+              <Text style={styles.profileNameCentered}>{displayFirstName} {displayLastName}</Text>
+            </Animated.View>
           )}
 
-          {/* Description */}
+          {/* Bio Centered */}
           {showEditContent ? (
             <Animated.View style={[styles.editFieldContainer, bioAnimStyle]}>
               <TextInput
-                style={styles.descriptionInput}
+                style={styles.descriptionInputCentered}
                 value={editBio}
                 onChangeText={setEditBio}
                 placeholder="Tell others about yourself..."
@@ -608,7 +799,21 @@ export const ProfileScreen: React.FC = () => {
               />
             </Animated.View>
           ) : (
-            <Text style={styles.description}>{displayBio}</Text>
+            <Animated.View style={cascadeStyle2}>
+              <Text style={styles.descriptionCentered}>{displayBio}</Text>
+            </Animated.View>
+          )}
+
+          {/* Edit Profile & Share Profile Buttons */}
+          {!isEditMode && (
+            <Animated.View style={[styles.profileButtonsRow, cascadeStyle3]}>
+              <TouchableOpacity style={styles.editProfileButtonInline} onPress={handleEditPress}>
+                <Text style={styles.profileButtonText}>Edit profile</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.shareProfileButton} onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}>
+                <Text style={styles.profileButtonText}>Share profile</Text>
+              </TouchableOpacity>
+            </Animated.View>
           )}
 
           {/* Edit Actions */}
@@ -630,9 +835,55 @@ export const ProfileScreen: React.FC = () => {
             </Animated.View>
           )}
 
+          {/* Photos Carousel Section */}
+          <Animated.View style={[styles.photosSection, cascadeStyle4]}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionIcon}>📸</Text>
+              <Text style={styles.sectionTitle}>Photos</Text>
+              <TouchableOpacity style={styles.addPhotosButtonSmall} onPress={handleOpenPhotoModal}>
+                <Text style={styles.addPhotosButtonSmallText}>
+                  {displayPhotos.length === 0 ? '+ Add' : 'Edit'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            {displayPhotos.length > 0 ? (
+              showEditContent ? (
+                <Animated.View style={carouselAnimStyle}>
+                  <DeckCarousel
+                    photos={displayPhotos}
+                    isEditMode={isEditMode}
+                    showAddButton={false}
+                    onRemovePhoto={handleRemovePhoto}
+                  />
+                </Animated.View>
+              ) : (
+                <DeckCarousel
+                  photos={displayPhotos}
+                  isEditMode={false}
+                  showAddButton={false}
+                />
+              )
+            ) : (
+              <View style={styles.emptyPhotosState}>
+                <Text style={styles.emptyPhotosIcon}>📷</Text>
+                <Text style={styles.emptyPhotosText}>No photos yet</Text>
+                <TouchableOpacity style={styles.addFirstPhotoButton} onPress={handleOpenPhotoModal}>
+                  <LinearGradient
+                    colors={['#667eea', '#764ba2']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.addFirstPhotoGradient}
+                  >
+                    <Text style={styles.addFirstPhotoText}>+ Add Photo</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+            )}
+          </Animated.View>
+
           {/* My Events Section */}
           {!isEditMode && (
-            <View style={styles.myEventsSection}>
+            <Animated.View style={[styles.myEventsSection, cascadeStyle5]}>
               {/* Section Header */}
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionIcon}>📅</Text>
@@ -641,6 +892,7 @@ export const ProfileScreen: React.FC = () => {
 
               {/* Event Tabs */}
               <View style={styles.eventTabsContainer}>
+                {/* Going Tab */}
                 <TouchableOpacity
                   style={[
                     styles.eventTab,
@@ -649,28 +901,13 @@ export const ProfileScreen: React.FC = () => {
                   onPress={() => handleEventTabChange('going')}
                   activeOpacity={0.7}
                 >
-                  {activeEventTab === 'going' ? (
-                    <LinearGradient
-                      colors={['#667eea', '#764ba2']}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 1 }}
-                      style={styles.eventTabGradient}
-                    >
-                      <Text style={styles.eventTabTextActive}>Going</Text>
-                      <View style={styles.tabCount}>
-                        <Text style={styles.tabCountText}>{eventCounts.going}</Text>
-                      </View>
-                    </LinearGradient>
-                  ) : (
-                    <View style={styles.eventTabInner}>
-                      <Text style={styles.eventTabText}>Going</Text>
-                      <View style={styles.tabCount}>
-                        <Text style={styles.tabCountText}>{eventCounts.going}</Text>
-                      </View>
-                    </View>
-                  )}
+                  <Text style={[
+                    styles.eventTabText,
+                    activeEventTab === 'going' && styles.eventTabTextActive,
+                  ]}>Going</Text>
                 </TouchableOpacity>
 
+                {/* Interested Tab */}
                 <TouchableOpacity
                   style={[
                     styles.eventTab,
@@ -679,28 +916,13 @@ export const ProfileScreen: React.FC = () => {
                   onPress={() => handleEventTabChange('interested')}
                   activeOpacity={0.7}
                 >
-                  {activeEventTab === 'interested' ? (
-                    <LinearGradient
-                      colors={['#667eea', '#764ba2']}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 1 }}
-                      style={styles.eventTabGradient}
-                    >
-                      <Text style={styles.eventTabTextActive}>Interested</Text>
-                      <View style={styles.tabCount}>
-                        <Text style={styles.tabCountText}>{eventCounts.interested}</Text>
-                      </View>
-                    </LinearGradient>
-                  ) : (
-                    <View style={styles.eventTabInner}>
-                      <Text style={styles.eventTabText}>Interested</Text>
-                      <View style={styles.tabCount}>
-                        <Text style={styles.tabCountText}>{eventCounts.interested}</Text>
-                      </View>
-                    </View>
-                  )}
+                  <Text style={[
+                    styles.eventTabText,
+                    activeEventTab === 'interested' && styles.eventTabTextActive,
+                  ]}>Interested</Text>
                 </TouchableOpacity>
 
+                {/* Hosting Tab */}
                 <TouchableOpacity
                   style={[
                     styles.eventTab,
@@ -709,26 +931,10 @@ export const ProfileScreen: React.FC = () => {
                   onPress={() => handleEventTabChange('hosting')}
                   activeOpacity={0.7}
                 >
-                  {activeEventTab === 'hosting' ? (
-                    <LinearGradient
-                      colors={['#667eea', '#764ba2']}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 1 }}
-                      style={styles.eventTabGradient}
-                    >
-                      <Text style={styles.eventTabTextActive}>Hosting</Text>
-                      <View style={styles.tabCount}>
-                        <Text style={styles.tabCountText}>{eventCounts.hosting}</Text>
-                      </View>
-                    </LinearGradient>
-                  ) : (
-                    <View style={styles.eventTabInner}>
-                      <Text style={styles.eventTabText}>Hosting</Text>
-                      <View style={styles.tabCount}>
-                        <Text style={styles.tabCountText}>{eventCounts.hosting}</Text>
-                      </View>
-                    </View>
-                  )}
+                  <Text style={[
+                    styles.eventTabText,
+                    activeEventTab === 'hosting' && styles.eventTabTextActive,
+                  ]}>Hosting</Text>
                 </TouchableOpacity>
               </View>
 
@@ -762,19 +968,21 @@ export const ProfileScreen: React.FC = () => {
                   ))
                 )}
               </RNAnimated.View>
-            </View>
+            </Animated.View>
           )}
 
           {/* Interests Gallery */}
-          <InterestsGallery
-            interests={isEditMode ? editInterests : user.interests}
-            isEditMode={isEditMode}
-            onInterestPress={handleInterestPress}
-          />
+          <Animated.View style={cascadeStyle6}>
+            <InterestsGallery
+              interests={isEditMode ? editInterests : user.interests}
+              isEditMode={isEditMode}
+              onInterestPress={handleInterestPress}
+            />
+          </Animated.View>
 
           {/* Add Friend Button (hidden in edit mode) */}
           {!isEditMode && (
-            <View style={styles.ctaSection}>
+            <Animated.View style={[styles.ctaSection, cascadeStyle7]}>
               <TouchableOpacity style={styles.addFriendButton} onPress={handleAddFriend}>
                 <LinearGradient
                   colors={['#3b82f6', '#8b5cf6']}
@@ -785,7 +993,7 @@ export const ProfileScreen: React.FC = () => {
                   <Text style={styles.addFriendText}>Add Friend</Text>
                 </LinearGradient>
               </TouchableOpacity>
-            </View>
+            </Animated.View>
           )}
 
           {/* Bottom padding */}
@@ -799,6 +1007,14 @@ export const ProfileScreen: React.FC = () => {
         onClose={() => setSearchModalVisible(false)}
         onSelect={handleInterestSelect}
         type={searchModalType}
+      />
+
+      {/* Photo Management Modal */}
+      <PhotoManagementModal
+        visible={photoModalVisible}
+        photos={user.photos}
+        onClose={() => setPhotoModalVisible(false)}
+        onSave={handleSavePhotos}
       />
     </View>
   );
@@ -839,27 +1055,27 @@ const styles = StyleSheet.create({
     fontWeight: '300',
     marginTop: -2,
   },
-  // Edit Profile Button
-  editProfileButton: {
+  // Settings Button (top right)
+  settingsButton: {
     position: 'absolute',
     top: 68,
     right: 24,
-    borderRadius: 100,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     overflow: 'hidden',
     zIndex: 50,
   },
-  editProfileBlur: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+  settingsButtonBlur: {
+    width: '100%',
+    height: '100%',
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 22,
   },
-  editProfileText: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#fff',
+  settingsButtonIcon: {
+    fontSize: 20,
   },
   // Scroll View
   scrollView: {
@@ -869,100 +1085,190 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingTop: 120,
   },
-  // Carousel
-  carouselSection: {
-    marginBottom: 20,
-  },
   // Profile Section
   profileSection: {
     paddingHorizontal: 16,
   },
+  // Large Centered Profile Picture
+  profilePictureSection: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  largeProfilePicContainer: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    position: 'relative',
+  },
+  largeProfilePic: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 70,
+  },
+  largeProfilePicPlaceholder: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 70,
+    backgroundColor: 'rgba(60, 60, 70, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  largeSilhouetteHead: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: 'rgba(100, 100, 110, 0.9)',
+    marginBottom: -10,
+  },
+  largeSilhouetteBody: {
+    width: 80,
+    height: 50,
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    backgroundColor: 'rgba(100, 100, 110, 0.9)',
+    marginTop: 6,
+  },
+  cameraButton: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(102, 126, 234, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: '#0a0a0f',
+  },
+  cameraButtonIcon: {
+    fontSize: 18,
+  },
   editFieldContainer: {
-    flex: 1,
+    width: '100%',
   },
-  profileHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 2,
-  },
-  profileName: {
+  // Centered Name (single line)
+  profileNameCentered: {
     fontFamily: 'System',
-    fontSize: 42,
-    fontWeight: '900',
+    fontSize: 28,
+    fontWeight: '800',
     color: '#fff',
-    letterSpacing: -1,
-    lineHeight: 46,
+    letterSpacing: -0.5,
+    textAlign: 'center',
+    marginBottom: 12,
   },
-  profileNameInput: {
-    flex: 1,
+  profileNameInputCentered: {
     fontFamily: 'System',
-    fontSize: 42,
-    fontWeight: '900',
+    fontSize: 24,
+    fontWeight: '700',
     color: '#fff',
-    letterSpacing: -1,
+    letterSpacing: -0.5,
+    textAlign: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
     borderRadius: 16,
     paddingHorizontal: 18,
-    paddingVertical: 16,
+    paddingVertical: 12,
+    marginBottom: 12,
   },
-  messageButton: {
-    marginTop: 8,
-    paddingHorizontal: 22,
-    paddingVertical: 10,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 100,
-  },
-  messageButtonText: {
+  descriptionCentered: {
     fontSize: 14,
-    fontWeight: '500',
-    color: '#fff',
+    lineHeight: 22,
+    color: 'rgba(255, 255, 255, 0.75)',
+    textAlign: 'center',
+    paddingHorizontal: 16,
+    marginBottom: 20,
   },
-  profileLastName: {
-    fontFamily: 'System',
-    fontSize: 28,
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.8)',
-    letterSpacing: -0.5,
-    marginBottom: 16,
-  },
-  profileLastNameInput: {
-    fontFamily: 'System',
-    fontSize: 28,
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.9)',
-    letterSpacing: -0.5,
-    marginBottom: 16,
+  descriptionInputCentered: {
+    fontSize: 14,
+    lineHeight: 22,
+    color: 'rgba(255, 255, 255, 0.95)',
+    textAlign: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
     borderRadius: 16,
     paddingHorizontal: 18,
     paddingVertical: 16,
+    minHeight: 100,
+    marginBottom: 16,
   },
-  description: {
-    fontSize: 15,
-    lineHeight: 24,
-    color: 'rgba(255, 255, 255, 0.9)',
+  // Profile Buttons Row (Edit & Share)
+  profileButtonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 12,
     marginBottom: 24,
   },
-  descriptionInput: {
-    fontSize: 15,
-    lineHeight: 24,
-    color: 'rgba(255, 255, 255, 0.95)',
-    marginBottom: 16,
+  editProfileButtonInline: {
+    flex: 1,
+    paddingVertical: 14,
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  shareProfileButton: {
+    flex: 1,
+    paddingVertical: 14,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  profileButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  // Photos Section
+  photosSection: {
+    marginBottom: 24,
+  },
+  addPhotosButtonSmall: {
+    marginLeft: 'auto',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: 'rgba(102, 126, 234, 0.3)',
+    borderRadius: 20,
+  },
+  addPhotosButtonSmallText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  emptyPhotosState: {
+    alignItems: 'center',
+    paddingVertical: 40,
+    paddingHorizontal: 20,
+  },
+  emptyPhotosIcon: {
+    fontSize: 48,
+    marginBottom: 12,
+    opacity: 0.6,
+  },
+  emptyPhotosText: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.5)',
+    marginBottom: 20,
+  },
+  addFirstPhotoButton: {
     borderRadius: 16,
-    paddingHorizontal: 18,
-    paddingVertical: 16,
-    minHeight: 120,
-    textAlignVertical: 'top',
+    overflow: 'hidden',
+  },
+  addFirstPhotoGradient: {
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    alignItems: 'center',
+  },
+  addFirstPhotoText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#fff',
   },
   // Edit Actions
   editActions: {
@@ -1042,61 +1348,26 @@ const styles = StyleSheet.create({
   },
   eventTabsContainer: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 10,
     marginBottom: 16,
   },
   eventTab: {
+    paddingVertical: 10,
+    paddingHorizontal: 18,
     borderRadius: 50,
-    overflow: 'hidden',
+    backgroundColor: 'rgba(30, 30, 35, 0.8)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   eventTabActive: {
-    shadowColor: '#667eea',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-  eventTabInner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
-    borderRadius: 50,
-  },
-  eventTabGradient: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 50,
+    borderColor: 'rgba(255, 255, 255, 0.6)',
   },
   eventTabText: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.45)',
+    color: 'rgba(255, 255, 255, 0.5)',
   },
   eventTabTextActive: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#ffffff',
-  },
-  tabCount: {
-    minWidth: 22,
-    height: 22,
-    paddingHorizontal: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    borderRadius: 11,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  tabCountText: {
-    fontSize: 11,
-    fontWeight: '700',
     color: '#ffffff',
   },
   eventsList: {

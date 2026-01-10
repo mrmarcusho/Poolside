@@ -191,6 +191,7 @@ const AddPhotoCard: React.FC<AddPhotoCardProps> = ({
 interface DeckCarouselProps {
   photos: string[];
   isEditMode?: boolean;
+  showAddButton?: boolean;
   onRemovePhoto?: (index: number) => void;
   onAddPhoto?: () => void;
 }
@@ -198,6 +199,7 @@ interface DeckCarouselProps {
 export const DeckCarousel: React.FC<DeckCarouselProps> = ({
   photos,
   isEditMode = false,
+  showAddButton = true,
   onRemovePhoto,
   onAddPhoto,
 }) => {
@@ -207,7 +209,8 @@ export const DeckCarousel: React.FC<DeckCarouselProps> = ({
   const animatedIndex = useSharedValue(0);
   const dragOffset = useSharedValue(0);
 
-  const totalSlides = photos.length + (isEditMode ? 1 : 0);
+  // Show add button if showAddButton is true (always show add card at end)
+  const totalSlides = photos.length + (showAddButton ? 1 : 0);
 
   // Sync display index with animated index for UI elements
   const syncDisplayIndex = (index: number) => {
@@ -216,11 +219,11 @@ export const DeckCarousel: React.FC<DeckCarouselProps> = ({
 
   // Reset animated index when photos change
   useEffect(() => {
-    if (displayIndex >= photos.length && !isEditMode) {
+    if (displayIndex >= photos.length && !showAddButton) {
       animatedIndex.value = withSpring(Math.max(0, photos.length - 1), SPRING_CONFIG);
       setDisplayIndex(Math.max(0, photos.length - 1));
     }
-  }, [photos.length, isEditMode]);
+  }, [photos.length, showAddButton]);
 
   const panGesture = Gesture.Pan()
     .activeOffsetX([-10, 10])
@@ -283,7 +286,7 @@ export const DeckCarousel: React.FC<DeckCarouselProps> = ({
               onRemovePhoto={onRemovePhoto}
             />
           ))}
-          {isEditMode && (
+          {showAddButton && (
             <AddPhotoCard
               slideIndex={photos.length}
               animatedIndex={animatedIndex}
@@ -296,7 +299,7 @@ export const DeckCarousel: React.FC<DeckCarouselProps> = ({
 
       {/* Pagination Dots */}
       <View style={styles.pagination}>
-        {Array.from({ length: isEditMode ? photos.length + 1 : photos.length }).map((_, index) => (
+        {Array.from({ length: showAddButton ? photos.length + 1 : photos.length }).map((_, index) => (
           <TouchableOpacity
             key={index}
             style={[
@@ -319,7 +322,7 @@ const styles = StyleSheet.create({
   track: {
     position: 'relative',
     width: '100%',
-    height: 480,
+    height: 400,
     paddingHorizontal: CAROUSEL_PADDING,
   },
   slide: {

@@ -14,3 +14,6 @@ export { LottieBackground } from './LottieBackground';
 export { ProfileBackground } from './ProfileBackground';
 export { CurvedPickerWheel } from './CurvedPickerWheel';
 export { VideoBackground } from './VideoBackground';
+export { PhotoManagementModal } from './PhotoManagementModal';
+export { ScreenWrapper } from './ScreenWrapper';
+export { SlideInView } from './SlideInView';

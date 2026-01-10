@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile Picture Placement Options - Poolside</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-warm: #FAF8F6;
+      --text-white: #ffffff;
+      --text-white-dim: rgba(255, 255, 255, 0.8);
+      --text-white-muted: rgba(255, 255, 255, 0.45);
+      --glass-bg: rgba(0, 0, 0, 0.3);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --gradient-start: #667eea;
+      --gradient-end: #764ba2;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
+      min-height: 100vh;
+      font-family: 'Outfit', -apple-system, sans-serif;
+      color: var(--text-white);
+      padding: 40px 20px;
+    }
+
+    .page-title {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .page-title h1 {
+      font-size: 32px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+    }
+
+    .page-title p {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 16px;
+    }
+
+    .mockups-container {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    .mockup-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .mockup-label {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .mockup-label h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #667eea;
+      margin-bottom: 6px;
+    }
+
+    .mockup-label p {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .recommendation {
+      position: absolute;
+      top: -12px;
+      right: -12px;
+      background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+      color: #000;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 6px 10px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+      z-index: 100;
+    }
+
+    /* Phone Frame */
+    .phone-frame {
+      width: 375px;
+      height: 780px;
+      background: var(--bg-warm);
+      border-radius: 40px;
+      padding: 12px;
+      box-shadow:
+        0 0 0 2px rgba(255, 255, 255, 0.1),
+        0 25px 80px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      border-radius: 32px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Starry Background - matching Starynight.png style */
+    .starry-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(180deg,
+        #1a1a3a 0%,
+        #2d1b4e 30%,
+        #4a2c6a 50%,
+        #6b3d7a 70%,
+        #8a4d8a 100%
+      );
+    }
+
+    .stars {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image:
+        radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.5), transparent),
+        radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(2px 2px at 130px 80px, rgba(255,255,255,0.4), transparent),
+        radial-gradient(1px 1px at 160px 120px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(2px 2px at 200px 50px, rgba(255,255,255,0.3), transparent),
+        radial-gradient(1px 1px at 250px 90px, rgba(255,255,255,0.5), transparent),
+        radial-gradient(2px 2px at 280px 130px, rgba(255,255,255,0.4), transparent),
+        radial-gradient(1px 1px at 320px 70px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(2px 2px at 100px 200px, rgba(255,255,255,0.3), transparent),
+        radial-gradient(1px 1px at 180px 250px, rgba(255,255,255,0.5), transparent),
+        radial-gradient(2px 2px at 60px 300px, rgba(255,255,255,0.2), transparent),
+        radial-gradient(1px 1px at 300px 200px, rgba(255,255,255,0.4), transparent),
+        radial-gradient(2px 2px at 240px 280px, rgba(255,255,255,0.3), transparent);
+      background-size: 350px 350px;
+    }
+
+    /* Status Bar */
+    .status-bar {
+      position: absolute;
+      top: 12px;
+      left: 24px;
+      right: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-white);
+      z-index: 10;
+    }
+
+    /* Back Button */
+    .back-button {
+      position: absolute;
+      top: 56px;
+      left: 24px;
+      width: 44px;
+      height: 44px;
+      border-radius: 22px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+    }
+
+    .back-button span {
+      font-size: 24px;
+      color: var(--text-white);
+      font-weight: 300;
+    }
+
+    /* Edit Profile Button */
+    .edit-profile-btn {
+      position: absolute;
+      top: 56px;
+      right: 24px;
+      padding: 10px 16px;
+      border-radius: 100px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      z-index: 20;
+    }
+
+    .edit-profile-btn span {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-white);
+    }
+
+    /* Content */
+    .profile-content {
+      position: relative;
+      z-index: 1;
+      padding: 120px 16px 24px;
+      height: 100%;
+      overflow-y: auto;
+    }
+
+    /* Deck Carousel Placeholder */
+    .deck-carousel {
+      height: 280px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .carousel-card {
+      width: 220px;
+      height: 260px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+    }
+
+    .carousel-card:nth-child(1) {
+      transform: rotate(-8deg) translateX(-30px);
+      z-index: 1;
+      opacity: 0.6;
+    }
+
+    .carousel-card:nth-child(2) {
+      transform: rotate(0deg);
+      z-index: 2;
+    }
+
+    .carousel-card:nth-child(3) {
+      transform: rotate(8deg) translateX(30px);
+      z-index: 1;
+      opacity: 0.6;
+    }
+
+    .carousel-card svg {
+      width: 48px;
+      height: 48px;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Profile Info */
+    .profile-info {
+      margin-bottom: 16px;
+    }
+
+    .profile-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 2px;
+    }
+
+    .profile-name {
+      font-size: 42px;
+      font-weight: 900;
+      color: var(--text-white);
+      letter-spacing: -1px;
+      line-height: 1.1;
+    }
+
+    .profile-last-name {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text-white-dim);
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+    }
+
+    .message-btn {
+      padding: 10px 22px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 100px;
+      margin-top: 8px;
+    }
+
+    .message-btn span {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-white);
+    }
+
+    .bio {
+      font-size: 14px;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.85);
+      margin-bottom: 20px;
+    }
+
+    /* My Events Section */
+    .events-section {
+      margin-bottom: 20px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .section-header span {
+      font-size: 18px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-white);
+    }
+
+    .event-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .event-tab {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-white-muted);
+    }
+
+    .event-tab.active {
+      background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+      border: none;
+      color: var(--text-white);
+    }
+
+    .tab-count {
+      min-width: 20px;
+      height: 20px;
+      padding: 0 6px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Profile Picture Styles */
+    .profile-picture {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+      border: 3px solid var(--gradient-start);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+      flex-shrink: 0;
+    }
+
+    .profile-picture.small {
+      width: 70px;
+      height: 70px;
+    }
+
+    .profile-picture.large {
+      width: 100px;
+      height: 100px;
+    }
+
+    .profile-picture svg {
+      width: 32px;
+      height: 32px;
+      color: rgba(102, 126, 234, 0.6);
+    }
+
+    .camera-badge {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 26px;
+      height: 26px;
+      background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #1a1a3a;
+    }
+
+    .camera-badge svg {
+      width: 12px;
+      height: 12px;
+      color: white;
+    }
+
+    /* Version 1: Above Carousel */
+    .version-above .profile-picture-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    /* Version 2: Next to Name */
+    .version-beside .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .version-beside .name-section {
+      flex: 1;
+    }
+
+    .version-beside .profile-name {
+      font-size: 36px;
+    }
+
+    .version-beside .profile-last-name {
+      font-size: 24px;
+      margin-bottom: 0;
+    }
+
+    .version-beside .message-btn {
+      margin-top: 0;
+      margin-left: auto;
+    }
+
+    .version-beside .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    /* Version 3: Overlapping Cards */
+    .version-overlap .deck-carousel {
+      position: relative;
+    }
+
+    .version-overlap .profile-picture-float {
+      position: absolute;
+      bottom: -30px;
+      left: 16px;
+      z-index: 10;
+    }
+
+    .version-overlap .profile-info {
+      padding-left: 100px;
+    }
+
+    .version-overlap .profile-name {
+      font-size: 36px;
+    }
+
+    .version-overlap .profile-last-name {
+      font-size: 22px;
+    }
+
+    /* Add Friend Button */
+    .add-friend-btn {
+      background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+      padding: 16px 24px;
+      border-radius: 16px;
+      text-align: center;
+      margin-top: 16px;
+    }
+
+    .add-friend-btn span {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-white);
+    }
+
+    /* Tab Bar */
+    .tab-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      background: rgba(26, 26, 58, 0.95);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding-bottom: 16px;
+    }
+
+    .tab-item {
+      opacity: 0.4;
+    }
+
+    .tab-item.active {
+      opacity: 1;
+    }
+
+    .tab-item svg {
+      width: 24px;
+      height: 24px;
+      color: var(--text-white);
+    }
+
+    @media (max-width: 1200px) {
+      .mockups-container {
+        gap: 30px;
+      }
+      .phone-frame {
+        transform: scale(0.85);
+        margin: -40px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .mockups-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      .phone-frame {
+        transform: scale(1);
+        margin: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-title">
+    <h1>Profile Picture Placement</h1>
+    <p>Three layout options matching your current Poolside profile</p>
+  </div>
+
+  <div class="mockups-container">
+    <!-- Version 1: Above Carousel -->
+    <div class="mockup-wrapper">
+      <div class="mockup-label">
+        <h2>Option 1: Above Photos</h2>
+        <p>Profile picture centered above deck carousel</p>
+      </div>
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="starry-bg"></div>
+          <div class="stars"></div>
+
+          <div class="status-bar">
+            <span>9:41</span>
+            <span>⚡ 100%</span>
+          </div>
+
+          <div class="back-button"><span>‹</span></div>
+          <div class="edit-profile-btn"><span>Edit Profile</span></div>
+
+          <div class="profile-content version-above">
+            <!-- Profile Picture Above -->
+            <div class="profile-picture-container">
+              <div class="profile-picture large">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+                <div class="camera-badge">
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6-6h-1.7l-1.6-1.9c-.4-.4-.9-.6-1.4-.6H11c-.5 0-1.1.2-1.4.6L8 6H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Deck Carousel -->
+            <div class="deck-carousel">
+              <div class="carousel-card">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+              </div>
+              <div class="carousel-card">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+              </div>
+              <div class="carousel-card">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Profile Info -->
+            <div class="profile-info">
+              <div class="profile-header">
+                <h1 class="profile-name">Sarah</h1>
+                <div class="message-btn"><span>Message</span></div>
+              </div>
+              <h2 class="profile-last-name">Mitchell</h2>
+              <p class="bio">First-time cruiser loving every moment! Here for the sunset deck parties and making new friends.</p>
+            </div>
+
+            <!-- My Events -->
+            <div class="events-section">
+              <div class="section-header">
+                <span>📅</span>
+                <span class="section-title">My Events</span>
+              </div>
+              <div class="event-tabs">
+                <div class="event-tab active">Going <span class="tab-count">3</span></div>
+                <div class="event-tab">Interested <span class="tab-count">5</span></div>
+                <div class="event-tab">Hosting <span class="tab-count">1</span></div>
+              </div>
+            </div>
+
+            <div class="add-friend-btn"><span>Add Friend</span></div>
+          </div>
+
+          <div class="tab-bar">
+            <div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+            <div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg></div>
+            <div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>
+            <div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+            <div class="tab-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Version 2: Beside Name -->
+    <div class="mockup-wrapper">
+      <div class="mockup-label">
+        <h2>Option 2: Beside Name</h2>
+        <p>Profile picture next to name on the left</p>
+      </div>
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="starry-bg"></div>
+          <div class="stars"></div>
+
+          <div class="status-bar">
+            <span>9:41</span>
+            <span>⚡ 100%</span>
+          </div>
+
+          <div class="back-button"><span>‹</span></div>
+          <div class="edit-profile-btn"><span>Edit Profile</span></div>
+
+          <div class="profile-content version-beside">
+            <!-- Deck Carousel -->
+            <div class="deck-carousel">
+              <div class="carousel-card">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+              </div>
+              <div class="carousel-card">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+              </div>
+              <div class="carousel-card">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Profile Info with Picture Beside -->
+            <div class="profile-info">
+              <div class="header-row">
+                <div class="profile-header">
+                  <div class="profile-picture">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <div class="camera-badge">
+                      <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6-6h-1.7l-1.6-1.9c-.4-.4-.9-.6-1.4-.6H11c-.5 0-1.1.2-1.4.6L8 6H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="name-section">
+                    <h1 class="profile-name">Sarah</h1>
+                    <h2 class="profile-last-name">Mitchell</h2>
+                  </div>
+                </div>
+                <div class="message-btn"><span>Message</span></div>
+              </div>
+              <p class="bio">First-time cruiser loving every moment! Here for the sunset deck parties and making new friends.</p>
+            </div>
+
+            <!-- My Events -->
+            <div class="events-section">
+              <div class="section-header">
+                <span>📅</span>
+                <span class="section-title">My Events</span>
+              </div>
+              <div class="event-tabs">
+                <div class="event-tab active">Going <span class="tab-count">3</span></div>
+                <div class="event-tab">Interested <span class="tab-count">5</span></div>
+                <div class="event-tab">Hosting <span class="tab-count">1</span></div>
+              </div>
+            </div>
+
+            <div class="add-friend-btn"><span>Add Friend</span></div>
+          </div>
+
+          <div class="tab-bar">
+            <div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+            <div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg></div>
+            <div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>
+            <div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+            <div class="tab-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Version 3: Overlapping Cards (Recommended) -->
+    <div class="mockup-wrapper">
+      <div class="recommendation">Recommended</div>
+      <div class="mockup-label">
+        <h2>Option 3: Overlap Cards</h2>
+        <p>Profile picture overlaps bottom of carousel</p>
+      </div>
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="starry-bg"></div>
+          <div class="stars"></div>
+
+          <div class="status-bar">
+            <span>9:41</span>
+            <span>⚡ 100%</span>
+          </div>
+
+          <div class="back-button"><span>‹</span></div>
+          <div class="edit-profile-btn"><span>Edit Profile</span></div>
+
+          <div class="profile-content version-overlap">
+            <!-- Deck Carousel with overlapping picture -->
+            <div class="deck-carousel">
+              <div class="carousel-card">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+              </div>
+              <div class="carousel-card">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+              </div>
+              <div class="carousel-card">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+              </div>
+              <!-- Floating Profile Picture -->
+              <div class="profile-picture-float">
+                <div class="profile-picture large">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                  <div class="camera-badge">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6-6h-1.7l-1.6-1.9c-.4-.4-.9-.6-1.4-.6H11c-.5 0-1.1.2-1.4.6L8 6H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Profile Info -->
+            <div class="profile-info">
+              <div class="profile-header" style="margin-top: 20px;">
+                <div>
+                  <h1 class="profile-name">Sarah</h1>
+                  <h2 class="profile-last-name">Mitchell</h2>
+                </div>
+                <div class="message-btn"><span>Message</span></div>
+              </div>
+              <p class="bio">First-time cruiser loving every moment! Here for the sunset deck parties and making new friends.</p>
+            </div>
+
+            <!-- My Events -->
+            <div class="events-section">
+              <div class="section-header">
+                <span>📅</span>
+                <span class="section-title">My Events</span>
+              </div>
+              <div class="event-tabs">
+                <div class="event-tab active">Going <span class="tab-count">3</span></div>
+                <div class="event-tab">Interested <span class="tab-count">5</span></div>
+                <div class="event-tab">Hosting <span class="tab-count">1</span></div>
+              </div>
+            </div>
+
+            <div class="add-friend-btn"><span>Add Friend</span></div>
+          </div>
+
+          <div class="tab-bar">
+            <div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+            <div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg></div>
+            <div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>
+            <div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+            <div class="tab-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

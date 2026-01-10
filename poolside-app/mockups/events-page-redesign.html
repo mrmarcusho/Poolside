@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poolside Events Page - Redesign Mockup</title>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #0a0a0f;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Phone Frame */
+        .phone-container {
+            display: flex;
+            gap: 40px;
+            padding: 40px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .phone-label {
+            text-align: center;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 16px;
+            opacity: 0.7;
+        }
+
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: #0a0a0f;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            border: 3px solid #333;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+        }
+
+        /* Liquid Marble Background - Light Blue */
+        .marble-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, #e8f4f8 0%, #d4eef5 50%, #c5e8f0 100%);
+            overflow: hidden;
+        }
+
+        /* SVG Liquid Marble Filter */
+        .marble-bg svg {
+            position: absolute;
+            width: 0;
+            height: 0;
+        }
+
+        .marble-layer {
+            position: absolute;
+            top: -20%;
+            left: -20%;
+            width: 140%;
+            height: 140%;
+            background:
+                radial-gradient(ellipse 80% 50% at 20% 40%, rgba(147, 220, 236, 0.9) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 80% at 70% 30%, rgba(180, 235, 220, 0.8) 0%, transparent 55%),
+                radial-gradient(ellipse 70% 60% at 40% 70%, rgba(200, 240, 245, 0.85) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 70% at 80% 80%, rgba(160, 225, 230, 0.7) 0%, transparent 55%),
+                radial-gradient(ellipse 90% 40% at 10% 90%, rgba(170, 230, 215, 0.75) 0%, transparent 50%);
+            filter: url(#liquid-filter);
+            animation: liquidFlow 25s ease-in-out infinite;
+        }
+
+        .marble-layer-2 {
+            position: absolute;
+            top: -30%;
+            left: -30%;
+            width: 160%;
+            height: 160%;
+            background:
+                radial-gradient(ellipse 50% 60% at 60% 20%, rgba(190, 240, 235, 0.6) 0%, transparent 50%),
+                radial-gradient(ellipse 70% 50% at 25% 60%, rgba(165, 230, 240, 0.5) 0%, transparent 55%),
+                radial-gradient(ellipse 60% 70% at 75% 70%, rgba(145, 225, 220, 0.55) 0%, transparent 50%);
+            filter: url(#liquid-filter);
+            animation: liquidFlow2 30s ease-in-out infinite;
+            opacity: 0.8;
+        }
+
+        .marble-layer-3 {
+            position: absolute;
+            top: -10%;
+            left: -10%;
+            width: 120%;
+            height: 120%;
+            background:
+                radial-gradient(ellipse 40% 50% at 50% 50%, rgba(255, 255, 255, 0.4) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 30% 30%, rgba(255, 255, 255, 0.3) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 60% at 70% 80%, rgba(255, 255, 255, 0.35) 0%, transparent 55%);
+            filter: url(#liquid-filter);
+            animation: liquidFlow3 20s ease-in-out infinite;
+        }
+
+        /* Swirl lines overlay */
+        .swirl-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.15;
+            background-image: url("data:image/svg+xml,%3Csvg width='400' height='800' viewBox='0 0 400 800' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M-50 100 Q 100 150 200 100 T 450 150' stroke='%2380cbc4' stroke-width='2' fill='none'/%3E%3Cpath d='M-50 200 Q 150 250 250 180 T 450 250' stroke='%2380cbc4' stroke-width='1.5' fill='none'/%3E%3Cpath d='M-50 350 Q 100 300 200 380 T 450 320' stroke='%2380cbc4' stroke-width='2' fill='none'/%3E%3Cpath d='M-50 500 Q 200 450 250 520 T 450 480' stroke='%2380cbc4' stroke-width='1.5' fill='none'/%3E%3Cpath d='M-50 650 Q 100 700 200 640 T 450 700' stroke='%2380cbc4' stroke-width='2' fill='none'/%3E%3C/svg%3E");
+            animation: swirlMove 40s linear infinite;
+        }
+
+        @keyframes liquidFlow {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+            25% {
+                transform: translate(5%, 3%) rotate(2deg) scale(1.02);
+            }
+            50% {
+                transform: translate(-3%, 5%) rotate(-1deg) scale(0.98);
+            }
+            75% {
+                transform: translate(2%, -3%) rotate(1deg) scale(1.01);
+            }
+        }
+
+        @keyframes liquidFlow2 {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+            33% {
+                transform: translate(-4%, 4%) rotate(-2deg) scale(1.03);
+            }
+            66% {
+                transform: translate(3%, -2%) rotate(1.5deg) scale(0.97);
+            }
+        }
+
+        @keyframes liquidFlow3 {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            50% {
+                transform: translate(2%, 2%) scale(1.05);
+            }
+        }
+
+        @keyframes swirlMove {
+            0% { transform: translateX(0) translateY(0); }
+            100% { transform: translateX(-100px) translateY(-50px); }
+        }
+
+        /* Animated Liquid Blobs */
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(40px);
+            mix-blend-mode: multiply;
+            animation: blobFloat 20s ease-in-out infinite;
+        }
+
+        .blob-1 {
+            width: 300px;
+            height: 300px;
+            background: rgba(100, 200, 220, 0.4);
+            top: -80px;
+            right: -80px;
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            width: 250px;
+            height: 280px;
+            background: rgba(130, 210, 200, 0.35);
+            bottom: 150px;
+            left: -60px;
+            animation-delay: -7s;
+        }
+
+        .blob-3 {
+            width: 200px;
+            height: 220px;
+            background: rgba(150, 220, 210, 0.3);
+            top: 35%;
+            right: -40px;
+            animation-delay: -14s;
+        }
+
+        .blob-4 {
+            width: 180px;
+            height: 180px;
+            background: rgba(120, 215, 225, 0.35);
+            top: 60%;
+            left: 20%;
+            animation-delay: -10s;
+        }
+
+        @keyframes blobFloat {
+            0%, 100% {
+                transform: translate(0, 0) scale(1) rotate(0deg);
+                border-radius: 60% 40% 50% 70% / 50% 60% 40% 50%;
+            }
+            25% {
+                transform: translate(30px, -20px) scale(1.1) rotate(5deg);
+                border-radius: 50% 60% 70% 40% / 60% 40% 50% 60%;
+            }
+            50% {
+                transform: translate(-20px, 30px) scale(0.95) rotate(-5deg);
+                border-radius: 40% 70% 60% 50% / 70% 50% 60% 40%;
+            }
+            75% {
+                transform: translate(10px, 10px) scale(1.05) rotate(3deg);
+                border-radius: 70% 50% 40% 60% / 40% 70% 50% 60%;
+            }
+        }
+
+        /* Content */
+        .content {
+            position: relative;
+            z-index: 1;
+            height: 100%;
+            overflow-y: auto;
+            padding: 60px 16px 100px;
+        }
+
+        .content::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .logo {
+            font-family: 'Baloo 2', cursive;
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1a365d 0%, #2d5a87 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 10px rgba(255,255,255,0.5);
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 16px;
+        }
+
+        .header-icon {
+            font-size: 24px;
+            filter: drop-shadow(0 2px 8px rgba(255,255,255,0.5));
+        }
+
+        .page-title {
+            font-family: 'Baloo 2', cursive;
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a365d;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(255,255,255,0.6);
+        }
+
+        /* Event Card - Enhanced */
+        .event-card {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            margin-bottom: 16px;
+            overflow: hidden;
+            animation: cardEntrance 0.6s ease-out backwards;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0, 80, 100, 0.1);
+        }
+
+        .event-card:hover {
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 20px 40px rgba(0, 80, 100, 0.15);
+        }
+
+        .event-card:nth-child(1) { animation-delay: 0.1s; }
+        .event-card:nth-child(2) { animation-delay: 0.2s; }
+        .event-card:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes cardEntrance {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Card Header */
+        .card-header {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            gap: 12px;
+        }
+
+        .host-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            position: relative;
+        }
+
+        .host-avatar.live::after {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border-radius: 50%;
+            border: 2px solid #22c55e;
+            animation: pulse-ring 2s ease-out infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.3); opacity: 0; }
+        }
+
+        .host-info {
+            flex: 1;
+        }
+
+        .host-name {
+            color: #1a365d;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .host-label {
+            color: rgba(26, 54, 93, 0.5);
+            font-size: 12px;
+        }
+
+        .more-btn {
+            color: rgba(26, 54, 93, 0.4);
+            font-size: 20px;
+            letter-spacing: 2px;
+        }
+
+        /* Event Image */
+        .event-image-container {
+            position: relative;
+            margin: 0 12px;
+        }
+
+        .event-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 16px;
+            transform: rotate(-2deg);
+            transition: transform 0.3s ease;
+        }
+
+        .event-card:hover .event-image {
+            transform: rotate(0deg) scale(1.02);
+        }
+
+        .event-image.tilted-right {
+            transform: rotate(2deg);
+        }
+
+        /* Live Badge */
+        .live-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+            animation: liveGlow 2s ease-in-out infinite;
+        }
+
+        .live-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 50%;
+            animation: liveDot 1s ease-in-out infinite;
+        }
+
+        @keyframes liveGlow {
+            0%, 100% { box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
+            50% { box-shadow: 0 4px 25px rgba(239, 68, 68, 0.6); }
+        }
+
+        @keyframes liveDot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Hot Badge */
+        .hot-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+        }
+
+        /* Countdown Badge */
+        .countdown-badge {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .countdown-badge span {
+            color: #22c55e;
+            font-family: 'Baloo 2', cursive;
+        }
+
+        /* Card Content */
+        .card-content {
+            padding: 16px;
+        }
+
+        .event-title {
+            font-family: 'Baloo 2', cursive;
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a365d;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+
+        .event-title.gradient {
+            background: linear-gradient(135deg, #1a365d 0%, #3b82f6 50%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .event-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(26, 54, 93, 0.7);
+            font-size: 14px;
+        }
+
+        .meta-icon {
+            font-size: 16px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .event-description {
+            color: rgba(26, 54, 93, 0.6);
+            font-size: 14px;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Card Footer */
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px 16px;
+            border-top: 1px solid rgba(26, 54, 93, 0.08);
+        }
+
+        .attendees {
+            display: flex;
+            align-items: center;
+        }
+
+        .attendee-avatars {
+            display: flex;
+        }
+
+        .attendee-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            border: 2px solid rgba(255,255,255,0.9);
+            margin-right: -12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: transform 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .attendee-avatar:hover {
+            transform: translateY(-4px) scale(1.1);
+            z-index: 10;
+        }
+
+        .attendee-count {
+            color: rgba(26, 54, 93, 0.7);
+            font-size: 13px;
+            margin-left: 20px;
+        }
+
+        .attendee-count strong {
+            color: #1a365d;
+        }
+
+        /* RSVP Button */
+        .rsvp-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            color: #fff;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rsvp-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .rsvp-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 25px rgba(139, 92, 246, 0.5);
+        }
+
+        .rsvp-btn:hover::before {
+            left: 100%;
+        }
+
+        .rsvp-btn.going {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+        }
+
+        /* Floating CTA */
+        .floating-cta {
+            position: absolute;
+            bottom: 90px;
+            left: 16px;
+            right: 16px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            text-align: center;
+            animation: floatUp 0.8s ease-out 0.5s backwards;
+            box-shadow: 0 8px 32px rgba(0, 80, 100, 0.15);
+        }
+
+        @keyframes floatUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+        }
+
+        .cta-title {
+            font-family: 'Baloo 2', cursive;
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a365d;
+            margin-bottom: 4px;
+        }
+
+        .cta-subtitle {
+            color: rgba(26, 54, 93, 0.6);
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        .cta-btn {
+            background: linear-gradient(135deg, #1a365d 0%, #2d5a87 100%);
+            color: #fff;
+            border: none;
+            padding: 14px 40px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(26, 54, 93, 0.3);
+        }
+
+        .cta-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 30px rgba(26, 54, 93, 0.4);
+        }
+
+        /* Tab Bar */
+        .tab-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(26, 54, 93, 0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 10px;
+        }
+
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            opacity: 0.4;
+            transition: all 0.3s ease;
+        }
+
+        .tab-item.active {
+            opacity: 1;
+        }
+
+        .tab-icon {
+            font-size: 24px;
+        }
+
+        .tab-item.active .tab-icon {
+            transform: scale(1.1);
+        }
+
+        .add-tab {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #1a365d 0%, #2d5a87 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #fff;
+            margin-top: -20px;
+            box-shadow: 0 4px 20px rgba(26, 54, 93, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .add-tab:hover {
+            transform: scale(1.1) translateY(-4px);
+        }
+
+        /* Comparison Labels */
+        .comparison-header {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #0a0a0f 100%);
+        }
+
+        .comparison-header h1 {
+            color: #fff;
+            font-family: 'Baloo 2', cursive;
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .comparison-header p {
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+        }
+
+        /* Feature Callouts */
+        .callout {
+            position: absolute;
+            background: rgba(139, 92, 246, 0.9);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 8px;
+            white-space: nowrap;
+            z-index: 100;
+            animation: calloutPulse 2s ease-in-out infinite;
+        }
+
+        .callout::after {
+            content: '';
+            position: absolute;
+            border: 6px solid transparent;
+        }
+
+        .callout.left::after {
+            right: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-left-color: rgba(139, 92, 246, 0.9);
+        }
+
+        .callout.right::after {
+            left: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-right-color: rgba(139, 92, 246, 0.9);
+        }
+
+        .callout.bottom::after {
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-bottom-color: rgba(139, 92, 246, 0.9);
+        }
+
+        @keyframes calloutPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        /* New Phone with Callouts */
+        .phone-wrapper {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <div class="comparison-header">
+        <h1>Events Page Redesign</h1>
+        <p>Light blue liquid marble background with frosted glass cards. Hover over cards to see interactions.</p>
+    </div>
+
+    <div class="phone-container">
+        <!-- REDESIGNED VERSION -->
+        <div>
+            <div class="phone-label">REDESIGNED - Teen-Friendly</div>
+            <div class="phone-wrapper">
+                <div class="phone-frame">
+                    <!-- Liquid Marble Background -->
+                    <div class="marble-bg">
+                        <!-- SVG Filter for liquid effect -->
+                        <svg>
+                            <defs>
+                                <filter id="liquid-filter">
+                                    <feTurbulence type="fractalNoise" baseFrequency="0.01" numOctaves="3" result="noise" seed="1">
+                                        <animate attributeName="baseFrequency" dur="30s" values="0.01;0.015;0.01" repeatCount="indefinite"/>
+                                    </feTurbulence>
+                                    <feDisplacementMap in="SourceGraphic" in2="noise" scale="30" xChannelSelector="R" yChannelSelector="G"/>
+                                </filter>
+                            </defs>
+                        </svg>
+                        <div class="marble-layer"></div>
+                        <div class="marble-layer-2"></div>
+                        <div class="marble-layer-3"></div>
+                        <div class="swirl-overlay"></div>
+                        <div class="blob blob-1"></div>
+                        <div class="blob blob-2"></div>
+                        <div class="blob blob-3"></div>
+                        <div class="blob blob-4"></div>
+                    </div>
+
+                    <div class="content">
+                        <!-- Header -->
+                        <div class="header">
+                            <div class="logo">Poolside</div>
+                            <div class="header-icons">
+                                <span class="header-icon">🔔</span>
+                                <span class="header-icon">⚙️</span>
+                            </div>
+                        </div>
+                        <div class="page-title">Cruise Feed 🚢</div>
+
+                        <!-- Event Card 1 - LIVE -->
+                        <div class="event-card">
+                            <div class="card-header">
+                                <div class="host-avatar live">🎉</div>
+                                <div class="host-info">
+                                    <div class="host-name">Sarah Chen</div>
+                                    <div class="host-label">Host</div>
+                                </div>
+                                <div class="more-btn">•••</div>
+                            </div>
+                            <div class="event-image-container">
+                                <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&h=300&fit=crop" alt="Pool Party" class="event-image">
+                                <div class="live-badge">LIVE</div>
+                                <div class="hot-badge">🔥 42 going</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="event-title gradient">Pool Party Vibes! 🏊‍♀️</div>
+                                <div class="event-meta">
+                                    <div class="meta-item">
+                                        <span class="meta-icon">📍</span>
+                                        <span>Deck 12 - Main Pool</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <span class="meta-icon">⏰</span>
+                                        <span>Happening NOW</span>
+                                    </div>
+                                </div>
+                                <div class="event-description">
+                                    DJ playing summer hits, free smoothies, and pool games! Come hang out 🌴
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="attendees">
+                                    <div class="attendee-avatars">
+                                        <div class="attendee-avatar">😎</div>
+                                        <div class="attendee-avatar">🤩</div>
+                                        <div class="attendee-avatar">😊</div>
+                                        <div class="attendee-avatar">🥳</div>
+                                    </div>
+                                    <div class="attendee-count"><strong>Jake</strong> + 41 others</div>
+                                </div>
+                                <button class="rsvp-btn going">Going ✓</button>
+                            </div>
+                        </div>
+
+                        <!-- Event Card 2 - Upcoming -->
+                        <div class="event-card">
+                            <div class="card-header">
+                                <div class="host-avatar">🎮</div>
+                                <div class="host-info">
+                                    <div class="host-name">Marcus Ho</div>
+                                    <div class="host-label">Host</div>
+                                </div>
+                                <div class="more-btn">•••</div>
+                            </div>
+                            <div class="event-image-container">
+                                <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=300&fit=crop" alt="Gaming" class="event-image tilted-right">
+                                <div class="countdown-badge">Starts in <span>23 min</span></div>
+                            </div>
+                            <div class="card-content">
+                                <div class="event-title">Gaming Tournament 🎮</div>
+                                <div class="event-meta">
+                                    <div class="meta-item">
+                                        <span class="meta-icon">📍</span>
+                                        <span>Deck 8 - Game Lounge</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <span class="meta-icon">🗓️</span>
+                                        <span>Today at 3:00 PM</span>
+                                    </div>
+                                </div>
+                                <div class="event-description">
+                                    Mario Kart & Smash Bros tournament! Prizes for top 3. All skill levels welcome
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="attendees">
+                                    <div class="attendee-avatars">
+                                        <div class="attendee-avatar">🎯</div>
+                                        <div class="attendee-avatar">🎲</div>
+                                        <div class="attendee-avatar">🏆</div>
+                                    </div>
+                                    <div class="attendee-count"><strong>12</strong> going</div>
+                                </div>
+                                <button class="rsvp-btn">RSVP</button>
+                            </div>
+                        </div>
+
+                        <!-- Event Card 3 -->
+                        <div class="event-card">
+                            <div class="card-header">
+                                <div class="host-avatar">🎬</div>
+                                <div class="host-info">
+                                    <div class="host-name">Emma Davis</div>
+                                    <div class="host-label">Host</div>
+                                </div>
+                                <div class="more-btn">•••</div>
+                            </div>
+                            <div class="event-image-container">
+                                <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&h=300&fit=crop" alt="Movie" class="event-image">
+                            </div>
+                            <div class="card-content">
+                                <div class="event-title">Movie Night: Barbie 🎀</div>
+                                <div class="event-meta">
+                                    <div class="meta-item">
+                                        <span class="meta-icon">📍</span>
+                                        <span>Deck 10 - Theater</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <span class="meta-icon">🗓️</span>
+                                        <span>Tonight at 8:00 PM</span>
+                                    </div>
+                                </div>
+                                <div class="event-description">
+                                    Bring blankets! Popcorn provided. Pink dress code optional but encouraged 💅
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="attendees">
+                                    <div class="attendee-avatars">
+                                        <div class="attendee-avatar">💖</div>
+                                        <div class="attendee-avatar">🎀</div>
+                                    </div>
+                                    <div class="attendee-count"><strong>8</strong> interested</div>
+                                </div>
+                                <button class="rsvp-btn">RSVP</button>
+                            </div>
+                        </div>
+
+                        <div style="height: 180px;"></div>
+                    </div>
+
+                    <!-- Floating CTA -->
+                    <div class="floating-cta">
+                        <div class="cta-title">Host Your Event ✨</div>
+                        <div class="cta-subtitle">Bring people together on the cruise</div>
+                        <button class="cta-btn">Let's Create</button>
+                    </div>
+
+                    <!-- Tab Bar -->
+                    <div class="tab-bar">
+                        <div class="tab-item active">
+                            <span class="tab-icon">🏠</span>
+                        </div>
+                        <div class="tab-item">
+                            <span class="tab-icon">📅</span>
+                        </div>
+                        <div class="add-tab">+</div>
+                        <div class="tab-item">
+                            <span class="tab-icon">💬</span>
+                        </div>
+                        <div class="tab-item">
+                            <span class="tab-icon">👤</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Callouts -->
+                <div class="callout left" style="top: 120px; left: -160px;">Liquid marble background</div>
+                <div class="callout left" style="top: 250px; left: -120px;">Pulsing live indicator</div>
+                <div class="callout right" style="top: 320px; right: -100px;">Tilted images</div>
+                <div class="callout right" style="top: 420px; right: -130px;">Gradient text titles</div>
+                <div class="callout left" style="top: 520px; left: -130px;">Larger avatars + names</div>
+                <div class="callout right" style="top: 650px; right: -100px;">Countdown timer</div>
+                <div class="callout bottom" style="bottom: 180px; left: 50%; transform: translateX(-50%);">Frosted glass CTA</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add subtle parallax effect on scroll
+        document.querySelectorAll('.content').forEach(content => {
+            content.addEventListener('scroll', function() {
+                const scrolled = this.scrollTop;
+                const orbs = this.closest('.phone-frame').querySelectorAll('.orb');
+                orbs.forEach((orb, i) => {
+                    const speed = 0.1 + (i * 0.05);
+                    orb.style.transform = `translateY(${scrolled * speed}px)`;
+                });
+            });
+        });
+
+        // Add confetti effect on RSVP button click
+        document.querySelectorAll('.rsvp-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (!this.classList.contains('going')) {
+                    this.classList.add('going');
+                    this.textContent = 'Going ✓';
+
+                    // Simple confetti burst
+                    for (let i = 0; i < 12; i++) {
+                        const confetti = document.createElement('div');
+                        confetti.style.cssText = `
+                            position: absolute;
+                            width: 8px;
+                            height: 8px;
+                            background: hsl(${Math.random() * 360}, 80%, 60%);
+                            border-radius: 50%;
+                            pointer-events: none;
+                            z-index: 1000;
+                        `;
+                        const rect = this.getBoundingClientRect();
+                        confetti.style.left = rect.left + rect.width/2 + 'px';
+                        confetti.style.top = rect.top + 'px';
+                        document.body.appendChild(confetti);
+
+                        const angle = (Math.PI * 2 * i) / 12;
+                        const velocity = 100 + Math.random() * 100;
+                        const vx = Math.cos(angle) * velocity;
+                        const vy = Math.sin(angle) * velocity - 100;
+
+                        let x = 0, y = 0, opacity = 1;
+                        const animate = () => {
+                            x += vx * 0.016;
+                            y += vy * 0.016 + 200 * 0.016;
+                            opacity -= 0.02;
+                            confetti.style.transform = `translate(${x}px, ${y}px)`;
+                            confetti.style.opacity = opacity;
+                            if (opacity > 0) requestAnimationFrame(animate);
+                            else confetti.remove();
+                        };
+                        requestAnimationFrame(animate);
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
