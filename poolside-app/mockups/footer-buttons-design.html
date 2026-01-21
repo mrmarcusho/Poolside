@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Footer Buttons Design</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: white;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 40px;
+            font-size: 14px;
+        }
+
+        .section {
+            max-width: 400px;
+            margin: 0 auto 40px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 16px;
+        }
+
+        /* Card preview */
+        .card-preview {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 24px;
+            padding: 16px;
+            backdrop-filter: blur(20px);
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            margin-top: 12px;
+        }
+
+        .footer-left {
+            display: flex;
+            gap: 8px;
+        }
+
+        .meta-preview {
+            font-size: 13px;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 8px;
+        }
+
+        /* Gradient Button Base */
+        .gradient-btn {
+            position: relative;
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            color: #1a1a2e;
+            overflow: hidden;
+        }
+
+        .gradient-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+            padding: 1.5px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.6), rgba(255,255,255,0.2));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+        }
+
+        /* Guest List - Teal/Cyan gradient */
+        .btn-guest-list {
+            background: linear-gradient(135deg, #5eead4, #2dd4bf, #99f6e4);
+        }
+
+        /* Event Chat - Purple/Pink gradient */
+        .btn-event-chat {
+            background: linear-gradient(135deg, #c084fc, #a855f7, #e879f9);
+        }
+
+        /* RSVP - Blue/Indigo gradient */
+        .btn-rsvp {
+            background: linear-gradient(135deg, #818cf8, #6366f1, #a5b4fc);
+        }
+
+        /* Going - Green gradient */
+        .btn-going {
+            background: linear-gradient(135deg, #4ade80, #22c55e, #86efac);
+        }
+
+        /* Interested - Amber/Orange gradient */
+        .btn-interested {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b, #fcd34d);
+        }
+
+        /* ============ OPTION 2: Softer pastels ============ */
+        .btn-guest-list-v2 {
+            background: linear-gradient(135deg, #a7f3d0, #6ee7b7, #d1fae5);
+        }
+
+        .btn-event-chat-v2 {
+            background: linear-gradient(135deg, #ddd6fe, #c4b5fd, #ede9fe);
+        }
+
+        .btn-rsvp-v2 {
+            background: linear-gradient(135deg, #bfdbfe, #93c5fd, #dbeafe);
+        }
+
+        /* ============ OPTION 3: Bold & vibrant ============ */
+        .btn-guest-list-v3 {
+            background: linear-gradient(135deg, #06b6d4, #22d3ee, #67e8f9);
+            color: #0e7490;
+        }
+
+        .btn-event-chat-v3 {
+            background: linear-gradient(135deg, #d946ef, #e879f9, #f0abfc);
+            color: #86198f;
+        }
+
+        .btn-rsvp-v3 {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa, #93c5fd);
+            color: #1e40af;
+        }
+
+        /* ============ OPTION 4: Original style match ============ */
+        .btn-guest-list-v4 {
+            background: linear-gradient(90deg, #5eead4, #a7f3d0, #d1fae5);
+        }
+
+        .btn-event-chat-v4 {
+            background: linear-gradient(90deg, #c084fc, #e9d5ff, #fbcfe8);
+        }
+
+        .btn-rsvp-v4 {
+            background: linear-gradient(90deg, #818cf8, #c7d2fe, #bfdbfe);
+        }
+
+        .btn-going-v4 {
+            background: linear-gradient(90deg, #4ade80, #bbf7d0, #d9f99d);
+        }
+
+        /* Button grid for comparison */
+        .button-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .option-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Full width preview */
+        .full-preview {
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .preview-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .preview-meta {
+            font-size: 13px;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 4px;
+        }
+
+        .preview-desc {
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+            margin: 12px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Footer Button Designs</h1>
+    <p class="subtitle">Gradient buttons for Guest List, Event Chat, and RSVP</p>
+
+    <div class="section">
+        <div class="section-title">Option 1: Vibrant Gradients</div>
+        <div class="button-row">
+            <button class="gradient-btn btn-guest-list">Guest List</button>
+            <button class="gradient-btn btn-event-chat">Event Chat</button>
+            <button class="gradient-btn btn-rsvp">RSVP</button>
+        </div>
+        <div class="button-row" style="margin-top: 10px;">
+            <button class="gradient-btn btn-going">Going</button>
+            <button class="gradient-btn btn-interested">Interested</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Option 2: Soft Pastels</div>
+        <div class="button-row">
+            <button class="gradient-btn btn-guest-list-v2">Guest List</button>
+            <button class="gradient-btn btn-event-chat-v2">Event Chat</button>
+            <button class="gradient-btn btn-rsvp-v2">RSVP</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Option 3: Bold Colors</div>
+        <div class="button-row">
+            <button class="gradient-btn btn-guest-list-v3">Guest List</button>
+            <button class="gradient-btn btn-event-chat-v3">Event Chat</button>
+            <button class="gradient-btn btn-rsvp-v3">RSVP</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Option 4: Horizontal Fade (Like "Next" Button)</div>
+        <div class="button-row">
+            <button class="gradient-btn btn-guest-list-v4">Guest List</button>
+            <button class="gradient-btn btn-event-chat-v4">Event Chat</button>
+            <button class="gradient-btn btn-rsvp-v4">RSVP</button>
+        </div>
+        <div class="button-row" style="margin-top: 10px;">
+            <button class="gradient-btn btn-going-v4">Going</button>
+        </div>
+    </div>
+
+    <!-- Full Card Preview -->
+    <div class="section" style="max-width: 380px;">
+        <div class="section-title">In Context: Event Card Footer</div>
+
+        <div class="full-preview">
+            <div class="preview-title">Pick Up Soccer</div>
+            <div class="preview-meta">📅 Today at 4:00 PM</div>
+            <div class="preview-meta">📍 Campus Field</div>
+            <div class="preview-meta">👥 <span style="color: #2dd4bf; font-weight: 600;">3</span>/10 going</div>
+            <div class="preview-desc">Come play some casual soccer with us!</div>
+
+            <div class="card-footer">
+                <div class="footer-left">
+                    <button class="gradient-btn btn-guest-list-v4">Guest List</button>
+                    <button class="gradient-btn btn-event-chat-v4">Event Chat</button>
+                </div>
+                <button class="gradient-btn btn-going-v4">Going</button>
+            </div>
+        </div>
+
+        <div class="full-preview" style="margin-top: 16px;">
+            <div class="preview-title">Pool Party</div>
+            <div class="preview-meta">📅 Tomorrow at 2:00 PM</div>
+            <div class="preview-meta">📍 Rooftop Pool</div>
+            <div class="preview-meta">👥 <span style="color: #2dd4bf; font-weight: 600;">7</span>/15 going</div>
+            <div class="preview-desc">Bring your swimsuit and sunscreen!</div>
+
+            <div class="card-footer">
+                <div class="footer-left">
+                    <button class="gradient-btn btn-guest-list">Guest List</button>
+                    <button class="gradient-btn btn-event-chat">Event Chat</button>
+                </div>
+                <button class="gradient-btn btn-rsvp">RSVP</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

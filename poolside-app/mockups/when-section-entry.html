@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>When Section - Create Event</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+      gap: 40px;
+    }
+
+    .variant {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .variant-label {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .card {
+      width: 360px;
+      background: rgba(30, 30, 50, 0.8);
+      border-radius: 24px;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+    }
+
+    .section-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    /* Toggle Row */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toggle-icon {
+      font-size: 20px;
+    }
+
+    .toggle-text {
+      font-size: 17px;
+      font-weight: 500;
+      color: #fff;
+    }
+
+    .toggle-switch {
+      width: 51px;
+      height: 31px;
+      background: rgba(120, 120, 128, 0.32);
+      border-radius: 16px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .toggle-switch.active {
+      background: #4ade80;
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 27px;
+      height: 27px;
+      background: #fff;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.3s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle-switch.active::after {
+      transform: translateX(20px);
+    }
+
+    /* Date Time Button */
+    .datetime-btn {
+      width: 100%;
+      background: rgba(60, 60, 80, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .datetime-btn:hover {
+      background: rgba(70, 70, 90, 0.5);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .datetime-btn.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .datetime-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .datetime-label {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .datetime-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .datetime-value.placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .datetime-arrow {
+      font-size: 20px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Variant 2: Inline pills */
+    .pills-container {
+      display: flex;
+      gap: 10px;
+    }
+
+    .pill-btn {
+      flex: 1;
+      background: rgba(60, 60, 80, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .pill-btn:hover {
+      background: rgba(70, 70, 90, 0.5);
+    }
+
+    .pill-btn.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .pill-label {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .pill-value {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .pill-value.placeholder {
+      color: rgba(255, 255, 255, 0.35);
+      font-weight: 400;
+    }
+
+    /* Variant 3: Modern segmented with preview */
+    .segment-toggle {
+      display: flex;
+      background: rgba(60, 60, 80, 0.3);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 16px;
+    }
+
+    .segment-btn {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.6);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .segment-btn.active {
+      background: rgba(74, 222, 128, 0.2);
+      color: #4ade80;
+    }
+
+    .scheduled-preview {
+      background: rgba(40, 40, 60, 0.5);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .preview-row {
+      display: flex;
+      align-items: center;
+      padding: 16px 20px;
+      cursor: pointer;
+      transition: background 0.2s;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .preview-row:last-child {
+      border-bottom: none;
+    }
+
+    .preview-row:hover {
+      background: rgba(60, 60, 80, 0.3);
+    }
+
+    .preview-icon {
+      font-size: 18px;
+      margin-right: 14px;
+      opacity: 0.7;
+    }
+
+    .preview-content {
+      flex: 1;
+    }
+
+    .preview-label {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.45);
+      margin-bottom: 2px;
+    }
+
+    .preview-value {
+      font-size: 16px;
+      font-weight: 500;
+      color: #fff;
+    }
+
+    .preview-value.empty {
+      color: rgba(255, 255, 255, 0.35);
+      font-weight: 400;
+    }
+
+    .preview-chevron {
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Variant 4: Super minimal */
+    .minimal-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+    }
+
+    .minimal-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(74, 222, 128, 0.15);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .minimal-content {
+      flex: 1;
+    }
+
+    .minimal-label {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 2px;
+    }
+
+    .minimal-value {
+      font-size: 17px;
+      font-weight: 500;
+      color: #fff;
+    }
+
+    .minimal-btn {
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .minimal-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .now-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: rgba(74, 222, 128, 0.2);
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #4ade80;
+    }
+
+    .now-dot {
+      width: 8px;
+      height: 8px;
+      background: #4ade80;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* State indicator */
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Variant 1: Toggle + Single Button -->
+  <div class="variant">
+    <span class="variant-label">Option A: Toggle + Button</span>
+    <div class="card">
+      <div class="section-label">When</div>
+
+      <div class="toggle-row">
+        <div class="toggle-label">
+          <span class="toggle-icon">⚡</span>
+          <span class="toggle-text">Right Now</span>
+        </div>
+        <div class="toggle-switch" onclick="this.classList.toggle('active')"></div>
+      </div>
+
+      <div class="datetime-btn">
+        <div class="datetime-content">
+          <span class="datetime-label">Date & Time</span>
+          <span class="datetime-value">Fri, Jan 24 · 8:00pm</span>
+        </div>
+        <span class="datetime-arrow">›</span>
+      </div>
+    </div>
+
+    <!-- With toggle ON -->
+    <div class="card">
+      <div class="section-label">When</div>
+
+      <div class="toggle-row">
+        <div class="toggle-label">
+          <span class="toggle-icon">⚡</span>
+          <span class="toggle-text">Right Now</span>
+        </div>
+        <div class="toggle-switch active"></div>
+      </div>
+
+      <div class="datetime-btn disabled">
+        <div class="datetime-content">
+          <span class="datetime-label">Date & Time</span>
+          <span class="datetime-value placeholder">Starting immediately</span>
+        </div>
+        <span class="datetime-arrow">›</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Variant 2: Segmented Control -->
+  <div class="variant">
+    <span class="variant-label">Option B: Segmented + Preview</span>
+    <div class="card">
+      <div class="section-label">When</div>
+
+      <div class="segment-toggle">
+        <button class="segment-btn">Right Now</button>
+        <button class="segment-btn active">Schedule</button>
+      </div>
+
+      <div class="scheduled-preview">
+        <div class="preview-row">
+          <span class="preview-icon">📅</span>
+          <div class="preview-content">
+            <div class="preview-label">Starts</div>
+            <div class="preview-value">Fri, Jan 24 at 8:00pm</div>
+          </div>
+          <span class="preview-chevron">›</span>
+        </div>
+        <div class="preview-row">
+          <span class="preview-icon">🏁</span>
+          <div class="preview-content">
+            <div class="preview-label">Ends</div>
+            <div class="preview-value empty">Add end time (optional)</div>
+          </div>
+          <span class="preview-chevron">›</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Now selected -->
+    <div class="card">
+      <div class="section-label">When</div>
+
+      <div class="segment-toggle">
+        <button class="segment-btn active">Right Now</button>
+        <button class="segment-btn">Schedule</button>
+      </div>
+
+      <div class="minimal-row" style="justify-content: center; padding: 20px 0;">
+        <div class="now-badge">
+          <span class="now-dot"></span>
+          Starting as soon as you post
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Variant 3: Two Pills Side by Side -->
+  <div class="variant">
+    <span class="variant-label">Option C: Dual Pills</span>
+    <div class="card">
+      <div class="section-label">When</div>
+
+      <div class="toggle-row">
+        <div class="toggle-label">
+          <span class="toggle-icon">⚡</span>
+          <span class="toggle-text">Right Now</span>
+        </div>
+        <div class="toggle-switch"></div>
+      </div>
+
+      <div class="pills-container">
+        <div class="pill-btn">
+          <div class="pill-label">Starts</div>
+          <div class="pill-value">Fri Jan 24<br>8:00pm</div>
+        </div>
+        <div class="pill-btn">
+          <div class="pill-label">Ends</div>
+          <div class="pill-value placeholder">+ Add</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Variant 4: Super Minimal -->
+  <div class="variant">
+    <span class="variant-label">Option D: Minimal List</span>
+    <div class="card">
+      <div class="section-label">When</div>
+
+      <div class="minimal-row">
+        <div class="minimal-icon">⚡</div>
+        <div class="minimal-content">
+          <div class="minimal-label">Timing</div>
+          <div class="minimal-value">Right Now</div>
+        </div>
+        <div class="minimal-btn">Change</div>
+      </div>
+
+      <div style="height: 1px; background: rgba(255,255,255,0.08); margin: 12px 0;"></div>
+
+      <div class="minimal-row">
+        <div class="minimal-icon">📅</div>
+        <div class="minimal-content">
+          <div class="minimal-label">Scheduled for</div>
+          <div class="minimal-value">Fri, Jan 24 · 8:00pm</div>
+        </div>
+        <div class="minimal-btn">Edit</div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -35,7 +35,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSwitchToRegister }) 
     try {
       await login({ email, password });
     } catch (error: any) {
-      Alert.alert('Login Failed', error.response?.data?.message || 'Invalid credentials');
+      const message = error.response?.data?.message
+        || (error.request ? 'Unable to connect to server. Check your internet connection.' : 'Invalid credentials');
+      Alert.alert('Login Failed', message);
     } finally {
       setIsLoading(false);
     }

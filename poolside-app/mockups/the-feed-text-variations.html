@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Feed - Text Variations</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+    }
+
+    h1 {
+      color: #fff;
+      text-align: center;
+      margin-bottom: 50px;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 40px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .variation {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .label {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+    }
+
+    .text {
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+
+    /* 1. Plain White */
+    .plain .text {
+      color: #fff;
+    }
+
+    /* 2. Purple Gradient */
+    .gradient-purple .text {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f472b6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* 3. Blue to Cyan Gradient */
+    .gradient-cyan .text {
+      background: linear-gradient(90deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* 4. Gold/Warm Gradient */
+    .gradient-gold .text {
+      background: linear-gradient(90deg, #f59e0b 0%, #ef4444 50%, #ec4899 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* 5. Shiny Glow Outline */
+    .glow-outline .text {
+      color: transparent;
+      -webkit-text-stroke: 2px #667eea;
+      text-shadow:
+        0 0 10px rgba(102, 126, 234, 0.8),
+        0 0 20px rgba(102, 126, 234, 0.6),
+        0 0 30px rgba(102, 126, 234, 0.4),
+        0 0 40px rgba(102, 126, 234, 0.2);
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% {
+        text-shadow:
+          0 0 10px rgba(102, 126, 234, 0.8),
+          0 0 20px rgba(102, 126, 234, 0.6),
+          0 0 30px rgba(102, 126, 234, 0.4),
+          0 0 40px rgba(102, 126, 234, 0.2);
+      }
+      50% {
+        text-shadow:
+          0 0 15px rgba(102, 126, 234, 1),
+          0 0 30px rgba(102, 126, 234, 0.8),
+          0 0 45px rgba(102, 126, 234, 0.6),
+          0 0 60px rgba(102, 126, 234, 0.4);
+      }
+    }
+
+    /* 6. Rainbow Gradient with Glow */
+    .rainbow-glow .text {
+      background: linear-gradient(90deg, #f472b6, #c084fc, #818cf8, #22d3ee, #4ade80, #facc15, #f472b6);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: rainbow-shift 3s linear infinite;
+      filter: drop-shadow(0 0 10px rgba(192, 132, 252, 0.5));
+    }
+
+    @keyframes rainbow-shift {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+
+    /* 7. Neon Pink Glow */
+    .neon-pink .text {
+      color: #fff;
+      text-shadow:
+        0 0 5px #fff,
+        0 0 10px #fff,
+        0 0 20px #ff00de,
+        0 0 30px #ff00de,
+        0 0 40px #ff00de,
+        0 0 55px #ff00de;
+    }
+
+    /* 8. Gradient + Outline */
+    .gradient-outline .text {
+      background: linear-gradient(135deg, #c084fc 0%, #f472b6 50%, #fb923c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 15px rgba(192, 132, 252, 0.6));
+    }
+
+    /* 9. Silver/Chrome */
+    .chrome .text {
+      background: linear-gradient(180deg,
+        #fff 0%,
+        #c0c0c0 25%,
+        #fff 50%,
+        #a0a0a0 75%,
+        #fff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+    }
+
+    /* 10. Holographic */
+    .holographic .text {
+      background: linear-gradient(
+        45deg,
+        #ff6b6b 0%,
+        #feca57 15%,
+        #48dbfb 30%,
+        #ff9ff3 45%,
+        #54a0ff 60%,
+        #5f27cd 75%,
+        #ff6b6b 100%
+      );
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: holographic 4s ease infinite;
+      filter: drop-shadow(0 0 8px rgba(84, 160, 255, 0.4));
+    }
+
+    @keyframes holographic {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* 11. Subtle White Glow */
+    .subtle-glow .text {
+      color: #fff;
+      text-shadow:
+        0 0 10px rgba(255, 255, 255, 0.5),
+        0 0 20px rgba(255, 255, 255, 0.3),
+        0 0 30px rgba(255, 255, 255, 0.2);
+    }
+
+    /* 12. Mint/Teal Gradient */
+    .gradient-mint .text {
+      background: linear-gradient(90deg, #2dd4bf 0%, #22d3ee 50%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 12px rgba(45, 212, 191, 0.4));
+    }
+
+    /* 13. Glassmorphism Style */
+    .glass .text {
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow:
+        0 4px 30px rgba(255, 255, 255, 0.1),
+        0 1px 0 rgba(255, 255, 255, 0.2);
+      -webkit-text-stroke: 0.5px rgba(255, 255, 255, 0.3);
+    }
+
+    /* 14. Purple Neon Outline */
+    .neon-outline .text {
+      color: transparent;
+      -webkit-text-stroke: 1.5px #c084fc;
+      text-shadow:
+        0 0 5px #c084fc,
+        0 0 10px #c084fc,
+        0 0 20px #c084fc,
+        0 0 40px #8b5cf6;
+      animation: neon-flicker 1.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes neon-flicker {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+
+    /* 15. Sunset Gradient */
+    .gradient-sunset .text {
+      background: linear-gradient(90deg, #f97316 0%, #ec4899 50%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 15px rgba(236, 72, 153, 0.5));
+    }
+
+    /* 16. Ice Blue Glow */
+    .ice-glow .text {
+      color: #e0f2fe;
+      text-shadow:
+        0 0 10px #7dd3fc,
+        0 0 20px #38bdf8,
+        0 0 30px #0ea5e9,
+        0 0 40px #0284c7;
+    }
+  </style>
+</head>
+<body>
+  <h1>The Feed - Text Style Variations</h1>
+
+  <div class="grid">
+    <div class="variation plain">
+      <div class="label">1. Plain White (Current)</div>
+      <div class="text">The Feed</div>
+    </div>
+
+    <div class="variation gradient-purple">
+      <div class="label">2. Purple/Pink Gradient</div>
+      <div class="text">The Feed</div>
+    </div>
+
+    <div class="variation gradient-cyan">
+      <div class="label">3. Cyan to Purple Gradient</div>
+      <div class="text">The Feed</div>
+    </div>
+
+    <div class="variation gradient-gold">
+      <div class="label">4. Warm Sunset Gradient</div>
+      <div class="text">The Feed</div>
+    </div>
+
+    <div class="variation glow-outline">
+      <div class="label">5. Shiny Glow Outline (Animated)</div>
+      <div class="text">The Feed</div>
+    </div>
+
+    <div class="variation rainbow-glow">
+      <div class="label">6. Rainbow Gradient (Animated)</div>
+      <div class="text">The Feed</div>
+    </div>
+
+    <div class="variation neon-pink">
+      <div class="label">7. Neon Pink Glow</div>
+      <div class="text">The Feed</div>
+    </div>
+
+    <div class="variation gradient-outline">
+      <div class="label">8. Gradient + Glow</div>
+      <div class="text">The Feed</div>
+    </div>
+
+    <div class="variation chrome">
+      <div class="label">9. Chrome/Silver</div>
+      <div class="text">The Feed</div>
+    </div>
+
+    <div class="variation holographic">
+      <div class="label">10. Holographic (Animated)</div>
+      <div class="text">The Feed</div>
+    </div>
+
+    <div class="variation subtle-glow">
+      <div class="label">11. Subtle White Glow</div>
+      <div class="text">The Feed</div>
+    </div>
+
+    <div class="variation gradient-mint">
+      <div class="label">12. Mint/Teal Gradient</div>
+      <div class="text">The Feed</div>
+    </div>
+
+    <div class="variation glass">
+      <div class="label">13. Glassmorphism</div>
+      <div class="text">The Feed</div>
+    </div>
+
+    <div class="variation neon-outline">
+      <div class="label">14. Purple Neon Outline (Animated)</div>
+      <div class="text">The Feed</div>
+    </div>
+
+    <div class="variation gradient-sunset">
+      <div class="label">15. Sunset Gradient + Glow</div>
+      <div class="text">The Feed</div>
+    </div>
+
+    <div class="variation ice-glow">
+      <div class="label">16. Ice Blue Glow</div>
+      <div class="text">The Feed</div>
+    </div>
+  </div>
+</body>
+</html>

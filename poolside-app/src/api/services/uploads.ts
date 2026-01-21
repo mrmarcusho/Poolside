@@ -22,7 +22,7 @@ export const uploadsService = {
                      fileExtension === 'gif' ? 'image/gif' :
                      fileExtension === 'webp' ? 'image/webp' : 'image/jpeg';
 
-    // Append the file to form data
+    // Append the file to form data (React Native format)
     formData.append('file', {
       uri: imageUri,
       name: fileName,

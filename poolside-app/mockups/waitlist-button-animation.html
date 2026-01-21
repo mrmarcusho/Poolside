@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Waitlist Button Animation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 60px;
+      padding: 40px;
+    }
+
+    h1 {
+      color: white;
+      font-size: 24px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .demo-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .label {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Event Card Mock */
+    .event-card {
+      width: 340px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .event-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .event-title {
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .event-subtitle {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .full-badge {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .event-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+    }
+
+    .attendees {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .avatar-stack {
+      display: flex;
+    }
+
+    .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border: 2px solid #1a1a2e;
+      margin-left: -8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .avatar:first-child {
+      margin-left: 0;
+    }
+
+    .attendee-count {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 13px;
+    }
+
+    /* Waitlist Button Styles */
+    .waitlist-btn {
+      position: relative;
+      min-width: 130px;
+      height: 40px;
+      background: #1a1a2e;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(26, 26, 46, 0.4);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .waitlist-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(26, 26, 46, 0.5);
+    }
+
+    .waitlist-btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-content {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-text {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      letter-spacing: 0.3px;
+      transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .btn-text.join {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .btn-text.added {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    /* Added state */
+    .waitlist-btn.is-added {
+      background: #22c55e;
+      box-shadow: 0 6px 20px rgba(34, 197, 94, 0.35);
+    }
+
+    .waitlist-btn.is-added .btn-text.join {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+
+    .waitlist-btn.is-added .btn-text.added {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Checkmark animation */
+    .checkmark {
+      width: 16px;
+      height: 16px;
+      position: relative;
+    }
+
+    .checkmark svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .checkmark-circle {
+      stroke-dasharray: 166;
+      stroke-dashoffset: 166;
+      stroke-width: 2;
+      stroke: white;
+      fill: none;
+      animation: none;
+    }
+
+    .checkmark-check {
+      stroke-dasharray: 48;
+      stroke-dashoffset: 48;
+      stroke-width: 3;
+      stroke: white;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .waitlist-btn.is-added .checkmark-check {
+      animation: checkmark-draw 0.4s cubic-bezier(0.65, 0, 0.45, 1) 0.15s forwards;
+    }
+
+    @keyframes checkmark-draw {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    /* Ripple effect */
+    .ripple {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+      transform: scale(0);
+      opacity: 0;
+      border-radius: 50px;
+    }
+
+    .waitlist-btn.is-added .ripple {
+      animation: ripple-expand 0.5s ease-out;
+    }
+
+    @keyframes ripple-expand {
+      0% {
+        transform: scale(0);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(2);
+        opacity: 0;
+      }
+    }
+
+    /* Comparison section */
+    .comparison {
+      display: flex;
+      gap: 40px;
+      align-items: flex-start;
+    }
+
+    .state-demo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .state-label {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Standalone buttons for comparison */
+    .standalone-btn {
+      min-width: 140px;
+      height: 44px;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .join-btn {
+      background: #1a1a2e;
+      color: white;
+      box-shadow: 0 6px 20px rgba(26, 26, 46, 0.4);
+    }
+
+    .added-btn {
+      background: #22c55e;
+      color: white;
+      box-shadow: 0 6px 20px rgba(34, 197, 94, 0.35);
+    }
+
+    /* Arrow */
+    .arrow {
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 24px;
+    }
+
+    /* Instructions */
+    .instructions {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 14px;
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    /* Reset button */
+    .reset-btn {
+      margin-top: 20px;
+      padding: 8px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      color: rgba(255, 255, 255, 0.7);
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .reset-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+    }
+
+    /* FULL button (disabled state) */
+    .full-btn {
+      min-width: 100px;
+      height: 44px;
+      border-radius: 50px;
+      border: none;
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.4);
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <h1>Waitlist Button Animation</h1>
+
+  <!-- State comparison -->
+  <div class="demo-container">
+    <div class="label">Button States</div>
+    <div class="comparison">
+      <div class="state-demo">
+        <div class="state-label">Default</div>
+        <button class="standalone-btn join-btn">Join Waitlist</button>
+      </div>
+      <span class="arrow">→</span>
+      <div class="state-demo">
+        <div class="state-label">After tap</div>
+        <button class="standalone-btn added-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Added
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive demo -->
+  <div class="demo-container">
+    <div class="label">Interactive Demo (Click the button)</div>
+    <div class="event-card">
+      <div class="event-header">
+        <div>
+          <div class="event-title">Pool Party Vibes</div>
+          <div class="event-subtitle">Today at 8:00 PM • The Quad</div>
+        </div>
+        <span class="full-badge">Full</span>
+      </div>
+      <div class="event-footer">
+        <div class="attendees">
+          <div class="avatar-stack">
+            <div class="avatar">🎉</div>
+            <div class="avatar">🌊</div>
+            <div class="avatar">✨</div>
+          </div>
+          <span class="attendee-count">12 going</span>
+        </div>
+        <button class="waitlist-btn" id="waitlistBtn">
+          <div class="ripple"></div>
+          <div class="btn-content">
+            <span class="btn-text join">Join Waitlist</span>
+            <span class="btn-text added">
+              <span class="checkmark">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <polyline class="checkmark-check" points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </span>
+              Added
+            </span>
+          </div>
+        </button>
+      </div>
+    </div>
+    <p class="instructions">Click "Join Waitlist" to see the animation</p>
+    <button class="reset-btn" id="resetBtn">Reset Demo</button>
+  </div>
+
+  <!-- Disabled state comparison -->
+  <div class="demo-container">
+    <div class="label">When Waitlist is Disabled</div>
+    <div class="event-card">
+      <div class="event-header">
+        <div>
+          <div class="event-title">Private Dinner</div>
+          <div class="event-subtitle">Tomorrow at 7:00 PM • Off Campus</div>
+        </div>
+        <span class="full-badge">Full</span>
+      </div>
+      <div class="event-footer">
+        <div class="attendees">
+          <div class="avatar-stack">
+            <div class="avatar">🍽️</div>
+            <div class="avatar">🍷</div>
+          </div>
+          <span class="attendee-count">6 going</span>
+        </div>
+        <button class="full-btn" disabled>FULL</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const waitlistBtn = document.getElementById('waitlistBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    let isAdded = false;
+
+    waitlistBtn.addEventListener('click', () => {
+      if (!isAdded) {
+        waitlistBtn.classList.add('is-added');
+        isAdded = true;
+
+        // Haptic feedback simulation (visual pulse)
+        waitlistBtn.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+          waitlistBtn.style.transform = '';
+        }, 100);
+      }
+    });
+
+    resetBtn.addEventListener('click', () => {
+      waitlistBtn.classList.remove('is-added');
+      isAdded = false;
+    });
+  </script>
+</body>
+</html>

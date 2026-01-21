@@ -45,6 +45,11 @@ export const mapApiEventToEvent = (apiEvent: ApiEvent): Event => {
     maybes: [],
     theme: (apiEvent.theme as EventTheme) || defaultTheme,
     rsvpCount,
+    spots: apiEvent.spots ?? undefined,
+    displayDuration: apiEvent.displayDuration ?? 180, // Default 3 hours
+    isFull: apiEvent.isFull ?? false,
+    waitlistEnabled: apiEvent.waitlistEnabled ?? true, // Default to true
+    hideDetailsWhenFull: apiEvent.hideDetailsWhenFull ?? false, // Default to false
   };
 };
 

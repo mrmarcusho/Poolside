@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cover Slide - Upload Photo Design</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700&family=Syne:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&family=Montserrat:wght@600&family=Playfair+Display:wght@700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #0a0a0f;
+      min-height: 100vh;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .page-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .page-subtitle {
+      color: rgba(255, 255, 255, 0.5);
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .variants {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .variant-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.6);
+      text-align: center;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Phone Frame */
+    .phone {
+      width: 390px;
+      height: 844px;
+      border-radius: 50px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 50px 100px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+      flex-shrink: 0;
+    }
+
+    .phone::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 150px;
+      height: 35px;
+      background: #000;
+      border-radius: 0 0 20px 20px;
+      z-index: 100;
+    }
+
+    .screen {
+      width: 100%;
+      height: 100%;
+      background:
+        radial-gradient(ellipse at 5% 5%, rgba(180, 140, 100, 0.35) 0%, transparent 40%),
+        radial-gradient(ellipse at 85% 8%, rgba(45, 180, 170, 0.25) 0%, transparent 35%),
+        radial-gradient(ellipse at 10% 90%, rgba(130, 80, 160, 0.3) 0%, transparent 40%),
+        radial-gradient(ellipse at 95% 95%, rgba(160, 120, 100, 0.2) 0%, transparent 35%),
+        linear-gradient(180deg, #0a0a0f 0%, #080810 50%, #050508 100%);
+      padding: 60px 24px 40px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .back-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .back-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: #fff;
+    }
+
+    .progress-dots {
+      display: flex;
+      gap: 8px;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .dot.completed {
+      background: rgba(168, 85, 247, 0.5);
+    }
+
+    .dot.active {
+      background: linear-gradient(135deg, #a78bfa 0%, #c084fc 100%);
+      box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+    }
+
+    .skip-btn {
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.55);
+      cursor: pointer;
+      opacity: 0;
+    }
+
+    /* Content Header */
+    .content-header {
+      margin-bottom: 32px;
+    }
+
+    .step-text {
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 8px;
+    }
+
+    .main-text {
+      font-family: 'Syne', sans-serif;
+      font-size: 32px;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.25;
+    }
+
+    .accent {
+      background: linear-gradient(135deg, #f472b6 0%, #c084fc 50%, #818cf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Canvas Area */
+    .canvas-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .canvas {
+      flex: 1;
+      min-height: 220px;
+      max-height: 280px;
+      border-radius: 24px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .canvas:hover {
+      transform: scale(1.01);
+    }
+
+    .canvas.solid-color {
+      background: #f8f8f8;
+    }
+
+    .canvas.with-image {
+      background: url('https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=800&q=80') center/cover;
+    }
+
+    .canvas.with-image::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.25);
+    }
+
+    .canvas-text {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 28px;
+      font-weight: 600;
+      text-align: center;
+      padding: 30px;
+      z-index: 2;
+      position: relative;
+    }
+
+    .canvas.solid-color .canvas-text {
+      color: rgba(0, 0, 0, 0.85);
+    }
+
+    .canvas.with-image .canvas-text {
+      color: rgba(255, 255, 255, 0.95);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .upload-btn {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 18px;
+      background: rgba(99, 102, 241, 0.9);
+      border-radius: 24px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #fff;
+      cursor: pointer;
+      z-index: 10;
+      transition: all 0.2s ease;
+    }
+
+    .upload-btn:hover {
+      background: rgba(99, 102, 241, 1);
+      transform: scale(1.05);
+    }
+
+    .upload-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Tap hint on canvas */
+    .tap-hint {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      padding: 10px 16px;
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.7);
+      z-index: 10;
+    }
+
+    /* Color Picker Row */
+    .color-picker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .color-swatch {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 2px solid transparent;
+    }
+
+    .color-swatch:hover {
+      transform: scale(1.1);
+    }
+
+    .color-swatch.selected {
+      border-color: #a78bfa;
+      box-shadow: 0 0 12px rgba(167, 139, 250, 0.5);
+    }
+
+    .color-swatch.white {
+      background: #f8f8f8;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .color-swatch.pink { background: #ffd6e0; }
+    .color-swatch.mint { background: #b8f0c0; }
+    .color-swatch.sky { background: #b8e4f0; }
+    .color-swatch.lavender { background: #d4d4f7; }
+    .color-swatch.peach { background: #f5d5c0; }
+    .color-swatch.cream { background: #f7f5c0; }
+
+    .color-wheel {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: conic-gradient(
+        #ff0000, #ff8000, #ffff00, #00ff00,
+        #00ffff, #0080ff, #8000ff, #ff0080, #ff0000
+      );
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .color-wheel:hover {
+      transform: scale(1.1);
+    }
+
+    /* Next Button */
+    .next-btn {
+      padding: 20px;
+      border-radius: 20px;
+      border: 2px solid #fff;
+      background: linear-gradient(90deg, #c084fc 0%, #e9d5ff 25%, #f5f3ff 50%, #ddd6fe 75%, #93c5fd 90%, #60a5fa 100%);
+      font-family: 'Outfit', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: #1a1a2e;
+      cursor: pointer;
+      box-shadow:
+        0 0 20px rgba(255, 255, 255, 0.3),
+        0 0 40px rgba(192, 132, 252, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .next-btn:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 0 30px rgba(255, 255, 255, 0.4),
+        0 0 60px rgba(192, 132, 252, 0.3);
+    }
+
+    /* ========== VARIANT 2: Minimal with prominent upload ========== */
+    .variant-2 .canvas {
+      background: rgba(0, 0, 0, 0.25);
+      border: 2px dashed rgba(255, 255, 255, 0.2);
+    }
+
+    .variant-2 .canvas:hover {
+      border-color: rgba(167, 139, 250, 0.5);
+      background: rgba(139, 92, 246, 0.1);
+    }
+
+    .upload-zone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .upload-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(168, 85, 247, 0.3));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .upload-icon svg {
+      width: 32px;
+      height: 32px;
+      stroke: #a78bfa;
+    }
+
+    .upload-label {
+      font-size: 16px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .upload-hint {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Text preview pill for variant 2 */
+    .text-preview-pill {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .text-preview-pill:hover {
+      border-color: rgba(167, 139, 250, 0.5);
+      background: rgba(139, 92, 246, 0.1);
+    }
+
+    .text-preview-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(244, 114, 182, 0.3), rgba(192, 132, 252, 0.3));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .text-preview-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: #f472b6;
+    }
+
+    .text-preview-content {
+      flex: 1;
+    }
+
+    .text-preview-label {
+      font-size: 15px;
+      font-weight: 500;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+
+    .text-preview-value {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .text-preview-arrow {
+      width: 20px;
+      height: 20px;
+      stroke: rgba(255, 255, 255, 0.4);
+    }
+
+    /* ========== VARIANT 3: Card-based with tabs ========== */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 14px;
+      border-radius: 14px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .tab:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .tab.active {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(168, 85, 247, 0.25));
+      border-color: rgba(167, 139, 250, 0.5);
+      color: #fff;
+    }
+
+    .variant-3 .canvas {
+      min-height: 200px;
+    }
+
+    /* Font selection row */
+    .font-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 4px 0;
+      margin-top: 12px;
+    }
+
+    .font-pill {
+      padding: 10px 16px;
+      border-radius: 20px;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .font-pill:hover {
+      background: rgba(99, 102, 241, 0.25);
+    }
+
+    .font-pill.selected {
+      background: rgba(99, 102, 241, 0.9);
+      border-color: transparent;
+      color: #fff;
+    }
+
+    .font-pill.classic { font-family: 'Montserrat', sans-serif; }
+    .font-pill.elegant { font-family: 'Playfair Display', serif; }
+    .font-pill.script { font-family: 'Dancing Script', cursive; }
+    .font-pill.mono { font-family: 'Space Mono', monospace; }
+  </style>
+</head>
+<body>
+  <h1 class="page-title">Cover Slide - Upload Photo</h1>
+  <p class="page-subtitle">Three design variations for the event cover creation slide</p>
+
+  <div class="variants">
+    <!-- VARIANT 1: Canvas-first with color picker -->
+    <div>
+      <div class="variant-label">Option 1: Canvas-First</div>
+      <div class="phone">
+        <div class="screen">
+          <div class="header">
+            <div class="back-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </div>
+            <div class="progress-dots">
+              <div class="dot completed"></div>
+              <div class="dot completed"></div>
+              <div class="dot completed"></div>
+              <div class="dot active"></div>
+              <div class="dot"></div>
+            </div>
+            <div class="skip-btn">Skip</div>
+          </div>
+
+          <div class="content-header">
+            <div class="step-text">Step 4 of 5</div>
+            <div class="main-text">
+              Design your<br>event <span class="accent">cover</span>
+            </div>
+          </div>
+
+          <div class="canvas-container">
+            <div class="canvas solid-color">
+              <div class="canvas-text">Pool Party at Sunset</div>
+              <div class="upload-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <path d="M21 15l-5-5L5 21"/>
+                </svg>
+                Upload image
+              </div>
+              <div class="tap-hint">Tap to edit text</div>
+            </div>
+
+            <div class="color-picker">
+              <div class="color-wheel"></div>
+              <div class="color-swatch white selected"></div>
+              <div class="color-swatch pink"></div>
+              <div class="color-swatch mint"></div>
+              <div class="color-swatch sky"></div>
+              <div class="color-swatch lavender"></div>
+              <div class="color-swatch peach"></div>
+            </div>
+          </div>
+
+          <button class="next-btn">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- VARIANT 2: Upload-first minimal -->
+    <div>
+      <div class="variant-label">Option 2: Upload-First</div>
+      <div class="phone variant-2">
+        <div class="screen">
+          <div class="header">
+            <div class="back-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </div>
+            <div class="progress-dots">
+              <div class="dot completed"></div>
+              <div class="dot completed"></div>
+              <div class="dot completed"></div>
+              <div class="dot active"></div>
+              <div class="dot"></div>
+            </div>
+            <div class="skip-btn">Skip</div>
+          </div>
+
+          <div class="content-header">
+            <div class="step-text">Step 4 of 5</div>
+            <div class="main-text">
+              Add a <span class="accent">cover</span><br>photo
+            </div>
+          </div>
+
+          <div class="canvas-container">
+            <div class="canvas">
+              <div class="upload-zone">
+                <div class="upload-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                    <polyline points="17,8 12,3 7,8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
+                </div>
+                <div class="upload-label">Tap to upload photo</div>
+                <div class="upload-hint">Or use a solid color below</div>
+              </div>
+            </div>
+
+            <div class="color-picker">
+              <div class="color-wheel"></div>
+              <div class="color-swatch white"></div>
+              <div class="color-swatch pink"></div>
+              <div class="color-swatch mint"></div>
+              <div class="color-swatch sky"></div>
+              <div class="color-swatch lavender"></div>
+              <div class="color-swatch peach"></div>
+            </div>
+
+            <div class="text-preview-pill">
+              <div class="text-preview-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                  <path d="M4 7V4h16v3"/>
+                  <path d="M9 20h6"/>
+                  <path d="M12 4v16"/>
+                </svg>
+              </div>
+              <div class="text-preview-content">
+                <div class="text-preview-label">Add text overlay</div>
+                <div class="text-preview-value">Pool Party at Sunset</div>
+              </div>
+              <svg class="text-preview-arrow" viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <path d="M9 18l6-6-6-6"/>
+              </svg>
+            </div>
+          </div>
+
+          <button class="next-btn">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- VARIANT 3: With image uploaded -->
+    <div>
+      <div class="variant-label">Option 3: With Photo</div>
+      <div class="phone variant-3">
+        <div class="screen">
+          <div class="header">
+            <div class="back-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </div>
+            <div class="progress-dots">
+              <div class="dot completed"></div>
+              <div class="dot completed"></div>
+              <div class="dot completed"></div>
+              <div class="dot active"></div>
+              <div class="dot"></div>
+            </div>
+            <div class="skip-btn">Skip</div>
+          </div>
+
+          <div class="content-header">
+            <div class="step-text">Step 4 of 5</div>
+            <div class="main-text">
+              Design your<br>event <span class="accent">cover</span>
+            </div>
+          </div>
+
+          <div class="canvas-container">
+            <div class="tabs">
+              <div class="tab active">Photo</div>
+              <div class="tab">Solid Color</div>
+            </div>
+
+            <div class="canvas with-image">
+              <div class="canvas-text">Pool Party at Sunset</div>
+              <div class="upload-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
+                </svg>
+                Change
+              </div>
+            </div>
+
+            <div class="font-row">
+              <div class="font-pill classic selected">Classic</div>
+              <div class="font-pill elegant">Elegant</div>
+              <div class="font-pill script">Script</div>
+              <div class="font-pill mono">Retro</div>
+            </div>
+          </div>
+
+          <button class="next-btn">Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

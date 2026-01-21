@@ -14,7 +14,7 @@ import { Event } from '../types';
 
 const { width } = Dimensions.get('window');
 
-export type EventTabType = 'going' | 'interested' | 'hosting';
+export type EventTabType = 'going' | 'interested' | 'hosting' | 'drafts';
 
 interface ProfileEventCardProps {
   event: Event;
@@ -67,6 +67,11 @@ export const ProfileEventCard: React.FC<ProfileEventCardProps> = ({
         return {
           colors: ['#8b5cf6', '#7c3aed'] as const,
           icon: '👑',
+        };
+      case 'drafts':
+        return {
+          colors: ['#6b7280', '#4b5563'] as const,
+          icon: '✎',
         };
     }
   };

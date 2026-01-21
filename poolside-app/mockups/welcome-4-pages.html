@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Welcome Flow - 4 Pages</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --coral: #ff6b4a;
+      --violet: #8b5cf6;
+      --cyan: #22d3ee;
+      --teal: #2dd4bf;
+      --green: #22c55e;
+      --amber: #f59e0b;
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.6);
+      --card-bg: rgba(255, 255, 255, 0.06);
+      --card-border: rgba(255, 255, 255, 0.12);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #0a0a0f;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      display: flex;
+      gap: 30px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .page-label {
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+
+    .phone-frame {
+      width: 280px;
+      height: 606px;
+      background: linear-gradient(180deg,
+        #0f0f18 0%,
+        #12121a 50%,
+        #0a0a12 100%
+      );
+      border-radius: 36px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.5);
+    }
+
+    /* Background orbs */
+    .bg-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.35;
+    }
+
+    .bg-orb-1 {
+      width: 200px;
+      height: 200px;
+      background: var(--violet);
+      top: -80px;
+      right: -80px;
+    }
+
+    .bg-orb-2 {
+      width: 180px;
+      height: 180px;
+      background: var(--coral);
+      bottom: 60px;
+      left: -60px;
+    }
+
+    /* Progress dots */
+    .progress-dots {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 10;
+    }
+
+    .progress-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .progress-dot.active {
+      background: var(--coral);
+      transform: scale(1.3);
+      box-shadow: 0 0 10px rgba(255, 107, 74, 0.6);
+    }
+
+    /* Scroll indicator */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .scroll-text {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    .scroll-arrow {
+      width: 14px;
+      height: 14px;
+      border-right: 2px solid var(--text-secondary);
+      border-bottom: 2px solid var(--text-secondary);
+      transform: rotate(45deg);
+      animation: bounce 1.5s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: rotate(45deg) translateY(0); }
+      50% { transform: rotate(45deg) translateY(4px); }
+    }
+
+    /* ========== PAGE 1: GREETING ========== */
+    .greeting-content {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .mascot {
+      font-size: 100px;
+      margin-bottom: -10px;
+    }
+
+    .greeting-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .greeting-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    /* ========== PAGE 2: DISCOVER INTRO ========== */
+    .discover-content {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: rgba(255, 107, 74, 0.15);
+      border: 1px solid rgba(255, 107, 74, 0.3);
+      border-radius: 100px;
+      margin-bottom: 20px;
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--coral);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .live-text {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--coral);
+    }
+
+    .discover-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.15;
+      margin-bottom: 14px;
+    }
+
+    .discover-title .highlight {
+      color: var(--coral);
+    }
+
+    .discover-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      max-width: 240px;
+    }
+
+    /* ========== PAGE 3: EXAMPLE EVENTS ========== */
+    .events-content {
+      height: 100%;
+      padding: 50px 12px 40px;
+      overflow: hidden;
+    }
+
+    .events-header {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .events-header-text {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .events-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Compact event card */
+    .event-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(40px);
+      border-radius: 16px;
+      border: 1px solid var(--card-border);
+      padding: 12px;
+    }
+
+    .event-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .event-emoji {
+      font-size: 28px;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      flex-shrink: 0;
+    }
+
+    .event-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .event-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .event-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .time-badge {
+      font-size: 9px;
+      font-weight: 700;
+      color: white;
+      padding: 3px 8px;
+      border-radius: 100px;
+      text-transform: uppercase;
+    }
+
+    .time-badge.soon { background: var(--coral); }
+    .time-badge.today { background: var(--green); }
+    .time-badge.tomorrow { background: var(--violet); }
+
+    .event-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    .avatar-stack {
+      display: flex;
+    }
+
+    .avatar {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid #0f0f18;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      margin-left: -6px;
+    }
+
+    .avatar:first-child { margin-left: 0; }
+    .avatar.v1 { background: linear-gradient(135deg, #667eea, #764ba2); }
+    .avatar.v2 { background: linear-gradient(135deg, #f093fb, #f5576c); }
+    .avatar.v3 { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+
+    .attendee-count {
+      font-size: 10px;
+      color: var(--teal);
+      font-weight: 600;
+    }
+
+    .needs-badge {
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--amber);
+      background: rgba(245, 158, 11, 0.15);
+      padding: 3px 8px;
+      border-radius: 100px;
+      margin-top: 6px;
+    }
+
+    /* ========== PAGE 4: CTA ========== */
+    .cta-content {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .logo-container {
+      position: relative;
+      margin-bottom: 24px;
+    }
+
+    .logo-ring {
+      position: absolute;
+      border: 2px solid;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .logo-ring-1 {
+      width: 120px;
+      height: 120px;
+      border-color: rgba(255, 107, 74, 0.2);
+    }
+
+    .logo-ring-2 {
+      width: 150px;
+      height: 150px;
+      border-color: rgba(139, 92, 246, 0.15);
+    }
+
+    .logo-ring-3 {
+      width: 180px;
+      height: 180px;
+      border-color: rgba(34, 211, 238, 0.1);
+    }
+
+    .logo-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--coral), var(--violet));
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+      box-shadow: 0 16px 40px rgba(255, 107, 74, 0.3);
+    }
+
+    .cta-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 38px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .cta-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 28px;
+    }
+
+    .cta-button {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 36px;
+      background: linear-gradient(135deg, var(--coral), var(--violet));
+      border: none;
+      border-radius: 16px;
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 12px 32px rgba(255, 107, 74, 0.35);
+    }
+
+    .cta-arrow {
+      font-size: 16px;
+    }
+
+    .terms {
+      margin-top: 20px;
+      font-size: 10px;
+      color: var(--text-secondary);
+      opacity: 0.6;
+    }
+
+    .terms a {
+      color: var(--text-secondary);
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- PAGE 1: Greeting -->
+    <div>
+      <div class="page-label">Page 1: Greeting</div>
+      <div class="phone-frame">
+        <div class="bg-orb bg-orb-1"></div>
+        <div class="bg-orb bg-orb-2"></div>
+        <div class="progress-dots">
+          <div class="progress-dot active"></div>
+          <div class="progress-dot"></div>
+          <div class="progress-dot"></div>
+          <div class="progress-dot"></div>
+        </div>
+        <div class="greeting-content">
+          <div class="mascot">🐘</div>
+          <div class="greeting-title">Hey there!</div>
+          <div class="greeting-subtitle">Ready to dive in?</div>
+        </div>
+        <div class="scroll-indicator">
+          <span class="scroll-text">Scroll</span>
+          <div class="scroll-arrow"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 2: Discover Intro -->
+    <div>
+      <div class="page-label">Page 2: Discover</div>
+      <div class="phone-frame">
+        <div class="bg-orb bg-orb-1"></div>
+        <div class="bg-orb bg-orb-2"></div>
+        <div class="progress-dots">
+          <div class="progress-dot"></div>
+          <div class="progress-dot active"></div>
+          <div class="progress-dot"></div>
+          <div class="progress-dot"></div>
+        </div>
+        <div class="discover-content">
+          <div class="live-badge">
+            <div class="live-dot"></div>
+            <span class="live-text">Live at Tufts</span>
+          </div>
+          <h1 class="discover-title">
+            Discover <span class="highlight">events</span><br>happening now
+          </h1>
+          <p class="discover-subtitle">
+            See what your classmates are up to right now
+          </p>
+        </div>
+        <div class="scroll-indicator">
+          <span class="scroll-text">Scroll</span>
+          <div class="scroll-arrow"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 3: Example Events -->
+    <div>
+      <div class="page-label">Page 3: Events</div>
+      <div class="phone-frame">
+        <div class="bg-orb bg-orb-1"></div>
+        <div class="bg-orb bg-orb-2"></div>
+        <div class="progress-dots">
+          <div class="progress-dot"></div>
+          <div class="progress-dot"></div>
+          <div class="progress-dot active"></div>
+          <div class="progress-dot"></div>
+        </div>
+        <div class="events-content">
+          <div class="events-header">
+            <span class="events-header-text">Happening at Tufts</span>
+          </div>
+          <div class="events-list">
+            <!-- Soccer -->
+            <div class="event-card">
+              <div class="event-row">
+                <div class="event-emoji">⚽️</div>
+                <div class="event-info">
+                  <div class="event-title">Pickup Soccer</div>
+                  <div class="event-meta">
+                    <span class="time-badge soon">In 30 min</span>
+                    <span>📍 Fletcher Field</span>
+                  </div>
+                </div>
+                <div class="event-right">
+                  <div class="avatar-stack">
+                    <div class="avatar v1">🙂</div>
+                    <div class="avatar v2">😊</div>
+                  </div>
+                  <span class="attendee-count">+8 going</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Poker -->
+            <div class="event-card">
+              <div class="event-row">
+                <div class="event-emoji">🃏</div>
+                <div class="event-info">
+                  <div class="event-title">Poker Night</div>
+                  <div class="event-meta">
+                    <span class="time-badge today">Tonight 8pm</span>
+                    <span>📍 Miller 204</span>
+                  </div>
+                  <div class="needs-badge">🙋 Need 3 more</div>
+                </div>
+                <div class="event-right">
+                  <div class="avatar-stack">
+                    <div class="avatar v2">😏</div>
+                    <div class="avatar v3">🙃</div>
+                  </div>
+                  <span class="attendee-count">+4 going</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cheese Club -->
+            <div class="event-card">
+              <div class="event-row">
+                <div class="event-emoji">🧀</div>
+                <div class="event-info">
+                  <div class="event-title">Cheese Club</div>
+                  <div class="event-meta">
+                    <span class="time-badge tomorrow">Tomorrow 3pm</span>
+                    <span>📍 Campus Ctr</span>
+                  </div>
+                </div>
+                <div class="event-right">
+                  <div class="avatar-stack">
+                    <div class="avatar v3">😋</div>
+                    <div class="avatar v1">🧐</div>
+                  </div>
+                  <span class="attendee-count">+23 going</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Study Group -->
+            <div class="event-card">
+              <div class="event-row">
+                <div class="event-emoji">📚</div>
+                <div class="event-info">
+                  <div class="event-title">CS Finals Cram</div>
+                  <div class="event-meta">
+                    <span class="time-badge tomorrow">Fri 2pm</span>
+                    <span>📍 Tisch Library</span>
+                  </div>
+                </div>
+                <div class="event-right">
+                  <div class="avatar-stack">
+                    <div class="avatar v1">🤓</div>
+                    <div class="avatar v2">😅</div>
+                  </div>
+                  <span class="attendee-count">+12 going</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="scroll-indicator">
+          <span class="scroll-text">Scroll</span>
+          <div class="scroll-arrow"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 4: CTA -->
+    <div>
+      <div class="page-label">Page 4: CTA</div>
+      <div class="phone-frame">
+        <div class="bg-orb bg-orb-1"></div>
+        <div class="bg-orb bg-orb-2"></div>
+        <div class="progress-dots">
+          <div class="progress-dot"></div>
+          <div class="progress-dot"></div>
+          <div class="progress-dot"></div>
+          <div class="progress-dot active"></div>
+        </div>
+        <div class="cta-content">
+          <div class="logo-container">
+            <div class="logo-ring logo-ring-1"></div>
+            <div class="logo-ring logo-ring-2"></div>
+            <div class="logo-ring logo-ring-3"></div>
+            <div class="logo-icon">🌊</div>
+          </div>
+          <div class="cta-title">Poolside</div>
+          <div class="cta-subtitle">Your campus. Your community.</div>
+          <button class="cta-button">
+            Let's Dive In
+            <span class="cta-arrow">→</span>
+          </button>
+          <div class="terms">
+            By continuing, you agree to our <a href="#">Terms</a> & <a href="#">Privacy</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

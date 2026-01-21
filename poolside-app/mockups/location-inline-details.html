@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Location Picker - Inline Details</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0a0a12;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+    }
+
+    .phone-frame {
+      width: 390px;
+      height: 844px;
+      background: linear-gradient(165deg,
+        #1a1428 0%,
+        #0f0a1a 25%,
+        #0a0a12 50%,
+        #0d1420 75%,
+        #0a1018 100%
+      );
+      border-radius: 50px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 0 0 12px #1a1a2e,
+        0 25px 80px rgba(0, 0, 0, 0.6);
+    }
+
+    .phone-frame::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background:
+        radial-gradient(ellipse at 30% 20%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 80%, rgba(96, 165, 250, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .screen {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 60px 24px 100px;
+    }
+
+    .notch {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 34px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 100;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .back-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .back-btn svg {
+      width: 20px;
+      height: 20px;
+      color: #fff;
+    }
+
+    .progress-dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .dot.completed { background: rgba(255, 255, 255, 0.6); }
+    .dot.active { background: #fff; }
+
+    .header-spacer { width: 44px; }
+
+    .step-text {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 8px;
+      margin-top: 16px;
+    }
+
+    .main-heading {
+      font-family: 'Syne', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.25;
+      margin-bottom: 24px;
+    }
+
+    .accent { color: #60a5fa; }
+
+    /* Custom location input at top */
+    .custom-location-top {
+      margin-bottom: 16px;
+    }
+
+    .custom-location-button {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      cursor: pointer;
+    }
+
+    .custom-location-icon { font-size: 18px; }
+
+    .custom-location-placeholder {
+      flex: 1;
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .divider-text {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.4);
+      padding: 0 16px;
+    }
+
+    /* Locations container */
+    .locations-container {
+      flex: 1;
+      overflow-y: auto;
+      margin: 0 -24px;
+      padding: 0 24px;
+    }
+
+    .locations-container::-webkit-scrollbar { display: none; }
+
+    /* Category */
+    .category { margin-bottom: 20px; }
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .category-icon { font-size: 16px; }
+
+    .category-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 0.5px;
+    }
+
+    .category-count {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.06);
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-left: auto;
+    }
+
+    /* Location chips */
+    .location-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    /* Regular chip */
+    .location-chip {
+      padding: 12px 16px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .location-chip:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .chip-emoji { font-size: 15px; }
+
+    /* Expanded chip with inline input */
+    .location-chip.expanded {
+      background: rgba(96, 165, 250, 0.15);
+      border-color: rgba(96, 165, 250, 0.4);
+      color: #fff;
+      padding: 8px 12px;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      min-width: 200px;
+      box-shadow: 0 0 25px rgba(96, 165, 250, 0.25);
+      animation: expandChip 0.25s ease;
+    }
+
+    @keyframes expandChip {
+      from {
+        transform: scale(0.95);
+        opacity: 0.8;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .expanded-chip-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 4px 10px 4px;
+    }
+
+    .expanded-chip-name {
+      flex: 1;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .expanded-chip-close {
+      width: 24px;
+      height: 24px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .expanded-chip-close:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+
+    .expanded-chip-input-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+
+    .expanded-chip-input-icon {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .expanded-chip-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      font-size: 13px;
+      color: #fff;
+      outline: none;
+      min-width: 0;
+    }
+
+    .expanded-chip-input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Preview text under input */
+    .expanded-chip-preview {
+      margin-top: 8px;
+      padding: 6px 8px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .expanded-chip-preview span {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* Bottom button */
+    .bottom-section {
+      position: absolute;
+      bottom: 40px;
+      left: 24px;
+      right: 24px;
+    }
+
+    .next-btn {
+      width: 100%;
+      padding: 20px;
+      border-radius: 20px;
+      border: 2px solid #fff;
+      background: linear-gradient(90deg, #c084fc, #e9d5ff, #f5f3ff, #ddd6fe, #93c5fd, #60a5fa);
+      font-size: 17px;
+      font-weight: 600;
+      color: #1a1a2e;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    }
+
+    .next-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="notch"></div>
+    <div class="screen">
+      <!-- Header -->
+      <div class="header">
+        <div class="back-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </div>
+        <div class="progress-dots">
+          <div class="dot completed"></div>
+          <div class="dot completed"></div>
+          <div class="dot active"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+        <div class="header-spacer"></div>
+      </div>
+
+      <div class="step-text">Step 3 of 5</div>
+      <h1 class="main-heading">Where is it<br><span class="accent">happening</span>?</h1>
+
+      <!-- Custom location input -->
+      <div class="custom-location-top">
+        <div class="custom-location-button">
+          <span class="custom-location-icon">📍</span>
+          <span class="custom-location-placeholder">Enter custom location...</span>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="divider">
+        <div class="divider-line"></div>
+        <span class="divider-text">or pick a spot</span>
+        <div class="divider-line"></div>
+      </div>
+
+      <!-- Locations -->
+      <div class="locations-container">
+        <!-- Residence Halls -->
+        <div class="category">
+          <div class="category-header">
+            <span class="category-icon">🏘️</span>
+            <span class="category-name">RESIDENCE HALLS</span>
+            <span class="category-count">6</span>
+          </div>
+          <div class="location-chips" id="residenceChips">
+            <!-- Miller - Expanded state -->
+            <div class="location-chip expanded" id="millerChip">
+              <div class="expanded-chip-header">
+                <span class="chip-emoji">🏡</span>
+                <span class="expanded-chip-name">Miller Hall</span>
+                <button class="expanded-chip-close" onclick="collapseChip('millerChip')">×</button>
+              </div>
+              <div class="expanded-chip-input-row">
+                <span class="expanded-chip-input-icon">+</span>
+                <input
+                  type="text"
+                  class="expanded-chip-input"
+                  placeholder="Room # or specific spot..."
+                  id="millerInput"
+                  oninput="updatePreview('millerChip', 'Miller Hall', this.value)"
+                />
+              </div>
+              <div class="expanded-chip-preview">
+                Shows as: <span id="millerPreview">Miller Hall</span>
+              </div>
+            </div>
+
+            <div class="location-chip" onclick="expandChip(this, 'Carmichael Hall', '🏢')">
+              <span class="chip-emoji">🏢</span> Carmichael
+            </div>
+            <div class="location-chip" onclick="expandChip(this, 'Houston Hall', '🏠')">
+              <span class="chip-emoji">🏠</span> Houston
+            </div>
+            <div class="location-chip" onclick="expandChip(this, 'Tilton Hall', '🏘️')">
+              <span class="chip-emoji">🏘️</span> Tilton
+            </div>
+            <div class="location-chip" onclick="expandChip(this, 'Bush Hall', '🏗️')">
+              <span class="chip-emoji">🏗️</span> Bush
+            </div>
+          </div>
+        </div>
+
+        <!-- Academic -->
+        <div class="category">
+          <div class="category-header">
+            <span class="category-icon">📚</span>
+            <span class="category-name">ACADEMIC</span>
+            <span class="category-count">8</span>
+          </div>
+          <div class="location-chips">
+            <div class="location-chip" onclick="expandChip(this, 'Tisch Library', '📖')">
+              <span class="chip-emoji">📖</span> Tisch Library
+            </div>
+            <div class="location-chip" onclick="expandChip(this, 'SEC', '🔬')">
+              <span class="chip-emoji">🔬</span> SEC
+            </div>
+            <div class="location-chip" onclick="expandChip(this, 'Ballou Hall', '🏛️')">
+              <span class="chip-emoji">🏛️</span> Ballou
+            </div>
+            <div class="location-chip" onclick="expandChip(this, 'CLIC', '💡')">
+              <span class="chip-emoji">💡</span> CLIC
+            </div>
+          </div>
+        </div>
+
+        <!-- Outdoor -->
+        <div class="category">
+          <div class="category-header">
+            <span class="category-icon">🌳</span>
+            <span class="category-name">OUTDOOR</span>
+            <span class="category-count">5</span>
+          </div>
+          <div class="location-chips">
+            <div class="location-chip" onclick="expandChip(this, 'Residential Quad', '🌿')">
+              <span class="chip-emoji">🌿</span> Res Quad
+            </div>
+            <div class="location-chip" onclick="expandChip(this, 'Academic Quad', '🏫')">
+              <span class="chip-emoji">🏫</span> Academic Quad
+            </div>
+            <div class="location-chip" onclick="expandChip(this, 'President\'s Lawn', '🌺')">
+              <span class="chip-emoji">🌺</span> Prez Lawn
+            </div>
+          </div>
+        </div>
+
+        <!-- Dining -->
+        <div class="category">
+          <div class="category-header">
+            <span class="category-icon">🍽️</span>
+            <span class="category-name">DINING</span>
+            <span class="category-count">5</span>
+          </div>
+          <div class="location-chips">
+            <div class="location-chip" onclick="expandChip(this, 'Dewick-MacPhie', '🍴')">
+              <span class="chip-emoji">🍴</span> Dewick
+            </div>
+            <div class="location-chip" onclick="expandChip(this, 'Carmichael Dining', '🥗')">
+              <span class="chip-emoji">🥗</span> Carm Dining
+            </div>
+            <div class="location-chip" onclick="expandChip(this, 'Hodgdon', '🥪')">
+              <span class="chip-emoji">🥪</span> Hodgdon
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Next button -->
+      <div class="bottom-section">
+        <button class="next-btn" id="nextBtn">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentExpanded = 'millerChip';
+
+    function expandChip(chip, name, emoji) {
+      // Collapse any existing expanded chip
+      if (currentExpanded) {
+        collapseChip(currentExpanded);
+      }
+
+      // Create unique ID
+      const id = 'chip_' + Date.now();
+
+      // Replace chip with expanded version
+      chip.outerHTML = `
+        <div class="location-chip expanded" id="${id}">
+          <div class="expanded-chip-header">
+            <span class="chip-emoji">${emoji}</span>
+            <span class="expanded-chip-name">${name}</span>
+            <button class="expanded-chip-close" onclick="collapseChip('${id}', '${name}', '${emoji}')">×</button>
+          </div>
+          <div class="expanded-chip-input-row">
+            <span class="expanded-chip-input-icon">+</span>
+            <input
+              type="text"
+              class="expanded-chip-input"
+              placeholder="Room # or specific spot..."
+              id="${id}_input"
+              oninput="updatePreview('${id}', '${name}', this.value)"
+              autofocus
+            />
+          </div>
+          <div class="expanded-chip-preview">
+            Shows as: <span id="${id}_preview">${name}</span>
+          </div>
+        </div>
+      `;
+
+      currentExpanded = id;
+
+      // Focus the input
+      setTimeout(() => {
+        document.getElementById(id + '_input')?.focus();
+      }, 50);
+    }
+
+    function collapseChip(id, name, emoji) {
+      const chip = document.getElementById(id);
+      if (!chip) return;
+
+      // Get values before collapsing
+      const chipName = name || chip.querySelector('.expanded-chip-name')?.textContent || 'Location';
+      const chipEmoji = emoji || chip.querySelector('.chip-emoji')?.textContent || '📍';
+      const shortName = chipName.split(' ')[0]; // Get first word for display
+
+      // Replace with regular chip
+      chip.outerHTML = `
+        <div class="location-chip" onclick="expandChip(this, '${chipName}', '${chipEmoji}')">
+          <span class="chip-emoji">${chipEmoji}</span> ${shortName}
+        </div>
+      `;
+
+      if (currentExpanded === id) {
+        currentExpanded = null;
+      }
+    }
+
+    function updatePreview(id, baseName, details) {
+      const preview = document.getElementById(id + '_preview');
+      if (preview) {
+        if (details.trim()) {
+          preview.textContent = baseName + ' · ' + details;
+        } else {
+          preview.textContent = baseName;
+        }
+      }
+    }
+  </script>
+</body>
+</html>

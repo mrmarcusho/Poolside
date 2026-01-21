@@ -15,7 +15,12 @@ export class UploadsService {
   }
 
   getFileUrl(filename: string, host: string): string {
-    // Return the URL to access the uploaded file
-    return `http://${host}/uploads/${filename}`;
+    // Use consistent base URL for uploaded files
+    // In dev: use the configured dev server IP
+    // In prod: use the production domain
+    const baseHost = process.env.NODE_ENV === 'production'
+      ? 'api.poolside.app'
+      : '10.243.20.219:3000';
+    return `http://${baseHost}/uploads/${filename}`;
   }
 }

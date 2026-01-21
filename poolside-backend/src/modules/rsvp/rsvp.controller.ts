@@ -13,13 +13,17 @@ import { RsvpService } from './rsvp.service';
 import { CreateRsvpDto, RsvpQueryDto } from './dto/rsvp.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { EventChatGateway } from '../event-chat/event-chat.gateway';
 
 @ApiTags('RSVP')
 @Controller()
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class RsvpController {
-  constructor(private rsvpService: RsvpService) {}
+  constructor(
+    private rsvpService: RsvpService,
+    private eventChatGateway: EventChatGateway,
+  ) {}
 
   @Post('events/:id/rsvp')
   @ApiOperation({ summary: 'RSVP to an event' })
@@ -28,7 +32,18 @@ export class RsvpController {
     @Body() dto: CreateRsvpDto,
     @CurrentUser('id') userId: string,
   ) {
-    return this.rsvpService.createRsvp(eventId, userId, dto.status);
+    const result = await this.rsvpService.createRsvp(eventId, userId, dto.status);
+
+    // Broadcast RSVP update to all connected clients
+    this.eventChatGateway.broadcastRsvpUpdate({
+      eventId: result.eventId,
+      rsvpCount: result.rsvpCount,
+      isFull: result.isFull,
+      spots: result.spots,
+      userId, // Include who triggered the RSVP
+    });
+
+    return result;
   }
 
   @Delete('events/:id/rsvp')
@@ -37,7 +52,18 @@ export class RsvpController {
     @Param('id') eventId: string,
     @CurrentUser('id') userId: string,
   ) {
-    return this.rsvpService.removeRsvp(eventId, userId);
+    const result = await this.rsvpService.removeRsvp(eventId, userId);
+
+    // Broadcast RSVP update to all connected clients
+    this.eventChatGateway.broadcastRsvpUpdate({
+      eventId: result.eventId,
+      rsvpCount: result.rsvpCount,
+      isFull: result.isFull,
+      spots: result.spots,
+      userId, // Include who triggered the RSVP
+    });
+
+    return result;
   }
 
   @Get('me/rsvps')

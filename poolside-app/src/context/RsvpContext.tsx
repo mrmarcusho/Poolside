@@ -79,17 +79,10 @@ export const RsvpProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         // Refresh to get full event data
         await fetchRsvps();
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error setting RSVP:', error);
-      // Optimistically update local state even on error (for offline support)
-      if (status === null) {
-        setRsvpEvents((prev) => {
-          const { [eventId]: _, ...rest } = prev;
-          return rest;
-        });
-      } else {
-        setRsvpEvents((prev) => ({ ...prev, [eventId]: status }));
-      }
+      // Re-throw the error so callers can handle it (e.g., show "Event is full" message)
+      throw error;
     }
   }, [fetchRsvps]);
 

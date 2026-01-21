@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poolside - Time Picker Design Variations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Outfit:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #0a0a0f;
+      min-height: 100vh;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 60px;
+    }
+
+    .page-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .page-subtitle {
+      color: rgba(255, 255, 255, 0.5);
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .designs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 50px;
+      max-width: 1800px;
+      width: 100%;
+    }
+
+    .design-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .design-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #2dd4bf;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .design-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: #fff;
+      margin-top: -10px;
+    }
+
+    /* Phone Frame */
+    .phone {
+      width: 390px;
+      height: 780px;
+      border-radius: 50px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 50px 100px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.1),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    }
+
+    .phone::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 150px;
+      height: 35px;
+      background: #000;
+      border-radius: 0 0 20px 20px;
+      z-index: 100;
+    }
+
+    .screen {
+      width: 100%;
+      height: 100%;
+      padding: 60px 24px 40px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ============================================
+       DESIGN 1: Minimal Gradient Cards
+       ============================================ */
+    .design-1 .screen {
+      background: linear-gradient(180deg, #0f0f18 0%, #1a1a2e 50%, #0f0f18 100%);
+    }
+
+    .design-1 .header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .design-1 .icon-box {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 8px 32px rgba(45, 212, 191, 0.3);
+    }
+
+    .design-1 .header-text h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 28px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .design-1 .header-text p {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 2px;
+    }
+
+    .design-1 .toggle-card {
+      background: rgba(45, 212, 191, 0.08);
+      border: 1px solid rgba(45, 212, 191, 0.2);
+      border-radius: 20px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      transition: all 0.3s ease;
+    }
+
+    .design-1 .toggle-card:hover {
+      background: rgba(45, 212, 191, 0.12);
+      border-color: rgba(45, 212, 191, 0.3);
+    }
+
+    .design-1 .toggle-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .design-1 .toggle-left span:first-child {
+      font-size: 20px;
+    }
+
+    .design-1 .toggle-left span:last-child {
+      font-family: 'Outfit', sans-serif;
+      font-size: 17px;
+      font-weight: 500;
+      color: #fff;
+    }
+
+    .design-1 .toggle-switch {
+      width: 56px;
+      height: 32px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .design-1 .toggle-switch.active {
+      background: #2dd4bf;
+    }
+
+    .design-1 .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 24px;
+      height: 24px;
+      background: #fff;
+      border-radius: 12px;
+      transition: transform 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .design-1 .toggle-switch.active::after {
+      transform: translateX(24px);
+    }
+
+    .design-1 .picker-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .design-1 .picker-labels {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 12px;
+    }
+
+    .design-1 .picker-labels span {
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.35);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .design-1 .picker-container {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 24px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .design-1 .picker-highlight {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 48px;
+      background: rgba(45, 212, 191, 0.1);
+      border: 1px solid rgba(45, 212, 191, 0.2);
+      border-radius: 12px;
+      pointer-events: none;
+    }
+
+    .design-1 .picker-wheels {
+      display: flex;
+      justify-content: space-around;
+      height: 200px;
+      position: relative;
+    }
+
+    .design-1 .picker-wheel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .design-1 .picker-wheel span {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.25);
+      height: 40px;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+
+    .design-1 .picker-wheel span.selected {
+      font-size: 22px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .design-1 .time-display {
+      text-align: center;
+      margin-top: 24px;
+      padding: 16px;
+      background: linear-gradient(135deg, rgba(45, 212, 191, 0.1) 0%, rgba(45, 212, 191, 0.05) 100%);
+      border-radius: 16px;
+      border: 1px solid rgba(45, 212, 191, 0.15);
+    }
+
+    .design-1 .time-display span {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 500;
+      color: #2dd4bf;
+    }
+
+    .design-1 .next-btn {
+      margin-top: auto;
+      background: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 100%);
+      border: none;
+      border-radius: 20px;
+      padding: 20px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: #0a0a12;
+      cursor: pointer;
+      box-shadow: 0 8px 32px rgba(45, 212, 191, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .design-1 .next-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(45, 212, 191, 0.4);
+    }
+
+    /* ============================================
+       DESIGN 2: Segmented Brutalist
+       ============================================ */
+    .design-2 .screen {
+      background: #0a0a0f;
+    }
+
+    .design-2 .header {
+      margin-bottom: 40px;
+    }
+
+    .design-2 .header h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 42px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1;
+    }
+
+    .design-2 .header p {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-top: 8px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .design-2 .mode-toggle {
+      display: flex;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 6px;
+      margin-bottom: 32px;
+    }
+
+    .design-2 .mode-btn {
+      flex: 1;
+      padding: 16px 20px;
+      border: none;
+      background: transparent;
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .design-2 .mode-btn.active {
+      background: #2dd4bf;
+      color: #0a0a12;
+      font-weight: 600;
+    }
+
+    .design-2 .date-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .design-2 .date-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 2px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 20px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .design-2 .date-card:hover {
+      border-color: rgba(45, 212, 191, 0.3);
+      background: rgba(45, 212, 191, 0.05);
+    }
+
+    .design-2 .date-card.selected {
+      border-color: #2dd4bf;
+      background: rgba(45, 212, 191, 0.1);
+    }
+
+    .design-2 .date-card .day-name {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .design-2 .date-card .day-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: #fff;
+      margin: 4px 0;
+    }
+
+    .design-2 .date-card.selected .day-num {
+      color: #2dd4bf;
+    }
+
+    .design-2 .date-card .month {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .design-2 .time-section h3 {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+    }
+
+    .design-2 .time-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .design-2 .time-chip {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 14px 8px;
+      text-align: center;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .design-2 .time-chip:hover {
+      border-color: rgba(45, 212, 191, 0.4);
+      color: #fff;
+    }
+
+    .design-2 .time-chip.selected {
+      background: #2dd4bf;
+      border-color: #2dd4bf;
+      color: #0a0a12;
+      font-weight: 600;
+    }
+
+    .design-2 .next-btn {
+      margin-top: auto;
+      background: #fff;
+      border: none;
+      border-radius: 16px;
+      padding: 20px;
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #0a0a12;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .design-2 .next-btn:hover {
+      transform: scale(1.02);
+    }
+
+    /* ============================================
+       DESIGN 3: Soft Floating
+       ============================================ */
+    .design-3 .screen {
+      background: linear-gradient(165deg, #12121f 0%, #1e1e32 50%, #151525 100%);
+    }
+
+    .design-3 .floating-orb {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(45, 212, 191, 0.15) 0%, transparent 70%);
+      top: -100px;
+      right: -100px;
+      pointer-events: none;
+    }
+
+    .design-3 .header {
+      text-align: center;
+      margin-bottom: 40px;
+      position: relative;
+    }
+
+    .design-3 .header-icon {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 16px;
+      background: linear-gradient(135deg, rgba(45, 212, 191, 0.2) 0%, rgba(45, 212, 191, 0.05) 100%);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(45, 212, 191, 0.2);
+    }
+
+    .design-3 .header h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 26px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .design-3 .header p {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.45);
+      margin-top: 6px;
+    }
+
+    .design-3 .quick-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 18px 28px;
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(20px);
+      border-radius: 100px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 36px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .design-3 .quick-toggle:hover {
+      background: rgba(45, 212, 191, 0.1);
+      border-color: rgba(45, 212, 191, 0.2);
+    }
+
+    .design-3 .quick-toggle.active {
+      background: rgba(45, 212, 191, 0.15);
+      border-color: rgba(45, 212, 191, 0.3);
+    }
+
+    .design-3 .quick-toggle span {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      color: #fff;
+    }
+
+    .design-3 .quick-toggle .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .design-3 .quick-toggle.active .dot {
+      background: #2dd4bf;
+      box-shadow: 0 0 12px rgba(45, 212, 191, 0.6);
+    }
+
+    .design-3 .calendar-strip {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 8px 0;
+      margin-bottom: 28px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .design-3 .calendar-strip::-webkit-scrollbar {
+      display: none;
+    }
+
+    .design-3 .day-pill {
+      min-width: 64px;
+      padding: 16px 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 1px solid transparent;
+    }
+
+    .design-3 .day-pill:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .design-3 .day-pill.selected {
+      background: linear-gradient(135deg, rgba(45, 212, 191, 0.2) 0%, rgba(45, 212, 191, 0.1) 100%);
+      border-color: rgba(45, 212, 191, 0.3);
+    }
+
+    .design-3 .day-pill .weekday {
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .design-3 .day-pill .date {
+      font-family: 'Outfit', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: #fff;
+      margin: 6px 0 4px;
+    }
+
+    .design-3 .day-pill.selected .date {
+      color: #2dd4bf;
+    }
+
+    .design-3 .day-pill .month-label {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .design-3 .time-wheel-container {
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(20px);
+      border-radius: 28px;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .design-3 .time-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.4);
+      text-align: center;
+      margin-bottom: 16px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .design-3 .time-display-large {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .design-3 .time-display-large span {
+      font-family: 'Outfit', sans-serif;
+      font-size: 48px;
+      font-weight: 300;
+      color: #fff;
+      letter-spacing: 4px;
+    }
+
+    .design-3 .time-adjust {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .design-3 .adjust-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .design-3 .adjust-btn:hover {
+      background: rgba(45, 212, 191, 0.2);
+      border-color: rgba(45, 212, 191, 0.3);
+    }
+
+    .design-3 .next-btn {
+      margin-top: auto;
+      background: #2dd4bf;
+      border: none;
+      border-radius: 24px;
+      padding: 22px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: #0a0a12;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .design-3 .next-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(45, 212, 191, 0.3);
+    }
+
+    /* ============================================
+       DESIGN 4: Ultra Minimal
+       ============================================ */
+    .design-4 .screen {
+      background: #09090d;
+      justify-content: space-between;
+    }
+
+    .design-4 .top-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .design-4 .header {
+      margin-bottom: 48px;
+    }
+
+    .design-4 .header h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 8px;
+    }
+
+    .design-4 .header .main-text {
+      font-family: 'Syne', sans-serif;
+      font-size: 36px;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    .design-4 .header .main-text .accent {
+      color: #f97316;
+    }
+
+    .design-4 .now-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 24px;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 100px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 48px;
+    }
+
+    .design-4 .now-pill:hover {
+      border-color: rgba(249, 115, 22, 0.4);
+    }
+
+    .design-4 .now-pill.active {
+      background: rgba(249, 115, 22, 0.1);
+      border-color: #f97316;
+    }
+
+    .design-4 .now-pill span {
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .design-4 .now-pill .indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .design-4 .now-pill.active .indicator {
+      background: #f97316;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.2); }
+    }
+
+    .design-4 .datetime-display {
+      text-align: center;
+    }
+
+    .design-4 .date-text {
+      font-family: 'Outfit', sans-serif;
+      font-size: 56px;
+      font-weight: 200;
+      color: #fff;
+      letter-spacing: -2px;
+      margin-bottom: 8px;
+    }
+
+    .design-4 .time-text {
+      font-family: 'Space Mono', monospace;
+      font-size: 20px;
+      color: #f97316;
+      letter-spacing: 4px;
+    }
+
+    .design-4 .controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 40px;
+    }
+
+    .design-4 .control-btn {
+      padding: 14px 28px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .design-4 .control-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    .design-4 .control-btn.primary {
+      background: rgba(249, 115, 22, 0.1);
+      border-color: rgba(249, 115, 22, 0.2);
+      color: #f97316;
+    }
+
+    .design-4 .next-btn {
+      background: transparent;
+      border: 2px solid #f97316;
+      border-radius: 18px;
+      padding: 20px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: #f97316;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .design-4 .next-btn:hover {
+      background: #f97316;
+      color: #09090d;
+    }
+
+    /* Recommendation Badge */
+    .recommended {
+      position: relative;
+    }
+
+    .recommended::after {
+      content: 'RECOMMENDED';
+      position: absolute;
+      top: -12px;
+      right: -12px;
+      background: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 100%);
+      color: #0a0a12;
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 6px 10px;
+      border-radius: 6px;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+  <h1 class="page-title">Poolside - Time Picker Designs</h1>
+  <p class="page-subtitle">4 sleek variations for the "When?" screen</p>
+
+  <div class="designs-grid">
+    <!-- Design 1: Minimal Gradient Cards -->
+    <div class="design-card recommended">
+      <span class="design-label">Design 1</span>
+      <span class="design-name">Minimal Gradient</span>
+      <div class="phone design-1">
+        <div class="screen">
+          <div class="header">
+            <div class="icon-box">&#128337;</div>
+            <div class="header-text">
+              <h2>When?</h2>
+              <p>Pick the perfect time</p>
+            </div>
+          </div>
+
+          <div class="toggle-card">
+            <div class="toggle-left">
+              <span>&#9889;</span>
+              <span>Starting Now</span>
+            </div>
+            <div class="toggle-switch active"></div>
+          </div>
+
+          <div class="picker-section">
+            <div class="picker-labels">
+              <span>Month</span>
+              <span>Day</span>
+              <span>Time</span>
+            </div>
+            <div class="picker-container">
+              <div class="picker-highlight"></div>
+              <div class="picker-wheels">
+                <div class="picker-wheel">
+                  <span>December</span>
+                  <span class="selected">January</span>
+                  <span>February</span>
+                </div>
+                <div class="picker-wheel">
+                  <span>6</span>
+                  <span class="selected">7</span>
+                  <span>8</span>
+                </div>
+                <div class="picker-wheel">
+                  <span>7:30 PM</span>
+                  <span class="selected">8:00 PM</span>
+                  <span>8:30 PM</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="time-display">
+              <span>Starting right now &#9889;</span>
+            </div>
+          </div>
+
+          <button class="next-btn">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Design 2: Segmented Brutalist -->
+    <div class="design-card">
+      <span class="design-label">Design 2</span>
+      <span class="design-name">Bold Segmented</span>
+      <div class="phone design-2">
+        <div class="screen">
+          <div class="header">
+            <h2>When?</h2>
+            <p>Select date & time</p>
+          </div>
+
+          <div class="mode-toggle">
+            <button class="mode-btn active">
+              <span>&#9889;</span> Now
+            </button>
+            <button class="mode-btn">
+              <span>&#128197;</span> Schedule
+            </button>
+          </div>
+
+          <div class="date-grid">
+            <div class="date-card">
+              <div class="day-name">Today</div>
+              <div class="day-num">7</div>
+              <div class="month">Jan</div>
+            </div>
+            <div class="date-card selected">
+              <div class="day-name">Tmrw</div>
+              <div class="day-num">8</div>
+              <div class="month">Jan</div>
+            </div>
+            <div class="date-card">
+              <div class="day-name">Thu</div>
+              <div class="day-num">9</div>
+              <div class="month">Jan</div>
+            </div>
+            <div class="date-card">
+              <div class="day-name">Fri</div>
+              <div class="day-num">10</div>
+              <div class="month">Jan</div>
+            </div>
+            <div class="date-card">
+              <div class="day-name">Sat</div>
+              <div class="day-num">11</div>
+              <div class="month">Jan</div>
+            </div>
+            <div class="date-card">
+              <div class="day-name">Sun</div>
+              <div class="day-num">12</div>
+              <div class="month">Jan</div>
+            </div>
+          </div>
+
+          <div class="time-section">
+            <h3>Time</h3>
+            <div class="time-grid">
+              <div class="time-chip">6 PM</div>
+              <div class="time-chip">7 PM</div>
+              <div class="time-chip selected">8 PM</div>
+              <div class="time-chip">9 PM</div>
+              <div class="time-chip">10 PM</div>
+              <div class="time-chip">11 PM</div>
+              <div class="time-chip">12 AM</div>
+              <div class="time-chip">1 AM</div>
+            </div>
+          </div>
+
+          <button class="next-btn">Continue</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Design 3: Soft Floating -->
+    <div class="design-card">
+      <span class="design-label">Design 3</span>
+      <span class="design-name">Soft Floating</span>
+      <div class="phone design-3">
+        <div class="screen">
+          <div class="floating-orb"></div>
+
+          <div class="header">
+            <div class="header-icon">&#128197;</div>
+            <h2>When's it happening?</h2>
+            <p>Choose a date and time</p>
+          </div>
+
+          <div class="quick-toggle active">
+            <div class="dot"></div>
+            <span>Starting Now</span>
+          </div>
+
+          <div class="calendar-strip">
+            <div class="day-pill">
+              <div class="weekday">Mon</div>
+              <div class="date">6</div>
+              <div class="month-label">Jan</div>
+            </div>
+            <div class="day-pill selected">
+              <div class="weekday">Tue</div>
+              <div class="date">7</div>
+              <div class="month-label">Jan</div>
+            </div>
+            <div class="day-pill">
+              <div class="weekday">Wed</div>
+              <div class="date">8</div>
+              <div class="month-label">Jan</div>
+            </div>
+            <div class="day-pill">
+              <div class="weekday">Thu</div>
+              <div class="date">9</div>
+              <div class="month-label">Jan</div>
+            </div>
+            <div class="day-pill">
+              <div class="weekday">Fri</div>
+              <div class="date">10</div>
+              <div class="month-label">Jan</div>
+            </div>
+          </div>
+
+          <div class="time-wheel-container">
+            <div class="time-label">Time</div>
+            <div class="time-display-large">
+              <span>8:00 PM</span>
+            </div>
+            <div class="time-adjust">
+              <button class="adjust-btn">-</button>
+              <button class="adjust-btn">+</button>
+            </div>
+          </div>
+
+          <button class="next-btn">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Design 4: Ultra Minimal -->
+    <div class="design-card">
+      <span class="design-label">Design 4</span>
+      <span class="design-name">Ultra Minimal</span>
+      <div class="phone design-4">
+        <div class="screen">
+          <div class="top-section">
+            <div class="header">
+              <h2>Step 2 of 5</h2>
+              <div class="main-text">
+                When is your<br>event <span class="accent">happening</span>?
+              </div>
+            </div>
+
+            <div class="now-pill active">
+              <div class="indicator"></div>
+              <span>Starting right now</span>
+            </div>
+
+            <div class="datetime-display">
+              <div class="date-text">Jan 7</div>
+              <div class="time-text">8:00 PM</div>
+            </div>
+
+            <div class="controls">
+              <button class="control-btn">Change Date</button>
+              <button class="control-btn primary">Change Time</button>
+            </div>
+          </div>
+
+          <button class="next-btn">Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

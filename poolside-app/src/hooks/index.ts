@@ -5,3 +5,4 @@ export { useNotifications } from './useNotifications';
 export { useConversations } from './useConversations';
 export { useSocket } from './useSocket';
 export { useChat } from './useChat';
+export { useEventChat } from './useEventChat';

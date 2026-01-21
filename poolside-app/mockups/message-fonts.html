@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=375, initial-scale=1.0">
+  <title>Message Font Comparison - Poolside</title>
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=chillax@400,500,600,700&f[]=supreme@400,500,600,700&f[]=satoshi@400,500,700&f[]=general-sans@400,500,600&f[]=cabinet-grotesk@500,700&f[]=clash-display@400,500,600&f[]=switzer@400,500,600&f[]=outfit@400,500,600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0a0a0f;
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+      padding-bottom: 60px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      font-family: 'Satoshi', sans-serif;
+    }
+
+    .header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .font-section {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .font-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      font-family: 'Satoshi', sans-serif;
+    }
+
+    .font-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .font-weight {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(102, 126, 234, 0.2);
+      color: #667eea;
+      font-weight: 500;
+    }
+
+    .chat-preview {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .message-row {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .message-row.received {
+      justify-content: flex-start;
+    }
+
+    .message-bubble {
+      max-width: 75%;
+      padding: 12px 16px;
+      border-radius: 20px;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .message-bubble.sent {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
+      border-bottom-right-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .message-bubble.received {
+      background: rgba(255, 255, 255, 0.1);
+      border-bottom-left-radius: 6px;
+    }
+
+    /* Font families */
+    .font-supreme { font-family: 'Supreme', sans-serif; }
+    .font-chillax { font-family: 'Chillax', sans-serif; }
+    .font-satoshi { font-family: 'Satoshi', sans-serif; }
+    .font-general-sans { font-family: 'General Sans', sans-serif; }
+    .font-cabinet { font-family: 'Cabinet Grotesk', sans-serif; }
+    .font-clash { font-family: 'Clash Display', sans-serif; }
+    .font-switzer { font-family: 'Switzer', sans-serif; }
+    .font-outfit { font-family: 'Outfit', sans-serif; }
+
+    /* Font weights */
+    .weight-regular { font-weight: 400; }
+    .weight-medium { font-weight: 500; }
+    .weight-semibold { font-weight: 600; }
+    .weight-bold { font-weight: 700; }
+
+    .recommended {
+      border: 2px solid rgba(102, 126, 234, 0.5);
+      box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
+    }
+
+    .recommended .font-header::after {
+      content: '⭐ Recommended';
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(34, 197, 94, 0.2);
+      color: #22c55e;
+      font-weight: 500;
+      margin-left: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Message Font Comparison</h1>
+    <p>Compare different fonts for chat messages</p>
+  </div>
+
+  <!-- Supreme -->
+  <div class="font-section recommended">
+    <div class="font-header">
+      <span class="font-name">Supreme</span>
+      <span class="font-weight">Semibold (600)</span>
+    </div>
+    <div class="chat-preview">
+      <div class="message-row received">
+        <div class="message-bubble received font-supreme weight-semibold">Hey! Are you coming to the party tonight?</div>
+      </div>
+      <div class="message-row">
+        <div class="message-bubble sent font-supreme weight-semibold">Yes! Can't wait to see everyone 🎉</div>
+      </div>
+      <div class="message-row received">
+        <div class="message-bubble received font-supreme weight-semibold">Perfect! See you at 8pm</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chillax -->
+  <div class="font-section">
+    <div class="font-header">
+      <span class="font-name">Chillax</span>
+      <span class="font-weight">Semibold (600)</span>
+    </div>
+    <div class="chat-preview">
+      <div class="message-row received">
+        <div class="message-bubble received font-chillax weight-semibold">Hey! Are you coming to the party tonight?</div>
+      </div>
+      <div class="message-row">
+        <div class="message-bubble sent font-chillax weight-semibold">Yes! Can't wait to see everyone 🎉</div>
+      </div>
+      <div class="message-row received">
+        <div class="message-bubble received font-chillax weight-semibold">Perfect! See you at 8pm</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Satoshi -->
+  <div class="font-section">
+    <div class="font-header">
+      <span class="font-name">Satoshi</span>
+      <span class="font-weight">Medium (500)</span>
+    </div>
+    <div class="chat-preview">
+      <div class="message-row received">
+        <div class="message-bubble received font-satoshi weight-medium">Hey! Are you coming to the party tonight?</div>
+      </div>
+      <div class="message-row">
+        <div class="message-bubble sent font-satoshi weight-medium">Yes! Can't wait to see everyone 🎉</div>
+      </div>
+      <div class="message-row received">
+        <div class="message-bubble received font-satoshi weight-medium">Perfect! See you at 8pm</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- General Sans -->
+  <div class="font-section">
+    <div class="font-header">
+      <span class="font-name">General Sans</span>
+      <span class="font-weight">Medium (500)</span>
+    </div>
+    <div class="chat-preview">
+      <div class="message-row received">
+        <div class="message-bubble received font-general-sans weight-medium">Hey! Are you coming to the party tonight?</div>
+      </div>
+      <div class="message-row">
+        <div class="message-bubble sent font-general-sans weight-medium">Yes! Can't wait to see everyone 🎉</div>
+      </div>
+      <div class="message-row received">
+        <div class="message-bubble received font-general-sans weight-medium">Perfect! See you at 8pm</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cabinet Grotesk -->
+  <div class="font-section">
+    <div class="font-header">
+      <span class="font-name">Cabinet Grotesk</span>
+      <span class="font-weight">Medium (500)</span>
+    </div>
+    <div class="chat-preview">
+      <div class="message-row received">
+        <div class="message-bubble received font-cabinet weight-medium">Hey! Are you coming to the party tonight?</div>
+      </div>
+      <div class="message-row">
+        <div class="message-bubble sent font-cabinet weight-medium">Yes! Can't wait to see everyone 🎉</div>
+      </div>
+      <div class="message-row received">
+        <div class="message-bubble received font-cabinet weight-medium">Perfect! See you at 8pm</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Clash Display -->
+  <div class="font-section">
+    <div class="font-header">
+      <span class="font-name">Clash Display</span>
+      <span class="font-weight">Medium (500)</span>
+    </div>
+    <div class="chat-preview">
+      <div class="message-row received">
+        <div class="message-bubble received font-clash weight-medium">Hey! Are you coming to the party tonight?</div>
+      </div>
+      <div class="message-row">
+        <div class="message-bubble sent font-clash weight-medium">Yes! Can't wait to see everyone 🎉</div>
+      </div>
+      <div class="message-row received">
+        <div class="message-bubble received font-clash weight-medium">Perfect! See you at 8pm</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Switzer -->
+  <div class="font-section">
+    <div class="font-header">
+      <span class="font-name">Switzer</span>
+      <span class="font-weight">Medium (500)</span>
+    </div>
+    <div class="chat-preview">
+      <div class="message-row received">
+        <div class="message-bubble received font-switzer weight-medium">Hey! Are you coming to the party tonight?</div>
+      </div>
+      <div class="message-row">
+        <div class="message-bubble sent font-switzer weight-medium">Yes! Can't wait to see everyone 🎉</div>
+      </div>
+      <div class="message-row received">
+        <div class="message-bubble received font-switzer weight-medium">Perfect! See you at 8pm</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Outfit -->
+  <div class="font-section">
+    <div class="font-header">
+      <span class="font-name">Outfit</span>
+      <span class="font-weight">Medium (500)</span>
+    </div>
+    <div class="chat-preview">
+      <div class="message-row received">
+        <div class="message-bubble received font-outfit weight-medium">Hey! Are you coming to the party tonight?</div>
+      </div>
+      <div class="message-row">
+        <div class="message-bubble sent font-outfit weight-medium">Yes! Can't wait to see everyone 🎉</div>
+      </div>
+      <div class="message-row received">
+        <div class="message-bubble received font-outfit weight-medium">Perfect! See you at 8pm</div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

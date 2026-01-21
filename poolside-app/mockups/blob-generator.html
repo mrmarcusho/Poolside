@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      margin: 0;
+      padding: 40px;
+      background: #0f0f1a;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+
+    .blob-container {
+      width: 100px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .blob {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      filter: blur(20px);
+    }
+
+    .purple { background: #8b5cf6; }
+    .pink { background: #ec4899; }
+    .green { background: #4ade80; }
+    .amber { background: #fbbf24; }
+    .red { background: #ef4444; }
+
+    .label {
+      color: rgba(255,255,255,0.5);
+      font-family: system-ui;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <div class="label">Purple blob</div>
+    <div class="blob-container" id="purple">
+      <div class="blob purple"></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="label">Pink blob</div>
+    <div class="blob-container" id="pink">
+      <div class="blob pink"></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="label">Green blob</div>
+    <div class="blob-container" id="green">
+      <div class="blob green"></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="label">Amber blob</div>
+    <div class="blob-container" id="amber">
+      <div class="blob amber"></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="label">Red blob</div>
+    <div class="blob-container" id="red">
+      <div class="blob red"></div>
+    </div>
+  </div>
+
+  <!-- Preview: How they look in a button -->
+  <div style="margin-top: 40px;">
+    <div class="label">Preview in button context</div>
+    <div style="
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 24px;
+      border-radius: 50px;
+      background: rgba(15, 15, 25, 0.95);
+      border: 1px solid rgba(100, 180, 255, 0.6);
+      overflow: hidden;
+    ">
+      <!-- Purple blob left -->
+      <div style="
+        position: absolute;
+        left: 5px;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #8b5cf6;
+        filter: blur(15px);
+        opacity: 0.7;
+      "></div>
+      <!-- Pink blob right -->
+      <div style="
+        position: absolute;
+        right: 5px;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #ec4899;
+        filter: blur(15px);
+        opacity: 0.6;
+      "></div>
+      <span style="color: white; font-family: system-ui; font-weight: 600; font-size: 14px; position: relative; z-index: 1;">+ RSVP</span>
+    </div>
+  </div>
+</body>
+</html>

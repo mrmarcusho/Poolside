@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nav Bar Redesign - Poolside</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Syne:wght@600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js" type="module"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #0a0a0f;
+      min-height: 100vh;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .page-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+    }
+
+    .page-subtitle {
+      color: rgba(255, 255, 255, 0.5);
+      text-align: center;
+      font-size: 14px;
+      margin-top: -30px;
+    }
+
+    .variants {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .variant {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .variant-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .variant-desc {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+      max-width: 320px;
+      text-align: center;
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+
+    /* Phone Frame */
+    .phone {
+      width: 320px;
+      height: 693px;
+      border-radius: 45px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 50px 100px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+
+    .phone::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 30px;
+      background: #000;
+      border-radius: 0 0 18px 18px;
+      z-index: 100;
+    }
+
+    .screen {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, #12121a 0%, #0a0a0f 100%);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Mock content area */
+    .content-area {
+      flex: 1;
+      padding: 60px 20px 20px;
+    }
+
+    .mock-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      height: 180px;
+      margin-bottom: 16px;
+    }
+
+    .mock-card-small {
+      height: 120px;
+    }
+
+    /* Base Nav Styles */
+    .nav-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 12px 20px 30px;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav-icon {
+      font-size: 24px;
+      transition: all 0.2s;
+    }
+
+    .nav-label {
+      font-size: 10px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    /* ========== OPTION 1: Teal Active with Labels ========== */
+    .option1 .nav-bar {
+      background: rgba(10, 10, 15, 0.95);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+    }
+
+    .option1 .nav-icon {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .option1 .nav-label {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .option1 .nav-item.active .nav-icon {
+      color: #2dd4bf;
+    }
+
+    .option1 .nav-item.active .nav-label {
+      color: #2dd4bf;
+    }
+
+    /* ========== OPTION 2: Gradient Active Glow ========== */
+    .option2 .nav-bar {
+      background: linear-gradient(180deg, rgba(10, 10, 15, 0.9) 0%, rgba(10, 10, 15, 0.98) 100%);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(20px);
+    }
+
+    .option2 .nav-icon {
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    .option2 .nav-label {
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    .option2 .nav-item.active .nav-icon {
+      color: #fff;
+      filter: drop-shadow(0 0 8px rgba(192, 132, 252, 0.6));
+    }
+
+    .option2 .nav-item.active .nav-label {
+      color: #c084fc;
+    }
+
+    /* ========== OPTION 3: Pill Active Indicator ========== */
+    .option3 .nav-bar {
+      background: rgba(10, 10, 15, 0.95);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+    }
+
+    .option3 .nav-item {
+      padding: 8px 16px;
+      border-radius: 20px;
+      background: transparent;
+      transition: all 0.3s;
+    }
+
+    .option3 .nav-icon {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .option3 .nav-label {
+      display: none;
+    }
+
+    .option3 .nav-item.active {
+      background: rgba(45, 212, 191, 0.15);
+      border: 1px solid rgba(45, 212, 191, 0.3);
+    }
+
+    .option3 .nav-item.active .nav-icon {
+      color: #2dd4bf;
+    }
+
+    .option3 .nav-item.active .nav-label {
+      display: block;
+      color: #2dd4bf;
+    }
+
+    /* ========== OPTION 4: Floating Pill Bar ========== */
+    .option4 .nav-bar {
+      bottom: 24px;
+      left: 20px;
+      right: 20px;
+      background: rgba(30, 30, 40, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 28px;
+      padding: 10px 24px 10px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .option4 .nav-icon {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .option4 .nav-label {
+      display: none;
+    }
+
+    .option4 .nav-item.active .nav-icon {
+      color: #fff;
+    }
+
+    .option4 .nav-item.active::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      width: 4px;
+      height: 4px;
+      background: #2dd4bf;
+      border-radius: 2px;
+    }
+
+    .option4 .nav-item {
+      position: relative;
+    }
+
+    /* ========== OPTION 5: White Icons + Teal Dot ========== */
+    .option5 .nav-bar {
+      background: rgba(10, 10, 15, 0.95);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+    }
+
+    .option5 .nav-icon {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .option5 .nav-label {
+      display: none;
+    }
+
+    .option5 .nav-item.active .nav-icon {
+      color: #fff;
+    }
+
+    .option5 .nav-item.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      width: 5px;
+      height: 5px;
+      background: #2dd4bf;
+      border-radius: 50%;
+    }
+
+    .option5 .nav-item {
+      position: relative;
+      padding: 8px;
+    }
+
+    /* ========== OPTION 6: Gradient Bar + Bold Icons ========== */
+    .option6 .nav-bar {
+      background: linear-gradient(180deg, rgba(20, 20, 30, 0.95) 0%, rgba(10, 10, 15, 0.98) 100%);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+    }
+
+    .option6 .nav-icon {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 26px;
+    }
+
+    .option6 .nav-label {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .option6 .nav-item.active .nav-icon {
+      color: #fff;
+    }
+
+    .option6 .nav-item.active .nav-label {
+      color: #fff;
+    }
+
+    /* ========== OPTION 7: Colorful Icons ========== */
+    .option7 .nav-bar {
+      background: rgba(10, 10, 15, 0.95);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+    }
+
+    .option7 .nav-icon {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .option7 .nav-label {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .option7 .nav-item.active.home .nav-icon { color: #60a5fa; }
+    .option7 .nav-item.active.home .nav-label { color: #60a5fa; }
+
+    .option7 .nav-item.active.search .nav-icon { color: #f472b6; }
+    .option7 .nav-item.active.search .nav-label { color: #f472b6; }
+
+    .option7 .nav-item.active.create .nav-icon { color: #2dd4bf; }
+    .option7 .nav-item.active.create .nav-label { color: #2dd4bf; }
+
+    .option7 .nav-item.active.friends .nav-icon { color: #a78bfa; }
+    .option7 .nav-item.active.friends .nav-label { color: #a78bfa; }
+
+    .option7 .nav-item.active.profile .nav-icon { color: #fbbf24; }
+    .option7 .nav-item.active.profile .nav-label { color: #fbbf24; }
+
+    /* ========== OPTION 8: Glassmorphism Float ========== */
+    .option8 .nav-bar {
+      bottom: 20px;
+      left: 16px;
+      right: 16px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      padding: 14px 20px 14px;
+      backdrop-filter: blur(30px);
+    }
+
+    .option8 .nav-icon {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 22px;
+    }
+
+    .option8 .nav-label {
+      display: none;
+    }
+
+    .option8 .nav-item.active {
+      background: rgba(45, 212, 191, 0.2);
+      padding: 8px 16px;
+      border-radius: 16px;
+    }
+
+    .option8 .nav-item.active .nav-icon {
+      color: #2dd4bf;
+    }
+
+    /* ========== OPTION 9: Dark Glass ========== */
+    .option9 .nav-bar {
+      background: rgba(0, 0, 0, 0.7);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(40px);
+    }
+
+    .option9 .nav-icon {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .option9 .nav-label {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .option9 .nav-item.active .nav-icon {
+      color: #2dd4bf;
+    }
+
+    .option9 .nav-item.active .nav-label {
+      color: #2dd4bf;
+    }
+
+    /* ========== OPTION 10: Dark Glass Floating ========== */
+    .option10 .nav-bar {
+      bottom: 20px;
+      left: 16px;
+      right: 16px;
+      background: rgba(0, 0, 0, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 28px;
+      padding: 14px 24px 14px;
+      backdrop-filter: blur(40px);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .option10 .nav-icon {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 24px;
+    }
+
+    .option10 .nav-label {
+      display: none;
+    }
+
+    .option10 .nav-item.active .nav-icon {
+      color: #fff;
+    }
+
+    .option10 .nav-item {
+      position: relative;
+      padding: 8px;
+    }
+
+    .option10 .nav-item.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      width: 5px;
+      height: 5px;
+      background: #2dd4bf;
+      border-radius: 50%;
+    }
+
+    /* ========== OPTION 11: Dark Glass + Teal Glow ========== */
+    .option11 .nav-bar {
+      background: rgba(0, 0, 0, 0.8);
+      border-top: 1px solid rgba(45, 212, 191, 0.15);
+      backdrop-filter: blur(40px);
+    }
+
+    .option11 .nav-icon {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .option11 .nav-label {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .option11 .nav-item.active .nav-icon {
+      color: #2dd4bf;
+      filter: drop-shadow(0 0 8px rgba(45, 212, 191, 0.5));
+    }
+
+    .option11 .nav-item.active .nav-label {
+      color: #2dd4bf;
+    }
+
+    /* ========== OPTION 12: Solid Dark + Bright Icons ========== */
+    .option12 .nav-bar {
+      background: rgba(5, 5, 10, 0.95);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+    }
+
+    .option12 .nav-icon {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 24px;
+    }
+
+    .option12 .nav-label {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 10px;
+    }
+
+    .option12 .nav-item.active .nav-icon {
+      color: #fff;
+    }
+
+    .option12 .nav-item.active .nav-label {
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <h1 class="page-title">Nav Bar Redesign</h1>
+  <p class="page-subtitle">Different color schemes and styles for better icon visibility</p>
+
+  <div class="variants">
+    <!-- Option 1: Teal Active with Labels -->
+    <div class="variant">
+      <div class="variant-label">Option 1: Teal Active</div>
+      <div class="phone option1">
+        <div class="screen">
+          <div class="content-area">
+            <div class="mock-card"></div>
+            <div class="mock-card mock-card-small"></div>
+          </div>
+          <div class="nav-bar">
+            <div class="nav-item active">
+              <ion-icon name="home" class="nav-icon"></ion-icon>
+              <span class="nav-label">Home</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="search" class="nav-icon"></ion-icon>
+              <span class="nav-label">Search</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="add-circle" class="nav-icon"></ion-icon>
+              <span class="nav-label">Create</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="people" class="nav-icon"></ion-icon>
+              <span class="nav-label">Friends</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="person" class="nav-icon"></ion-icon>
+              <span class="nav-label">Profile</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="variant-desc">Teal (#2dd4bf) for active state. Clean and matches app accent color.</p>
+    </div>
+
+    <!-- Option 2: Gradient Glow -->
+    <div class="variant">
+      <div class="variant-label">Option 2: Purple Glow</div>
+      <div class="phone option2">
+        <div class="screen">
+          <div class="content-area">
+            <div class="mock-card"></div>
+            <div class="mock-card mock-card-small"></div>
+          </div>
+          <div class="nav-bar">
+            <div class="nav-item active">
+              <ion-icon name="home" class="nav-icon"></ion-icon>
+              <span class="nav-label">Home</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="search" class="nav-icon"></ion-icon>
+              <span class="nav-label">Search</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="add-circle" class="nav-icon"></ion-icon>
+              <span class="nav-label">Create</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="people" class="nav-icon"></ion-icon>
+              <span class="nav-label">Friends</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="person" class="nav-icon"></ion-icon>
+              <span class="nav-label">Profile</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="variant-desc">White active icon with purple glow effect. Premium feel.</p>
+    </div>
+
+    <!-- Option 3: Pill Indicator -->
+    <div class="variant">
+      <div class="variant-label">Option 3: Pill Indicator</div>
+      <div class="phone option3">
+        <div class="screen">
+          <div class="content-area">
+            <div class="mock-card"></div>
+            <div class="mock-card mock-card-small"></div>
+          </div>
+          <div class="nav-bar">
+            <div class="nav-item active">
+              <ion-icon name="home" class="nav-icon"></ion-icon>
+              <span class="nav-label">Home</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="search" class="nav-icon"></ion-icon>
+              <span class="nav-label">Search</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="add-circle" class="nav-icon"></ion-icon>
+              <span class="nav-label">Create</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="people" class="nav-icon"></ion-icon>
+              <span class="nav-label">Friends</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="person" class="nav-icon"></ion-icon>
+              <span class="nav-label">Profile</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="variant-desc">Active tab gets a pill background with label appearing.</p>
+    </div>
+
+    <!-- Option 4: Floating Bar -->
+    <div class="variant">
+      <div class="variant-label">Option 4: Floating Bar</div>
+      <div class="phone option4">
+        <div class="screen">
+          <div class="content-area">
+            <div class="mock-card"></div>
+            <div class="mock-card mock-card-small"></div>
+          </div>
+          <div class="nav-bar">
+            <div class="nav-item active">
+              <ion-icon name="home" class="nav-icon"></ion-icon>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="search" class="nav-icon"></ion-icon>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="add-circle" class="nav-icon"></ion-icon>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="people" class="nav-icon"></ion-icon>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="person" class="nav-icon"></ion-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="variant-desc">Floating pill-shaped bar with teal dot indicator. Modern look.</p>
+    </div>
+
+    <!-- Option 5: White + Teal Dot -->
+    <div class="variant">
+      <div class="variant-label">Option 5: Minimal Dot</div>
+      <div class="phone option5">
+        <div class="screen">
+          <div class="content-area">
+            <div class="mock-card"></div>
+            <div class="mock-card mock-card-small"></div>
+          </div>
+          <div class="nav-bar">
+            <div class="nav-item active">
+              <ion-icon name="home" class="nav-icon"></ion-icon>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="search" class="nav-icon"></ion-icon>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="add-circle" class="nav-icon"></ion-icon>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="people" class="nav-icon"></ion-icon>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="person" class="nav-icon"></ion-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="variant-desc">White active icon with small teal dot below. Clean & minimal.</p>
+    </div>
+
+    <!-- Option 6: Bold Icons -->
+    <div class="variant">
+      <div class="variant-label">Option 6: Bold White</div>
+      <div class="phone option6">
+        <div class="screen">
+          <div class="content-area">
+            <div class="mock-card"></div>
+            <div class="mock-card mock-card-small"></div>
+          </div>
+          <div class="nav-bar">
+            <div class="nav-item active">
+              <ion-icon name="home" class="nav-icon"></ion-icon>
+              <span class="nav-label">Home</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="search" class="nav-icon"></ion-icon>
+              <span class="nav-label">Search</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="add-circle" class="nav-icon"></ion-icon>
+              <span class="nav-label">Create</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="people" class="nav-icon"></ion-icon>
+              <span class="nav-label">Friends</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="person" class="nav-icon"></ion-icon>
+              <span class="nav-label">Profile</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="variant-desc">Higher contrast - brighter inactive icons, pure white active.</p>
+    </div>
+
+    <!-- Option 7: Colorful -->
+    <div class="variant">
+      <div class="variant-label">Option 7: Colorful</div>
+      <div class="phone option7">
+        <div class="screen">
+          <div class="content-area">
+            <div class="mock-card"></div>
+            <div class="mock-card mock-card-small"></div>
+          </div>
+          <div class="nav-bar">
+            <div class="nav-item active home">
+              <ion-icon name="home" class="nav-icon"></ion-icon>
+              <span class="nav-label">Home</span>
+            </div>
+            <div class="nav-item search">
+              <ion-icon name="search" class="nav-icon"></ion-icon>
+              <span class="nav-label">Search</span>
+            </div>
+            <div class="nav-item create">
+              <ion-icon name="add-circle" class="nav-icon"></ion-icon>
+              <span class="nav-label">Create</span>
+            </div>
+            <div class="nav-item friends">
+              <ion-icon name="people" class="nav-icon"></ion-icon>
+              <span class="nav-label">Friends</span>
+            </div>
+            <div class="nav-item profile">
+              <ion-icon name="person" class="nav-icon"></ion-icon>
+              <span class="nav-label">Profile</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="variant-desc">Each tab has its own color when active. Playful & distinctive.</p>
+    </div>
+
+    <!-- Option 8: Glassmorphism -->
+    <div class="variant">
+      <div class="variant-label">Option 8: Glass Float</div>
+      <div class="phone option8">
+        <div class="screen">
+          <div class="content-area">
+            <div class="mock-card"></div>
+            <div class="mock-card mock-card-small"></div>
+          </div>
+          <div class="nav-bar">
+            <div class="nav-item active">
+              <ion-icon name="home" class="nav-icon"></ion-icon>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="search" class="nav-icon"></ion-icon>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="add-circle" class="nav-icon"></ion-icon>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="people" class="nav-icon"></ion-icon>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="person" class="nav-icon"></ion-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="variant-desc">Floating glassmorphism bar with teal pill highlight on active.</p>
+    </div>
+
+    <!-- Option 9: Dark Glass -->
+    <div class="variant">
+      <div class="variant-label">Option 9: Dark Glass</div>
+      <div class="phone option9">
+        <div class="screen">
+          <div class="content-area">
+            <div class="mock-card"></div>
+            <div class="mock-card mock-card-small"></div>
+          </div>
+          <div class="nav-bar">
+            <div class="nav-item active">
+              <ion-icon name="home" class="nav-icon"></ion-icon>
+              <span class="nav-label">Home</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="search" class="nav-icon"></ion-icon>
+              <span class="nav-label">Search</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="add-circle" class="nav-icon"></ion-icon>
+              <span class="nav-label">Create</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="people" class="nav-icon"></ion-icon>
+              <span class="nav-label">Friends</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="person" class="nav-icon"></ion-icon>
+              <span class="nav-label">Profile</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="variant-desc">Dark glass background (70% black). Teal active icons with labels.</p>
+    </div>
+
+    <!-- Option 10: Dark Glass Floating -->
+    <div class="variant">
+      <div class="variant-label">Option 10: Dark Float</div>
+      <div class="phone option10">
+        <div class="screen">
+          <div class="content-area">
+            <div class="mock-card"></div>
+            <div class="mock-card mock-card-small"></div>
+          </div>
+          <div class="nav-bar">
+            <div class="nav-item active">
+              <ion-icon name="home" class="nav-icon"></ion-icon>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="search" class="nav-icon"></ion-icon>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="add-circle" class="nav-icon"></ion-icon>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="people" class="nav-icon"></ion-icon>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="person" class="nav-icon"></ion-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="variant-desc">Floating dark glass pill. White active icon + teal dot indicator.</p>
+    </div>
+
+    <!-- Option 11: Dark Glass + Teal Glow -->
+    <div class="variant">
+      <div class="variant-label">Option 11: Dark + Glow</div>
+      <div class="phone option11">
+        <div class="screen">
+          <div class="content-area">
+            <div class="mock-card"></div>
+            <div class="mock-card mock-card-small"></div>
+          </div>
+          <div class="nav-bar">
+            <div class="nav-item active">
+              <ion-icon name="home" class="nav-icon"></ion-icon>
+              <span class="nav-label">Home</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="search" class="nav-icon"></ion-icon>
+              <span class="nav-label">Search</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="add-circle" class="nav-icon"></ion-icon>
+              <span class="nav-label">Create</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="people" class="nav-icon"></ion-icon>
+              <span class="nav-label">Friends</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="person" class="nav-icon"></ion-icon>
+              <span class="nav-label">Profile</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="variant-desc">Dark glass (80% black) with teal glow on active icon. Premium feel.</p>
+    </div>
+
+    <!-- Option 12: Solid Dark + Bright Icons -->
+    <div class="variant">
+      <div class="variant-label">Option 12: Solid Dark</div>
+      <div class="phone option12">
+        <div class="screen">
+          <div class="content-area">
+            <div class="mock-card"></div>
+            <div class="mock-card mock-card-small"></div>
+          </div>
+          <div class="nav-bar">
+            <div class="nav-item active">
+              <ion-icon name="home" class="nav-icon"></ion-icon>
+              <span class="nav-label">Home</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="search" class="nav-icon"></ion-icon>
+              <span class="nav-label">Search</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="add-circle" class="nav-icon"></ion-icon>
+              <span class="nav-label">Create</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="people" class="nav-icon"></ion-icon>
+              <span class="nav-label">Friends</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="person" class="nav-icon"></ion-icon>
+              <span class="nav-label">Profile</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="variant-desc">Almost solid dark (95% black). Brighter inactive icons, white active.</p>
+    </div>
+  </div>
+</body>
+</html>

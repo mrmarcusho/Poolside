@@ -25,6 +25,11 @@ export interface AuthResponse {
   refreshToken: string;
 }
 
+export interface MagicLinkSentResponse {
+  message: string;
+  expiresAt: string;
+}
+
 export const authService = {
   async register(data: RegisterData): Promise<AuthResponse> {
     const response = await apiClient.post<AuthResponse>('/auth/register', data);
@@ -55,5 +60,17 @@ export const authService = {
 
   async resetPassword(token: string, password: string): Promise<void> {
     await apiClient.post('/auth/reset-password', { token, password });
+  },
+
+  // Magic Link Authentication
+  async sendMagicLink(email: string): Promise<MagicLinkSentResponse> {
+    const response = await apiClient.post<MagicLinkSentResponse>('/auth/send-magic-link', { email });
+    return response.data;
+  },
+
+  async verifyMagicLink(token: string): Promise<AuthResponse> {
+    const response = await apiClient.post<AuthResponse>('/auth/verify-magic-link', { token });
+    await tokenStorage.setTokens(response.data.accessToken, response.data.refreshToken);
+    return response.data;
   },
 };

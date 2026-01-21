@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Chat Card Variations</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+      font-family: 'DM Sans', -apple-system, sans-serif;
+    }
+
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      color: #fff;
+      text-align: center;
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+      font-size: 15px;
+      margin-bottom: 48px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 40px;
+      max-width: 1600px;
+      margin: 0 auto;
+      justify-items: center;
+    }
+
+    .variation {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .phone {
+      width: 220px;
+      height: 476px;
+      border-radius: 36px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+      background: #0a0a0f;
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Gradient background matching the app */
+    .gradient-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 30% 20%, rgba(160, 120, 220, 0.7) 0%, transparent 50%),
+        radial-gradient(ellipse 70% 50% at 70% 80%, rgba(100, 140, 255, 0.6) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 10% 60%, rgba(255, 160, 130, 0.5) 0%, transparent 40%),
+        radial-gradient(ellipse 50% 50% at 85% 35%, rgba(120, 160, 255, 0.4) 0%, transparent 40%),
+        linear-gradient(180deg, #4a4a6a 0%, #6a5a7a 30%, #5a6a8a 70%, #4a5a6a 100%);
+    }
+
+    .phone-content {
+      position: relative;
+      z-index: 1;
+      padding: 50px 14px 14px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      margin-bottom: 14px;
+    }
+
+    .header h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 12px;
+    }
+
+    .search-icon {
+      font-size: 12px;
+      opacity: 0.4;
+    }
+
+    .search-text {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .filter-pills {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .pill {
+      flex: 1;
+      padding: 7px 10px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      text-align: center;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.5);
+    }
+
+    .pill.active {
+      background: rgba(102, 126, 234, 0.4);
+      border-color: rgba(102, 126, 234, 0.5);
+      color: #fff;
+    }
+
+    .chat-list {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .chat-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      border-radius: 16px;
+    }
+
+    .chat-image {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      color: rgba(255,255,255,0.9);
+      font-weight: 600;
+      text-align: center;
+      line-height: 1.1;
+      flex-shrink: 0;
+    }
+
+    .chat-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 3px;
+    }
+
+    .chat-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chat-badge {
+      font-size: 8px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: rgba(102, 126, 234, 0.2);
+      color: #8b9ff5;
+      flex-shrink: 0;
+    }
+
+    .chat-preview {
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chat-meta {
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .chat-time {
+      font-size: 10px;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .label {
+      font-family: 'Space Grotesk', sans-serif;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .description {
+      color: rgba(255,255,255,0.45);
+      font-size: 11px;
+      margin-top: 6px;
+      text-align: center;
+      max-width: 200px;
+      line-height: 1.4;
+    }
+
+    /* ============ VARIATION STYLES ============ */
+
+    /* 1. Current - Dark opaque */
+    .style-current .chat-card {
+      background: rgba(20, 20, 35, 0.6);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    /* 2. Frosted Glass */
+    .style-glass .chat-card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+    }
+
+    /* 3. Ultra Transparent */
+    .style-transparent .chat-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    /* 4. Gradient Border Glow */
+    .style-glow .chat-card {
+      background: rgba(15, 15, 25, 0.5);
+      border: 1px solid transparent;
+      position: relative;
+    }
+    .style-glow .chat-card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 17px;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(160, 120, 220, 0.4), rgba(100, 160, 255, 0.3), rgba(255, 160, 130, 0.3));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    /* 5. Soft Blur with Tint */
+    .style-tinted .chat-card {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.12) 0%, rgba(118, 75, 162, 0.08) 100%);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* 6. Borderless Minimal */
+    .style-minimal .chat-card {
+      background: transparent;
+      border: none;
+      padding: 10px 4px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      border-radius: 0;
+    }
+    .style-minimal .chat-card:last-child {
+      border-bottom: none;
+    }
+
+    /* 7. Neumorphic Dark */
+    .style-neumorph .chat-card {
+      background: rgba(30, 30, 45, 0.6);
+      border: none;
+      box-shadow:
+        4px 4px 12px rgba(0,0,0,0.3),
+        -2px -2px 8px rgba(255,255,255,0.03),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    /* 8. Pill/Capsule Style */
+    .style-capsule .chat-card {
+      background: rgba(255,255,255,0.06);
+      border: none;
+      border-radius: 50px;
+      padding: 10px 16px 10px 10px;
+    }
+    .style-capsule .chat-image {
+      border-radius: 50%;
+    }
+
+    /* 9. Outlined */
+    .style-outlined .chat-card {
+      background: transparent;
+      border: 1.5px solid rgba(255,255,255,0.15);
+    }
+
+    /* 10. Warm Glass */
+    .style-warm .chat-card {
+      background: linear-gradient(135deg, rgba(255, 180, 150, 0.08) 0%, rgba(200, 150, 220, 0.06) 100%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 200, 180, 0.15);
+    }
+
+    /* 11. Elevated Cards */
+    .style-elevated .chat-card {
+      background: rgba(25, 25, 40, 0.85);
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.2);
+      transform: translateY(-2px);
+    }
+
+    /* 12. Iridescent Border */
+    .style-iridescent .chat-card {
+      background: rgba(20, 20, 35, 0.5);
+      border: none;
+      position: relative;
+      overflow: visible;
+    }
+    .style-iridescent .chat-card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 17px;
+      padding: 1px;
+      background: linear-gradient(90deg,
+        rgba(255, 150, 180, 0.5),
+        rgba(180, 150, 255, 0.5),
+        rgba(150, 200, 255, 0.5),
+        rgba(180, 255, 200, 0.5),
+        rgba(255, 200, 150, 0.5),
+        rgba(255, 150, 180, 0.5)
+      );
+      background-size: 300% 100%;
+      animation: shimmer 4s linear infinite;
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 300% 50%; }
+    }
+
+    .section-label {
+      color: rgba(255,255,255,0.4);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      text-align: center;
+      margin: 50px 0 30px;
+      font-weight: 600;
+    }
+
+    .section-label:first-of-type {
+      margin-top: 0;
+    }
+
+    .recommended {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-top: 8px;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Event Chat Card Variations</h1>
+  <p class="subtitle">Exploring different card styles for the gradient background</p>
+
+  <p class="section-label">Glass & Transparency Effects</p>
+  <div class="grid">
+    <!-- Current Style -->
+    <div class="variation">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="gradient-bg"></div>
+          <div class="phone-content style-current">
+            <div class="header"><h2>Event Chats</h2></div>
+            <div class="search-bar">
+              <span class="search-icon">🔍</span>
+              <span class="search-text">Search event chats...</span>
+            </div>
+            <div class="filter-pills">
+              <div class="pill active">All</div>
+              <div class="pill">My Events</div>
+              <div class="pill">Attending</div>
+            </div>
+            <div class="chat-list">
+              <div class="chat-card">
+                <div class="chat-image">Testing<br>messages</div>
+                <div class="chat-info">
+                  <div class="chat-header">
+                    <span class="chat-title">Testing messages</span>
+                    <span class="chat-badge">MAY 13</span>
+                  </div>
+                  <div class="chat-preview">You: Hello</div>
+                </div>
+                <div class="chat-meta"><span class="chat-time">1m ago</span></div>
+              </div>
+              <div class="chat-card">
+                <div class="chat-image">pick up<br>soccer</div>
+                <div class="chat-info">
+                  <div class="chat-header">
+                    <span class="chat-title">pick up soccer</span>
+                    <span class="chat-badge">MAR 13</span>
+                  </div>
+                  <div class="chat-preview">Marcus: No messages yet</div>
+                </div>
+                <div class="chat-meta"><span class="chat-time">1/13</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">Current</div>
+      <div class="description">Dark opaque cards - feels heavy</div>
+    </div>
+
+    <!-- Frosted Glass -->
+    <div class="variation">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="gradient-bg"></div>
+          <div class="phone-content style-glass">
+            <div class="header"><h2>Event Chats</h2></div>
+            <div class="search-bar">
+              <span class="search-icon">🔍</span>
+              <span class="search-text">Search event chats...</span>
+            </div>
+            <div class="filter-pills">
+              <div class="pill active">All</div>
+              <div class="pill">My Events</div>
+              <div class="pill">Attending</div>
+            </div>
+            <div class="chat-list">
+              <div class="chat-card">
+                <div class="chat-image">Testing<br>messages</div>
+                <div class="chat-info">
+                  <div class="chat-header">
+                    <span class="chat-title">Testing messages</span>
+                    <span class="chat-badge">MAY 13</span>
+                  </div>
+                  <div class="chat-preview">You: Hello</div>
+                </div>
+                <div class="chat-meta"><span class="chat-time">1m ago</span></div>
+              </div>
+              <div class="chat-card">
+                <div class="chat-image">pick up<br>soccer</div>
+                <div class="chat-info">
+                  <div class="chat-header">
+                    <span class="chat-title">pick up soccer</span>
+                    <span class="chat-badge">MAR 13</span>
+                  </div>
+                  <div class="chat-preview">Marcus: No messages yet</div>
+                </div>
+                <div class="chat-meta"><span class="chat-time">1/13</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">Frosted Glass</div>
+      <div class="description">Backdrop blur with light tint</div>
+      <span class="recommended">RECOMMENDED</span>
+    </div>
+
+    <!-- Ultra Transparent -->
+    <div class="variation">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="gradient-bg"></div>
+          <div class="phone-content style-transparent">
+            <div class="header"><h2>Event Chats</h2></div>
+            <div class="search-bar">
+              <span class="search-icon">🔍</span>
+              <span class="search-text">Search event chats...</span>
+            </div>
+            <div class="filter-pills">
+              <div class="pill active">All</div>
+              <div class="pill">My Events</div>
+              <div class="pill">Attending</div>
+            </div>
+            <div class="chat-list">
+              <div class="chat-card">
+                <div class="chat-image">Testing<br>messages</div>
+                <div class="chat-info">
+                  <div class="chat-header">
+                    <span class="chat-title">Testing messages</span>
+                    <span class="chat-badge">MAY 13</span>
+                  </div>
+                  <div class="chat-preview">You: Hello</div>
+                </div>
+                <div class="chat-meta"><span class="chat-time">1m ago</span></div>
+              </div>
+              <div class="chat-card">
+                <div class="chat-image">pick up<br>soccer</div>
+                <div class="chat-info">
+                  <div class="chat-header">
+                    <span class="chat-title">pick up soccer</span>
+                    <span class="chat-badge">MAR 13</span>
+                  </div>
+                  <div class="chat-preview">Marcus: No messages yet</div>
+                </div>
+                <div class="chat-meta"><span class="chat-time">1/13</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">Ultra Transparent</div>
+      <div class="description">Barely-there containers</div>
+    </div>
+
+    <!-- Tinted Glass -->
+    <div class="variation">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="gradient-bg"></div>
+          <div class="phone-content style-tinted">
+            <div class="header"><h2>Event Chats</h2></div>
+            <div class="search-bar">
+              <span class="search-icon">🔍</span>
+              <span class="search-text">Search event chats...</span>
+            </div>
+            <div class="filter-pills">
+              <div class="pill active">All</div>
+              <div class="pill">My Events</div>
+              <div class="pill">Attending</div>
+            </div>
+            <div class="chat-list">
+              <div class="chat-card">
+                <div class="chat-image">Testing<br>messages</div>
+                <div class="chat-info">
+                  <div class="chat-header">
+                    <span class="chat-title">Testing messages</span>
+                    <span class="chat-badge">MAY 13</span>
+                  </div>
+                  <div class="chat-preview">You: Hello</div>
+                </div>
+                <div class="chat-meta"><span class="chat-time">1m ago</span></div>
+              </div>
+              <div class="chat-card">
+                <div class="chat-image">pick up<br>soccer</div>
+                <div class="chat-info">
+                  <div class="chat-header">
+                    <span class="chat-title">pick up soccer</span>
+                    <span class="chat-badge">MAR 13</span>
+                  </div>
+                  <div class="chat-preview">Marcus: No messages yet</div>
+                </div>
+                <div class="chat-meta"><span class="chat-time">1/13</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">Tinted Glass</div>
+      <div class="description">Subtle purple/blue gradient tint</div>
+    </div>
+  </div>
+
+  <p class="section-label">Border & Glow Effects</p>
+  <div class="grid">
+    <!-- Gradient Border Glow -->
+    <div class="variation">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="gradient-bg"></div>
+          <div class="phone-content style-glow">
+            <div class="header"><h2>Event Chats</h2></div>
+            <div class="search-bar">
+              <span class="search-icon">🔍</span>
+              <span class="search-text">Search event chats...</span>
+            </div>
+            <div class="filter-pills">
+              <div class="pill active">All</div>
+              <div class="pill">My Events</div>
+              <div class="pill">Attending</div>
+            </div>
+            <div class="chat-list">
+              <div class="chat-card">
+                <div class="chat-image">Testing<br>messages</div>
+                <div class="chat-info">
+                  <div class="chat-header">
+                    <span class="chat-title">Testing messages</span>
+                    <span class="chat-badge">MAY 13</span>
+                  </div>
+                  <div class="chat-preview">You: Hello</div>
+                </div>
+                <div class="chat-meta"><span class="chat-time">1m ago</span></div>
+              </div>
+              <div class="chat-card">
+                <div class="chat-image">pick up<br>soccer</div>
+                <div class="chat-info">
+                  <div class="chat-header">
+                    <span class="chat-title">pick up soccer</span>
+                    <span class="chat-badge">MAR 13</span>
+                  </div>
+                  <div class="chat-preview">Marcus: No messages yet</div>
+                </div>
+                <div class="chat-meta"><span class="chat-time">1/13</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">Gradient Border</div>
+      <div class="description">Border picks up background colors</div>
+    </div>
+
+    <!-- Iridescent -->
+    <div class="variation">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="gradient-bg"></div>
+          <div class="phone-content style-iridescent">
+            <div class="header"><h2>Event Chats</h2></div>
+            <div class="search-bar">
+              <span class="search-icon">🔍</span>
+              <span class="search-text">Search event chats...</span>
+            </div>
+            <div class="filter-pills">
+              <div class="pill active">All</div>
+              <div class="pill">My Events</div>
+              <div class="pill">Attending</div>
+            </div>
+            <div class="chat-list">
+              <div class="chat-card">
+                <div class="chat-image">Testing<br>messages</div>
+                <div class="chat-info">
+                  <div class="chat-header">
+                    <span class="chat-title">Testing messages</span>
+                    <span class="chat-badge">MAY 13</span>
+                  </div>
+                  <div class="chat-preview">You: Hello</div>
+                </div>
+                <div class="chat-meta"><span class="chat-time">1m ago</span></div>
+              </div>
+              <div class="chat-card">
+                <div class="chat-image">pick up<br>soccer</div>
+                <div class="chat-info">
+                  <div class="chat-header">
+                    <span class="chat-title">pick up soccer</span>
+                    <span class="chat-badge">MAR 13</span>
+                  </div>
+                  <div class="chat-preview">Marcus: No messages yet</div>
+                </div>
+                <div class="chat-meta"><span class="chat-time">1/13</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">Iridescent</div>
+      <div class="description">Animated rainbow border shimmer</div>
+    </div>
+
+    <!-- Outlined -->
+    <div class="variation">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="gradient-bg"></div>
+          <div class="phone-content style-outlined">
+            <div class="header"><h2>Event Chats</h2></div>
+            <div class="search-bar">
+              <span class="search-icon">🔍</span>
+              <span class="search-text">Search event chats...</span>
+            </div>
+            <div class="filter-pills">
+              <div class="pill active">All</div>
+              <div class="pill">My Events</div>
+              <div class="pill">Attending</div>
+            </div>
+            <div class="chat-list">
+              <div class="chat-card">
+                <div class="chat-image">Testing<br>messages</div>
+                <div class="chat-info">
+                  <div class="chat-header">
+                    <span class="chat-title">Testing messages</span>
+                    <span class="chat-badge">MAY 13</span>
+                  </div>
+                  <div class="chat-preview">You: Hello</div>
+                </div>
+                <div class="chat-meta"><span class="chat-time">1m ago</span></div>
+              </div>
+              <div class="chat-card">
+                <div class="chat-image">pick up<br>soccer</div>
+                <div class="chat-info">
+                  <div class="chat-header">
+                    <span class="chat-title">pick up soccer</span>
+                    <span class="chat-badge">MAR 13</span>
+                  </div>
+                  <div class="chat-preview">Marcus: No messages yet</div>
+                </div>
+                <div class="chat-meta"><span class="chat-time">1/13</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">Outlined</div>
+      <div class="description">Clean border, no fill</div>
+    </div>
+
+    <!-- Warm Glass -->
+    <div class="variation">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="gradient-bg"></div>
+          <div class="phone-content style-warm">
+            <div class="header"><h2>Event Chats</h2></div>
+            <div class="search-bar">
+              <span class="search-icon">🔍</span>
+              <span class="search-text">Search event chats...</span>
+            </div>
+            <div class="filter-pills">
+              <div class="pill active">All</div>
+              <div class="pill">My Events</div>
+              <div class="pill">Attending</div>
+            </div>
+            <div class="chat-list">
+              <div class="chat-card">
+                <div class="chat-image">Testing<br>messages</div>
+                <div class="chat-info">
+                  <div class="chat-header">
+                    <span class="chat-title">Testing messages</span>
+                    <span class="chat-badge">MAY 13</span>
+                  </div>
+                  <div class="chat-preview">You: Hello</div>
+                </div>
+                <div class="chat-meta"><span class="chat-time">1m ago</span></div>
+              </div>
+              <div class="chat-card">
+                <div class="chat-image">pick up<br>soccer</div>
+                <div class="chat-info">
+                  <div class="chat-header">
+                    <span class="chat-title">pick up soccer</span>
+                    <span class="chat-badge">MAR 13</span>
+                  </div>
+                  <div class="chat-preview">Marcus: No messages yet</div>
+                </div>
+                <div class="chat-meta"><span class="chat-time">1/13</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">Warm Glass</div>
+      <div class="description">Peach/coral tinted blur</div>
+    </div>
+  </div>
+
+  <p class="section-label">Structural Variations</p>
+  <div class="grid">
+    <!-- Minimal -->
+    <div class="variation">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="gradient-bg"></div>
+          <div class="phone-content style-minimal">
+            <div class="header"><h2>Event Chats</h2></div>
+            <div class="search-bar">
+              <span class="search-icon">🔍</span>
+              <span class="search-text">Search event chats...</span>
+            </div>
+            <div class="filter-pills">
+              <div class="pill active">All</div>
+              <div class="pill">My Events</div>
+              <div class="pill">Attending</div>
+            </div>
+            <div class="chat-list">
+              <div class="chat-card">
+                <div class="chat-image">Testing<br>messages</div>
+                <div class="chat-info">
+                  <div class="chat-header">
+                    <span class="chat-title">Testing messages</span>
+                    <span class="chat-badge">MAY 13</span>
+                  </div>
+                  <div class="chat-preview">You: Hello</div>
+                </div>
+                <div class="chat-meta"><span class="chat-time">1m ago</span></div>
+              </div>
+              <div class="chat-card">
+                <div class="chat-image">pick up<br>soccer</div>
+                <div class="chat-info">
+                  <div class="chat-header">
+                    <span class="chat-title">pick up soccer</span>
+                    <span class="chat-badge">MAR 13</span>
+                  </div>
+                  <div class="chat-preview">Marcus: No messages yet</div>
+                </div>
+                <div class="chat-meta"><span class="chat-time">1/13</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">Minimal</div>
+      <div class="description">Borderless, divider lines only</div>
+    </div>
+
+    <!-- Capsule -->
+    <div class="variation">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="gradient-bg"></div>
+          <div class="phone-content style-capsule">
+            <div class="header"><h2>Event Chats</h2></div>
+            <div class="search-bar">
+              <span class="search-icon">🔍</span>
+              <span class="search-text">Search event chats...</span>
+            </div>
+            <div class="filter-pills">
+              <div class="pill active">All</div>
+              <div class="pill">My Events</div>
+              <div class="pill">Attending</div>
+            </div>
+            <div class="chat-list">
+              <div class="chat-card">
+                <div class="chat-image">Testing<br>messages</div>
+                <div class="chat-info">
+                  <div class="chat-header">
+                    <span class="chat-title">Testing messages</span>
+                    <span class="chat-badge">MAY 13</span>
+                  </div>
+                  <div class="chat-preview">You: Hello</div>
+                </div>
+                <div class="chat-meta"><span class="chat-time">1m ago</span></div>
+              </div>
+              <div class="chat-card">
+                <div class="chat-image">pick up<br>soccer</div>
+                <div class="chat-info">
+                  <div class="chat-header">
+                    <span class="chat-title">pick up soccer</span>
+                    <span class="chat-badge">MAR 13</span>
+                  </div>
+                  <div class="chat-preview">Marcus: No messages yet</div>
+                </div>
+                <div class="chat-meta"><span class="chat-time">1/13</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">Capsule</div>
+      <div class="description">Pill-shaped cards, circular avatars</div>
+    </div>
+
+    <!-- Neumorphic -->
+    <div class="variation">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="gradient-bg"></div>
+          <div class="phone-content style-neumorph">
+            <div class="header"><h2>Event Chats</h2></div>
+            <div class="search-bar">
+              <span class="search-icon">🔍</span>
+              <span class="search-text">Search event chats...</span>
+            </div>
+            <div class="filter-pills">
+              <div class="pill active">All</div>
+              <div class="pill">My Events</div>
+              <div class="pill">Attending</div>
+            </div>
+            <div class="chat-list">
+              <div class="chat-card">
+                <div class="chat-image">Testing<br>messages</div>
+                <div class="chat-info">
+                  <div class="chat-header">
+                    <span class="chat-title">Testing messages</span>
+                    <span class="chat-badge">MAY 13</span>
+                  </div>
+                  <div class="chat-preview">You: Hello</div>
+                </div>
+                <div class="chat-meta"><span class="chat-time">1m ago</span></div>
+              </div>
+              <div class="chat-card">
+                <div class="chat-image">pick up<br>soccer</div>
+                <div class="chat-info">
+                  <div class="chat-header">
+                    <span class="chat-title">pick up soccer</span>
+                    <span class="chat-badge">MAR 13</span>
+                  </div>
+                  <div class="chat-preview">Marcus: No messages yet</div>
+                </div>
+                <div class="chat-meta"><span class="chat-time">1/13</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">Neumorphic</div>
+      <div class="description">Soft shadows, pressed-in look</div>
+    </div>
+
+    <!-- Elevated -->
+    <div class="variation">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="gradient-bg"></div>
+          <div class="phone-content style-elevated">
+            <div class="header"><h2>Event Chats</h2></div>
+            <div class="search-bar">
+              <span class="search-icon">🔍</span>
+              <span class="search-text">Search event chats...</span>
+            </div>
+            <div class="filter-pills">
+              <div class="pill active">All</div>
+              <div class="pill">My Events</div>
+              <div class="pill">Attending</div>
+            </div>
+            <div class="chat-list">
+              <div class="chat-card">
+                <div class="chat-image">Testing<br>messages</div>
+                <div class="chat-info">
+                  <div class="chat-header">
+                    <span class="chat-title">Testing messages</span>
+                    <span class="chat-badge">MAY 13</span>
+                  </div>
+                  <div class="chat-preview">You: Hello</div>
+                </div>
+                <div class="chat-meta"><span class="chat-time">1m ago</span></div>
+              </div>
+              <div class="chat-card">
+                <div class="chat-image">pick up<br>soccer</div>
+                <div class="chat-info">
+                  <div class="chat-header">
+                    <span class="chat-title">pick up soccer</span>
+                    <span class="chat-badge">MAR 13</span>
+                  </div>
+                  <div class="chat-preview">Marcus: No messages yet</div>
+                </div>
+                <div class="chat-meta"><span class="chat-time">1/13</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">Elevated</div>
+      <div class="description">Floating cards with deep shadows</div>
+    </div>
+  </div>
+</body>
+</html>

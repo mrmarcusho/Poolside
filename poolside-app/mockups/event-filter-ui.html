@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poolside - Event Filter UI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-dark: #1a1a2e;
+      --bg-darker: #12121f;
+      --purple-accent: #a78bfa;
+      --pink-accent: #f472b6;
+      --glass-bg: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --chip-bg: rgba(255, 255, 255, 0.06);
+      --chip-border: rgba(255, 255, 255, 0.12);
+      --chip-selected-glow: rgba(255, 255, 255, 0.4);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.6);
+      --text-muted: rgba(255, 255, 255, 0.4);
+    }
+
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-dark);
+      min-height: 100vh;
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    /* Phone Frame */
+    .phone-frame {
+      width: 390px;
+      height: 844px;
+      margin: 40px auto;
+      background: var(--bg-dark);
+      border-radius: 50px;
+      position: relative;
+      overflow: hidden;
+      box-shadow:
+        0 50px 100px rgba(0, 0, 0, 0.5),
+        0 0 0 12px #0a0a12,
+        inset 0 0 60px rgba(167, 139, 250, 0.03);
+    }
+
+    /* Dynamic Island */
+    .dynamic-island {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 37px;
+      background: #000;
+      border-radius: 24px;
+      z-index: 100;
+    }
+
+    /* Status Bar */
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 28px 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .status-bar-time {
+      font-weight: 700;
+    }
+
+    .status-bar-icons {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    /* App Content */
+    .app-content {
+      padding: 60px 0 0;
+      height: 100%;
+      position: relative;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 20px 12px;
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--purple-accent), var(--pink-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.3px;
+    }
+
+    .header-icons {
+      display: flex;
+      gap: 16px;
+      font-size: 20px;
+      opacity: 0.7;
+    }
+
+    /* Title Container */
+    .title-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px 16px;
+    }
+
+    .page-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .filter-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    /* NOW Button */
+    .now-button {
+      position: relative;
+      border-radius: 50px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid var(--chip-border);
+      background: rgba(30, 30, 40, 0.9);
+    }
+
+    .now-button.active {
+      border-color: #fff;
+      box-shadow:
+        0 0 20px rgba(255, 255, 255, 0.3),
+        0 0 40px rgba(192, 132, 252, 0.2);
+    }
+
+    .now-button-inner {
+      padding: 10px 20px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--text-primary);
+    }
+
+    .now-button.active .now-button-inner {
+      background: linear-gradient(90deg, #c084fc, #e9d5ff, #f5f3ff, #ddd6fe, #93c5fd, #60a5fa);
+      color: var(--bg-dark);
+    }
+
+    /* Filter Button */
+    .filter-button {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: var(--glass-bg);
+      border: 1.5px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .filter-button:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: scale(1.05);
+    }
+
+    .filter-button.has-filters {
+      border-color: var(--purple-accent);
+      box-shadow: 0 0 16px rgba(167, 139, 250, 0.3);
+    }
+
+    .filter-button svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--text-primary);
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .filter-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 18px;
+      height: 18px;
+      background: linear-gradient(135deg, var(--pink-accent), var(--purple-accent));
+      border-radius: 50%;
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: scale(0);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .filter-button.has-filters .filter-badge {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* Feed Placeholder */
+    .feed-placeholder {
+      padding: 20px;
+      height: calc(100% - 180px);
+      overflow: hidden;
+    }
+
+    .event-card-placeholder {
+      height: 100%;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+      border-radius: 28px;
+      border: 1px solid var(--glass-border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      color: var(--text-muted);
+    }
+
+    .placeholder-icon {
+      font-size: 48px;
+      opacity: 0.5;
+    }
+
+    /* Modal Overlay */
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 50;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Filter Modal */
+    .filter-modal {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(30, 30, 45, 0.95);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      border-radius: 32px 32px 0 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      transform: translateY(100%);
+      transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+      z-index: 60;
+      max-height: 85%;
+      overflow: hidden;
+    }
+
+    .modal-overlay.active .filter-modal {
+      transform: translateY(0);
+    }
+
+    /* Glass highlight on modal */
+    .filter-modal::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 120px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, transparent 100%);
+      pointer-events: none;
+      border-radius: 32px 32px 0 0;
+    }
+
+    /* Modal Handle */
+    .modal-handle {
+      width: 36px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 3px;
+      margin: 12px auto 0;
+    }
+
+    /* Modal Header */
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px 16px;
+      position: relative;
+    }
+
+    .modal-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .modal-close {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: rotate(90deg);
+    }
+
+    .modal-close svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--text-primary);
+      stroke-width: 2.5;
+    }
+
+    /* Modal Content */
+    .modal-content {
+      padding: 0 24px 32px;
+      overflow-y: auto;
+      max-height: calc(85vh - 180px);
+    }
+
+    /* Section */
+    .filter-section {
+      margin-bottom: 28px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    /* Chips Grid */
+    .chips-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    /* Chip */
+    .chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 18px;
+      background: var(--chip-bg);
+      border: 1.5px solid var(--chip-border);
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
+    }
+
+    .chip:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .chip.selected {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: #fff;
+      box-shadow:
+        0 0 20px rgba(255, 255, 255, 0.15),
+        inset 0 0 20px rgba(255, 255, 255, 0.05);
+    }
+
+    .chip-emoji {
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .chip-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .chip.selected .chip-label {
+      color: #fff;
+    }
+
+    /* Class year chips - special styling */
+    .chip.everyone {
+      background: linear-gradient(135deg, rgba(167, 139, 250, 0.15), rgba(244, 114, 182, 0.15));
+      border-color: rgba(167, 139, 250, 0.3);
+    }
+
+    .chip.everyone.selected {
+      background: linear-gradient(135deg, rgba(167, 139, 250, 0.25), rgba(244, 114, 182, 0.25));
+      border-color: var(--purple-accent);
+      box-shadow: 0 0 24px rgba(167, 139, 250, 0.3);
+    }
+
+    /* Modal Footer */
+    .modal-footer {
+      display: flex;
+      gap: 12px;
+      padding: 20px 24px 40px;
+      background: linear-gradient(180deg, transparent 0%, rgba(20, 20, 35, 0.8) 100%);
+      position: relative;
+    }
+
+    .reset-button {
+      flex: 1;
+      padding: 16px 24px;
+      border-radius: 16px;
+      background: transparent;
+      border: 2px solid var(--chip-border);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+
+    .reset-button:hover {
+      border-color: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .apply-button {
+      flex: 2;
+      padding: 16px 24px;
+      border-radius: 16px;
+      background: linear-gradient(90deg, #c084fc, #e9d5ff, #f5f3ff, #ddd6fe, #93c5fd, #60a5fa);
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--bg-dark);
+      cursor: pointer;
+      transition: all 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .apply-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 200%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    .apply-button:hover::before {
+      left: 100%;
+    }
+
+    .apply-button:hover {
+      transform: scale(1.02);
+      box-shadow: 0 8px 32px rgba(192, 132, 252, 0.4);
+    }
+
+    /* Active filter count in button */
+    .filter-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      background: var(--bg-dark);
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      margin-left: 8px;
+      padding: 0 6px;
+    }
+
+    /* Animations */
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 0 40px rgba(192, 132, 252, 0.2); }
+      50% { box-shadow: 0 0 30px rgba(255, 255, 255, 0.4), 0 0 60px rgba(192, 132, 252, 0.3); }
+    }
+
+    .now-button.active {
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    /* Chip selection animation */
+    .chip {
+      position: relative;
+    }
+
+    .chip::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.3s, height 0.3s;
+    }
+
+    .chip.ripple::after {
+      width: 150px;
+      height: 150px;
+      opacity: 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 420px) {
+      .phone-frame {
+        width: 100%;
+        height: 100vh;
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+      }
+
+      .dynamic-island {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="dynamic-island"></div>
+
+    <div class="status-bar">
+      <span class="status-bar-time">9:41</span>
+      <div class="status-bar-icons">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="white">
+          <path d="M1 4C0.447715 4 0 4.44772 0 5V11C0 11.5523 0.447715 12 1 12H3C3.55228 12 4 11.5523 4 11V5C4 4.44772 3.55228 4 3 4H1Z"/>
+          <path d="M6 3C5.44772 3 5 3.44772 5 4V11C5 11.5523 5.44772 12 6 12H8C8.55228 12 9 11.5523 9 11V4C9 3.44772 8.55228 3 8 3H6Z"/>
+          <path d="M11 1C10.4477 1 10 1.44772 10 2V11C10 11.5523 10.4477 12 11 12H13C13.5523 12 14 11.5523 14 11V2C14 1.44772 13.5523 1 13 1H11Z"/>
+          <path d="M16 0C15.4477 0 15 0.447715 15 1V11C15 11.5523 15.4477 12 16 12H17C17.5523 12 18 11.5523 18 11V1C18 0.447715 17.5523 0 17 0H16Z"/>
+        </svg>
+        <svg width="15" height="11" viewBox="0 0 15 11" fill="white">
+          <path d="M7.5 2.5C9.26 2.5 10.87 3.18 12.08 4.28L13.5 2.87C11.93 1.39 9.82 0.5 7.5 0.5C5.18 0.5 3.07 1.39 1.5 2.87L2.92 4.28C4.13 3.18 5.74 2.5 7.5 2.5Z"/>
+          <path d="M4.34 5.69L5.76 7.11C6.45 6.53 7.34 6.18 8.31 6.21C9.09 6.24 9.82 6.5 10.42 6.93L11.66 5.69C10.49 4.77 9.04 4.22 7.5 4.25C5.91 4.29 4.42 4.87 4.34 5.69Z"/>
+          <circle cx="7.5" cy="9.5" r="1.5"/>
+        </svg>
+        <svg width="25" height="12" viewBox="0 0 25 12" fill="none">
+          <rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="white" stroke-opacity="0.35"/>
+          <rect x="2" y="2" width="18" height="8" rx="1.5" fill="white"/>
+          <path d="M23 4V8C23.8 7.6 24.5 6.9 24.5 6C24.5 5.1 23.8 4.4 23 4Z" fill="white" fill-opacity="0.4"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="app-content">
+      <div class="header">
+        <div class="logo">POOLSIDE</div>
+        <div class="header-icons">
+          <span>🔔</span>
+          <span>⚙️</span>
+        </div>
+      </div>
+
+      <div class="title-container">
+        <h1 class="page-title">Cruise Feed</h1>
+        <div class="filter-controls">
+          <div class="now-button active" onclick="toggleNow(this)">
+            <div class="now-button-inner">NOW</div>
+          </div>
+          <div class="filter-button has-filters" onclick="openModal()" style="position: relative;">
+            <svg viewBox="0 0 24 24">
+              <path d="M3 6h18M7 12h10M10 18h4" stroke-linecap="round"/>
+            </svg>
+            <span class="filter-badge">3</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="feed-placeholder">
+        <div class="event-card-placeholder">
+          <span class="placeholder-icon">🎉</span>
+          <span>Event cards appear here</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+      <div class="filter-modal" onclick="event.stopPropagation()">
+        <div class="modal-handle"></div>
+
+        <div class="modal-header">
+          <h2 class="modal-title">Filter Events</h2>
+          <div class="modal-close" onclick="closeModal()">
+            <svg viewBox="0 0 24 24">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="modal-content">
+          <!-- Categories Section -->
+          <div class="filter-section">
+            <div class="section-title">Categories</div>
+            <div class="chips-grid">
+              <div class="chip selected" onclick="toggleChip(this)">
+                <span class="chip-emoji">🏀</span>
+                <span class="chip-label">Sports</span>
+              </div>
+              <div class="chip" onclick="toggleChip(this)">
+                <span class="chip-emoji">🎵</span>
+                <span class="chip-label">Music</span>
+              </div>
+              <div class="chip selected" onclick="toggleChip(this)">
+                <span class="chip-emoji">🎉</span>
+                <span class="chip-label">Social</span>
+              </div>
+              <div class="chip" onclick="toggleChip(this)">
+                <span class="chip-emoji">📚</span>
+                <span class="chip-label">Academic</span>
+              </div>
+              <div class="chip" onclick="toggleChip(this)">
+                <span class="chip-emoji">🍕</span>
+                <span class="chip-label">Food</span>
+              </div>
+              <div class="chip" onclick="toggleChip(this)">
+                <span class="chip-emoji">🎨</span>
+                <span class="chip-label">Arts</span>
+              </div>
+              <div class="chip" onclick="toggleChip(this)">
+                <span class="chip-emoji">🌳</span>
+                <span class="chip-label">Outdoors</span>
+              </div>
+              <div class="chip" onclick="toggleChip(this)">
+                <span class="chip-emoji">🎮</span>
+                <span class="chip-label">Games</span>
+              </div>
+              <div class="chip" onclick="toggleChip(this)">
+                <span class="chip-emoji">🧘</span>
+                <span class="chip-label">Wellness</span>
+              </div>
+              <div class="chip" onclick="toggleChip(this)">
+                <span class="chip-emoji">💼</span>
+                <span class="chip-label">Career</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Open To Section -->
+          <div class="filter-section">
+            <div class="section-title">Open To</div>
+            <div class="chips-grid">
+              <div class="chip everyone selected" onclick="toggleChip(this)">
+                <span class="chip-emoji">✨</span>
+                <span class="chip-label">Everyone</span>
+              </div>
+              <div class="chip" onclick="toggleChip(this)">
+                <span class="chip-label">Freshmen</span>
+              </div>
+              <div class="chip" onclick="toggleChip(this)">
+                <span class="chip-label">Sophomores</span>
+              </div>
+              <div class="chip" onclick="toggleChip(this)">
+                <span class="chip-label">Juniors</span>
+              </div>
+              <div class="chip" onclick="toggleChip(this)">
+                <span class="chip-label">Seniors</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- When Section -->
+          <div class="filter-section">
+            <div class="section-title">When</div>
+            <div class="chips-grid">
+              <div class="chip selected" onclick="toggleChip(this)">
+                <span class="chip-emoji">📅</span>
+                <span class="chip-label">Today</span>
+              </div>
+              <div class="chip" onclick="toggleChip(this)">
+                <span class="chip-emoji">🌅</span>
+                <span class="chip-label">Tomorrow</span>
+              </div>
+              <div class="chip" onclick="toggleChip(this)">
+                <span class="chip-emoji">🗓️</span>
+                <span class="chip-label">This Week</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="reset-button" onclick="resetFilters()">Reset</button>
+          <button class="apply-button" onclick="applyFilters()">
+            Apply Filters
+            <span class="filter-count">3</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal() {
+      document.getElementById('modalOverlay').classList.add('active');
+    }
+
+    function closeModal(event) {
+      if (!event || event.target === event.currentTarget) {
+        document.getElementById('modalOverlay').classList.remove('active');
+      }
+    }
+
+    function toggleNow(el) {
+      el.classList.toggle('active');
+    }
+
+    function toggleChip(el) {
+      // Add ripple effect
+      el.classList.add('ripple');
+      setTimeout(() => el.classList.remove('ripple'), 300);
+
+      el.classList.toggle('selected');
+      updateFilterCount();
+    }
+
+    function updateFilterCount() {
+      const count = document.querySelectorAll('.chip.selected').length;
+      document.querySelector('.filter-count').textContent = count;
+
+      const filterButton = document.querySelector('.filter-button');
+      const badge = document.querySelector('.filter-badge');
+
+      if (count > 0) {
+        filterButton.classList.add('has-filters');
+        badge.textContent = count;
+      } else {
+        filterButton.classList.remove('has-filters');
+      }
+    }
+
+    function resetFilters() {
+      document.querySelectorAll('.chip.selected').forEach(chip => {
+        chip.classList.remove('selected');
+      });
+      // Keep "Everyone" selected by default
+      document.querySelector('.chip.everyone').classList.add('selected');
+      updateFilterCount();
+    }
+
+    function applyFilters() {
+      closeModal();
+      // Add visual feedback
+      const filterButton = document.querySelector('.filter-button');
+      filterButton.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        filterButton.style.transform = '';
+      }, 150);
+    }
+
+    // Initialize filter count
+    updateFilterCount();
+  </script>
+</body>
+</html>

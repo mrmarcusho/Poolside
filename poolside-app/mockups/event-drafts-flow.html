@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Drafts Flow - Poolside</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(180deg, #0a0a1a 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #c084fc, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 40px;
+            font-size: 14px;
+        }
+
+        .flow-container {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 60px;
+        }
+
+        .phone-frame {
+            width: 280px;
+            height: 580px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1e 100%);
+            border-radius: 40px;
+            padding: 12px;
+            border: 2px solid rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #1a1a2e 0%, #0d0d1a 100%);
+            border-radius: 30px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .notch {
+            width: 120px;
+            height: 28px;
+            background: black;
+            border-radius: 0 0 20px 20px;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        .screen-label {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: rgba(255,255,255,0.3);
+            align-self: center;
+        }
+
+        /* Create Event Screen */
+        .create-screen {
+            padding: 50px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .create-header {
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 8px;
+        }
+
+        .create-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .preview-card {
+            background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .preview-text {
+            color: #1a1a2e;
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .preview-details {
+            color: rgba(26,26,46,0.7);
+            font-size: 12px;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-bottom: 20px;
+        }
+
+        .btn-post-now {
+            background: linear-gradient(90deg, #c084fc, #e9d5ff, #ddd6fe, #93c5fd);
+            padding: 16px 24px;
+            border-radius: 50px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 16px;
+            color: #1a1a2e;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-post-now:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 20px rgba(192, 132, 252, 0.4);
+        }
+
+        .btn-add-draft {
+            padding: 14px 24px;
+            border-radius: 50px;
+            text-align: center;
+            font-weight: 500;
+            font-size: 14px;
+            color: rgba(255,255,255,0.85);
+            border: 1.5px solid rgba(255,255,255,0.25);
+            background: rgba(255,255,255,0.08);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-add-draft:hover {
+            background: rgba(255,255,255,0.12);
+            border-color: rgba(255,255,255,0.35);
+        }
+
+        /* Profile Screen */
+        .profile-screen {
+            padding: 50px 16px 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .profile-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8b5cf6, #6366f1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .profile-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .tabs-container {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .tab.active {
+            background: rgba(255,255,255,0.15);
+            color: white;
+        }
+
+        .tab.new {
+            position: relative;
+        }
+
+        .tab.new::after {
+            content: 'NEW';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: linear-gradient(90deg, #f59e0b, #ef4444);
+            font-size: 8px;
+            padding: 2px 5px;
+            border-radius: 8px;
+            font-weight: 700;
+        }
+
+        .events-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .draft-card {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .draft-thumbnail {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .draft-badge {
+            position: absolute;
+            bottom: -4px;
+            right: -4px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            border: 2px solid #1a1a2e;
+        }
+
+        .draft-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .draft-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .draft-meta {
+            font-size: 11px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .btn-publish {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            padding: 8px 14px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: transform 0.2s;
+        }
+
+        .btn-publish:hover {
+            transform: scale(1.05);
+        }
+
+        /* Confirmation Modal */
+        .modal-screen {
+            position: relative;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            border-radius: 30px;
+        }
+
+        .modal-content {
+            background: #2a2a3e;
+            border-radius: 20px;
+            padding: 24px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .modal-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .modal-text {
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .modal-btn:hover {
+            transform: scale(1.02);
+        }
+
+        .modal-btn.cancel {
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.8);
+        }
+
+        .modal-btn.confirm {
+            background: linear-gradient(90deg, #8b5cf6, #6366f1);
+            color: white;
+        }
+
+        /* Success Screen */
+        .success-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .success-icon {
+            font-size: 60px;
+            margin-bottom: 16px;
+            animation: bounce 0.5s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .success-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .success-text {
+            font-size: 14px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        /* Flow labels */
+        .flow-label {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .flow-section {
+            margin-bottom: 60px;
+        }
+
+        .flow-title {
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .highlight {
+            background: rgba(139, 92, 246, 0.3);
+            border: 2px solid #8b5cf6;
+            border-radius: 12px;
+            padding: 4px;
+            margin: -4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Event Drafts Flow</h1>
+        <p class="subtitle">Save events as drafts and publish later from your profile</p>
+
+        <!-- Flow 1: Saving as Draft -->
+        <div class="flow-section">
+            <div class="flow-title">Flow 1: Saving an Event as Draft</div>
+            <div class="flow-container">
+                <!-- Create Event Screen -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="notch"></div>
+                            <div class="create-screen">
+                                <div class="create-header">Step 5 of 5</div>
+                                <div class="create-title">Final Touches</div>
+
+                                <div class="preview-card">
+                                    <div class="preview-text">Study Session @ Tisch</div>
+                                    <div class="preview-details">Tomorrow at 3:00 PM<br>Tisch Library · 2nd Floor</div>
+                                </div>
+
+                                <div class="action-buttons">
+                                    <div class="highlight">
+                                        <div class="btn-post-now">Post Now</div>
+                                    </div>
+                                    <div class="highlight">
+                                        <div class="btn-add-draft">Add to Drafts</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flow-label">End of create flow<br><strong>Two options</strong></div>
+                </div>
+
+                <div class="arrow">→</div>
+
+                <!-- Success State -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="notch"></div>
+                            <div class="success-content">
+                                <div class="success-icon">📝</div>
+                                <div class="success-title">Saved to Drafts!</div>
+                                <div class="success-text">Your event has been saved.<br>Find it in your profile.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flow-label">Confirmation<br><strong>Navigates to Profile</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flow 2: Publishing from Drafts -->
+        <div class="flow-section">
+            <div class="flow-title">Flow 2: Publishing from Drafts Tab</div>
+            <div class="flow-container">
+                <!-- Profile with Drafts Tab -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="notch"></div>
+                            <div class="profile-screen">
+                                <div class="profile-header">
+                                    <div class="profile-avatar">🎭</div>
+                                    <div class="profile-name">Marcus</div>
+                                </div>
+
+                                <div class="section-title">My Events</div>
+
+                                <div class="tabs-container">
+                                    <div class="tab">Going</div>
+                                    <div class="tab">Interested</div>
+                                    <div class="tab">Hosting</div>
+                                    <div class="tab active new highlight">Drafts</div>
+                                </div>
+
+                                <div class="events-list">
+                                    <div class="draft-card">
+                                        <div class="draft-thumbnail">
+                                            <div class="draft-badge">📝</div>
+                                        </div>
+                                        <div class="draft-info">
+                                            <div class="draft-title">Study Session @ Tisch</div>
+                                            <div class="draft-meta">Tomorrow · 3:00 PM</div>
+                                        </div>
+                                        <div class="btn-publish highlight">Publish</div>
+                                    </div>
+
+                                    <div class="draft-card">
+                                        <div class="draft-thumbnail" style="background: linear-gradient(135deg, #a5f3fc, #67e8f9);">
+                                            <div class="draft-badge">📝</div>
+                                        </div>
+                                        <div class="draft-info">
+                                            <div class="draft-title">Movie Night</div>
+                                            <div class="draft-meta">Sat · 8:00 PM</div>
+                                        </div>
+                                        <div class="btn-publish">Publish</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flow-label">Profile → Drafts tab<br><strong>See all drafts</strong></div>
+                </div>
+
+                <div class="arrow">→</div>
+
+                <!-- Confirmation Modal -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen modal-screen">
+                            <div class="notch"></div>
+                            <div class="profile-screen" style="filter: blur(2px);">
+                                <div class="profile-header">
+                                    <div class="profile-avatar">🎭</div>
+                                    <div class="profile-name">Marcus</div>
+                                </div>
+                                <div class="section-title">My Events</div>
+                                <div class="tabs-container">
+                                    <div class="tab">Going</div>
+                                    <div class="tab">Interested</div>
+                                    <div class="tab">Hosting</div>
+                                    <div class="tab active">Drafts</div>
+                                </div>
+                            </div>
+                            <div class="modal-overlay">
+                                <div class="modal-content">
+                                    <div class="modal-icon">🎉</div>
+                                    <div class="modal-title">Publish Event?</div>
+                                    <div class="modal-text">Are you ready to publish this event? It will be visible to everyone on campus.</div>
+                                    <div class="modal-buttons">
+                                        <div class="modal-btn cancel">Cancel</div>
+                                        <div class="modal-btn confirm">Publish</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flow-label">Tap "Publish"<br><strong>Confirmation dialog</strong></div>
+                </div>
+
+                <div class="arrow">→</div>
+
+                <!-- Success / Feed -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="notch"></div>
+                            <div class="success-content">
+                                <div class="success-icon">🚀</div>
+                                <div class="success-title">Event Published!</div>
+                                <div class="success-text">Your event is now live.<br>Others can RSVP!</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flow-label">Published!<br><strong>Moves to Hosting tab</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Comparison -->
+        <div class="flow-section">
+            <div class="flow-title">Profile Tabs Comparison</div>
+            <div class="flow-container">
+                <div>
+                    <div class="phone-frame" style="height: 200px;">
+                        <div class="phone-screen" style="padding: 30px 16px;">
+                            <div class="section-title">Current (3 tabs)</div>
+                            <div class="tabs-container">
+                                <div class="tab active">Going</div>
+                                <div class="tab">Interested</div>
+                                <div class="tab">Hosting</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flow-label">Before</div>
+                </div>
+
+                <div class="arrow">→</div>
+
+                <div>
+                    <div class="phone-frame" style="height: 200px;">
+                        <div class="phone-screen" style="padding: 30px 16px;">
+                            <div class="section-title">New (4 tabs)</div>
+                            <div class="tabs-container">
+                                <div class="tab active">Going</div>
+                                <div class="tab">Interested</div>
+                                <div class="tab">Hosting</div>
+                                <div class="tab highlight" style="background: rgba(139, 92, 246, 0.3);">Drafts</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flow-label">After</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

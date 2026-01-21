@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Empty Event Chat State</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Syne:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #0a0a0f;
+      min-height: 100vh;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .page-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+    }
+
+    .page-subtitle {
+      color: rgba(255, 255, 255, 0.5);
+      text-align: center;
+      font-size: 14px;
+      margin-top: -30px;
+    }
+
+    .variants {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .variant {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .variant-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    /* Phone Frame */
+    .phone {
+      width: 390px;
+      height: 844px;
+      border-radius: 50px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 50px 100px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+
+    .phone::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 150px;
+      height: 35px;
+      background: #000;
+      border-radius: 0 0 20px 20px;
+      z-index: 100;
+    }
+
+    .screen {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, #0f0f15 0%, #0a0a0f 100%);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Chat Header */
+    .chat-header {
+      padding: 60px 20px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .back-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .back-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: #fff;
+    }
+
+    .chat-info {
+      flex: 1;
+    }
+
+    .chat-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .chat-subtitle {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .event-badge {
+      padding: 6px 12px;
+      background: rgba(45, 212, 191, 0.15);
+      border: 1px solid rgba(45, 212, 191, 0.3);
+      border-radius: 20px;
+      font-size: 12px;
+      color: #2dd4bf;
+    }
+
+    /* Empty State */
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .mascot-container {
+      width: 180px;
+      height: 180px;
+      margin-bottom: 24px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .mascot-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .empty-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .empty-subtitle {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.5);
+      line-height: 1.5;
+      max-width: 280px;
+    }
+
+    .empty-subtitle span {
+      color: #2dd4bf;
+    }
+
+    /* Input Area */
+    .input-area {
+      padding: 16px 20px 40px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .input-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+    }
+
+    .input-placeholder {
+      flex: 1;
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .send-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .send-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: #fff;
+      transform: rotate(-45deg);
+    }
+
+    /* Variant 2: With event info card */
+    .event-info-card {
+      margin: 0 20px 20px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .event-image {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+
+    .event-details {
+      flex: 1;
+    }
+
+    .event-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .event-meta {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Variant 3: Playful with emoji bubbles */
+    .emoji-bubbles {
+      display: flex;
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .emoji-bubble {
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .emoji-bubble:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Variant 2 specific */
+    .v2 .empty-state {
+      padding-top: 20px;
+    }
+
+    .v2 .mascot-container {
+      width: 150px;
+      height: 150px;
+    }
+  </style>
+</head>
+<body>
+  <h1 class="page-title">Empty Event Chat State</h1>
+  <p class="page-subtitle">Different designs for when there are no messages yet</p>
+
+  <div class="variants">
+    <!-- Option 1: Clean & Simple -->
+    <div class="variant">
+      <div class="variant-label">Option 1: Clean & Simple</div>
+      <div class="phone">
+        <div class="screen">
+          <div class="chat-header">
+            <div class="back-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </div>
+            <div class="chat-info">
+              <div class="chat-title">Pool Party at Sunset</div>
+              <div class="chat-subtitle">12 people going</div>
+            </div>
+            <div class="event-badge">Event Chat</div>
+          </div>
+
+          <div class="empty-state">
+            <div class="mascot-container">
+              <img src="/Users/marcusho/Downloads/ChatGPT Image Jan 12, 2026, 10_15_55 PM.png" alt="DJ Elephant Mascot">
+            </div>
+            <div class="empty-title">No messages yet!</div>
+            <div class="empty-subtitle">Be the first to break the ice and say hi to your fellow attendees</div>
+          </div>
+
+          <div class="input-area">
+            <div class="input-container">
+              <div class="input-placeholder">Start the conversation...</div>
+              <div class="send-btn">
+                <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Option 2: With Event Card -->
+    <div class="variant">
+      <div class="variant-label">Option 2: With Event Info</div>
+      <div class="phone v2">
+        <div class="screen">
+          <div class="chat-header">
+            <div class="back-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </div>
+            <div class="chat-info">
+              <div class="chat-title">Pool Party at Sunset</div>
+              <div class="chat-subtitle">Tonight at 8:00 PM</div>
+            </div>
+            <div class="event-badge">Event Chat</div>
+          </div>
+
+          <div class="event-info-card">
+            <div class="event-image"></div>
+            <div class="event-details">
+              <div class="event-name">Pool Party at Sunset</div>
+              <div class="event-meta">Main Pool, Deck 7 • 12/20 going</div>
+            </div>
+          </div>
+
+          <div class="empty-state">
+            <div class="mascot-container">
+              <img src="/Users/marcusho/Downloads/ChatGPT Image Jan 12, 2026, 10_15_55 PM.png" alt="DJ Elephant Mascot">
+            </div>
+            <div class="empty-title">It's quiet in here...</div>
+            <div class="empty-subtitle">Drop a message and get the party started! <span>🎉</span></div>
+          </div>
+
+          <div class="input-area">
+            <div class="input-container">
+              <div class="input-placeholder">Say something...</div>
+              <div class="send-btn">
+                <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Option 3: With Quick Replies -->
+    <div class="variant">
+      <div class="variant-label">Option 3: Quick Starters</div>
+      <div class="phone">
+        <div class="screen">
+          <div class="chat-header">
+            <div class="back-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </div>
+            <div class="chat-info">
+              <div class="chat-title">Pool Party at Sunset</div>
+              <div class="chat-subtitle">12 people going</div>
+            </div>
+            <div class="event-badge">Event Chat</div>
+          </div>
+
+          <div class="empty-state">
+            <div class="mascot-container">
+              <img src="/Users/marcusho/Downloads/ChatGPT Image Jan 12, 2026, 10_15_55 PM.png" alt="DJ Elephant Mascot">
+            </div>
+            <div class="empty-title">Start the vibe!</div>
+            <div class="empty-subtitle">Be the first to message and connect with others going to this event</div>
+            <div class="emoji-bubbles">
+              <div class="emoji-bubble">👋 Hey everyone!</div>
+              <div class="emoji-bubble">🎉 So excited!</div>
+            </div>
+          </div>
+
+          <div class="input-area">
+            <div class="input-container">
+              <div class="input-placeholder">Type a message...</div>
+              <div class="send-btn">
+                <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

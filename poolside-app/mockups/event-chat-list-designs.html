@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Chat List - Design Options</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(180deg, #0a0a12 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: white;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 40px;
+            color: rgba(255,255,255,0.9);
+        }
+
+        h2 {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 16px;
+            margin-top: 40px;
+        }
+
+        .design-label {
+            font-size: 12px;
+            color: #667eea;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        /* ==================== DESIGN 1: Minimal Card ==================== */
+        .chat-item-1 {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 16px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: all 0.2s ease;
+        }
+
+        .chat-item-1:hover {
+            background: rgba(255,255,255,0.08);
+            transform: translateX(4px);
+        }
+
+        .chat-item-1 .event-image {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .chat-item-1 .chat-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-item-1 .chat-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-item-1 .chat-preview {
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-item-1 .chat-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+        }
+
+        .chat-item-1 .chat-time {
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+        }
+
+        .chat-item-1 .unread-badge {
+            width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            background: #667eea;
+            font-size: 11px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ==================== DESIGN 2: Floating Card with Glow ==================== */
+        .chat-item-2 {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 20px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255,255,255,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chat-item-2::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        }
+
+        .chat-item-2.has-unread {
+            background: rgba(102, 126, 234, 0.08);
+            border-color: rgba(102, 126, 234, 0.2);
+            box-shadow: 0 4px 24px rgba(102, 126, 234, 0.15);
+        }
+
+        .chat-item-2 .event-image {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .chat-item-2 .chat-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-item-2 .chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .chat-item-2 .chat-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-item-2 .chat-time {
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+
+        .chat-item-2 .chat-preview-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chat-item-2 .chat-preview {
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+        }
+
+        .chat-item-2.has-unread .chat-preview {
+            color: rgba(255,255,255,0.7);
+            font-weight: 500;
+        }
+
+        .chat-item-2 .unread-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 5px;
+            background: #667eea;
+            flex-shrink: 0;
+        }
+
+        /* ==================== DESIGN 3: Compact List ==================== */
+        .chat-item-3 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .chat-item-3 .event-image {
+            width: 48px;
+            height: 48px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .chat-item-3 .online-indicator {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 14px;
+            height: 14px;
+            border-radius: 7px;
+            background: #22c55e;
+            border: 2px solid #0a0a12;
+        }
+
+        .chat-item-3 .chat-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-item-3 .chat-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 2px;
+        }
+
+        .chat-item-3 .chat-preview {
+            font-size: 13px;
+            color: rgba(255,255,255,0.45);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .chat-item-3 .chat-preview .sender {
+            color: rgba(255,255,255,0.6);
+            font-weight: 500;
+        }
+
+        .chat-item-3 .chat-meta {
+            text-align: right;
+        }
+
+        .chat-item-3 .chat-time {
+            font-size: 11px;
+            color: rgba(255,255,255,0.35);
+            margin-bottom: 4px;
+        }
+
+        .chat-item-3 .unread-badge {
+            display: inline-block;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 6px;
+            border-radius: 9px;
+            background: #667eea;
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 18px;
+            text-align: center;
+        }
+
+        /* ==================== DESIGN 4: Large Preview Card ==================== */
+        .chat-item-4 {
+            background: rgba(255,255,255,0.04);
+            border-radius: 20px;
+            margin-bottom: 14px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .chat-item-4 .event-banner {
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            padding: 12px 16px;
+        }
+
+        .chat-item-4 .event-banner .event-emoji {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 32px;
+        }
+
+        .chat-item-4 .event-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .chat-item-4 .chat-content {
+            padding: 14px 16px;
+        }
+
+        .chat-item-4 .chat-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-item-4 .message-preview {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-item-4 .sender-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 14px;
+            background: rgba(102, 126, 234, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .chat-item-4 .message-text {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-item-4 .sender-name {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+            font-weight: 500;
+        }
+
+        .chat-item-4 .preview-text {
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-item-4 .chat-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            margin-left: 12px;
+        }
+
+        .chat-item-4 .chat-time {
+            font-size: 11px;
+            color: rgba(255,255,255,0.35);
+        }
+
+        .chat-item-4 .participant-count {
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ==================== DESIGN 5: Pill Style ==================== */
+        .chat-item-5 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px 10px 10px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-radius: 28px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .chat-item-5 .event-image {
+            width: 44px;
+            height: 44px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .chat-item-5 .chat-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-item-5 .chat-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-item-5 .chat-preview {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-item-5 .chat-time {
+            font-size: 10px;
+            color: rgba(255,255,255,0.4);
+            flex-shrink: 0;
+        }
+
+        /* ==================== DESIGN 6: Modern Sleek ==================== */
+        .chat-item-6 {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            background: rgba(20, 20, 35, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 18px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255,255,255,0.08);
+            position: relative;
+        }
+
+        .chat-item-6 .event-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            object-fit: cover;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, #fc466b 0%, #3f5efb 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .chat-item-6 .chat-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-item-6 .chat-header {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .chat-item-6 .chat-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-item-6 .event-badge {
+            font-size: 10px;
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.15);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .chat-item-6 .chat-preview {
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-item-6 .chat-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+        }
+
+        .chat-item-6 .chat-time {
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+        }
+
+        .chat-item-6 .unread-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 0 8px rgba(102, 126, 234, 0.6);
+        }
+
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+            margin: 40px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Event Chat List Designs</h1>
+
+        <!-- Design 1 -->
+        <div class="design-label">Design 1: Minimal Card</div>
+        <div class="chat-item-1">
+            <div class="event-image">🎉</div>
+            <div class="chat-info">
+                <div class="chat-title">Dorm Party In Courts 115</div>
+                <div class="chat-preview">Sarah: Who's bringing the speakers?</div>
+            </div>
+            <div class="chat-meta">
+                <div class="chat-time">2:34 PM</div>
+                <div class="unread-badge">3</div>
+            </div>
+        </div>
+        <div class="chat-item-1">
+            <div class="event-image">📚</div>
+            <div class="chat-info">
+                <div class="chat-title">Study Group - Finals Week</div>
+                <div class="chat-preview">Mike: Library 3rd floor works for me</div>
+            </div>
+            <div class="chat-meta">
+                <div class="chat-time">1:15 PM</div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Design 2 -->
+        <div class="design-label">Design 2: Floating Card with Glow</div>
+        <div class="chat-item-2 has-unread">
+            <div class="event-image">🎮</div>
+            <div class="chat-info">
+                <div class="chat-header">
+                    <div class="chat-title">Gaming Night - Mario Kart</div>
+                    <div class="chat-time">3:45 PM</div>
+                </div>
+                <div class="chat-preview-row">
+                    <div class="chat-preview">Alex: I call dibs on Toad!</div>
+                    <div class="unread-dot"></div>
+                </div>
+            </div>
+        </div>
+        <div class="chat-item-2">
+            <div class="event-image">🏀</div>
+            <div class="chat-info">
+                <div class="chat-header">
+                    <div class="chat-title">Pickup Basketball</div>
+                    <div class="chat-time">Yesterday</div>
+                </div>
+                <div class="chat-preview-row">
+                    <div class="chat-preview">You: See everyone at 5!</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Design 3 -->
+        <div class="design-label">Design 3: Compact List</div>
+        <div class="chat-item-3">
+            <div class="event-image">
+                🎤
+                <div class="online-indicator"></div>
+            </div>
+            <div class="chat-info">
+                <div class="chat-title">Open Mic Night</div>
+                <div class="chat-preview">
+                    <span class="sender">Emma:</span> Can't wait to perform!
+                </div>
+            </div>
+            <div class="chat-meta">
+                <div class="chat-time">4:20 PM</div>
+                <div class="unread-badge">5</div>
+            </div>
+        </div>
+        <div class="chat-item-3">
+            <div class="event-image">🍕</div>
+            <div class="chat-info">
+                <div class="chat-title">Pizza Friday</div>
+                <div class="chat-preview">
+                    <span class="sender">You:</span> I'll order the usual
+                </div>
+            </div>
+            <div class="chat-meta">
+                <div class="chat-time">12:30 PM</div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Design 4 -->
+        <div class="design-label">Design 4: Large Preview Card</div>
+        <div class="chat-item-4">
+            <div class="event-banner">
+                <div class="event-emoji">🎸</div>
+                <div class="event-title">Battle of the Bands</div>
+            </div>
+            <div class="chat-content">
+                <div class="chat-row">
+                    <div class="message-preview">
+                        <div class="sender-avatar">🎵</div>
+                        <div class="message-text">
+                            <div class="sender-name">Jake</div>
+                            <div class="preview-text">We need to practice the setlist tonight</div>
+                        </div>
+                    </div>
+                    <div class="chat-meta">
+                        <div class="chat-time">5:00 PM</div>
+                        <div class="participant-count">
+                            <span>👥</span> 24
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Design 5 -->
+        <div class="design-label">Design 5: Pill Style</div>
+        <div class="chat-item-5">
+            <div class="event-image">☕</div>
+            <div class="chat-info">
+                <div class="chat-title">Coffee & Code</div>
+                <div class="chat-preview">Lisa: Anyone know React hooks?</div>
+            </div>
+            <div class="chat-time">11:45 AM</div>
+        </div>
+        <div class="chat-item-5">
+            <div class="event-image">🎬</div>
+            <div class="chat-info">
+                <div class="chat-title">Movie Marathon</div>
+                <div class="chat-preview">Chris: Let's start with Inception</div>
+            </div>
+            <div class="chat-time">10:30 AM</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Design 6 -->
+        <div class="design-label">Design 6: Modern Sleek (Recommended)</div>
+        <div class="chat-item-6">
+            <div class="event-image">🌮</div>
+            <div class="chat-info">
+                <div class="chat-header">
+                    <div class="chat-title">Taco Tuesday</div>
+                    <div class="event-badge">TONIGHT</div>
+                </div>
+                <div class="chat-preview">Maya: I'm bringing the guac!</div>
+            </div>
+            <div class="chat-meta">
+                <div class="chat-time">6:15 PM</div>
+                <div class="unread-indicator"></div>
+            </div>
+        </div>
+        <div class="chat-item-6">
+            <div class="event-image">🏃</div>
+            <div class="chat-info">
+                <div class="chat-header">
+                    <div class="chat-title">Morning Run Club</div>
+                    <div class="event-badge">TOMORROW</div>
+                </div>
+                <div class="chat-preview">You: Meet at the track at 6am?</div>
+            </div>
+            <div class="chat-meta">
+                <div class="chat-time">Yesterday</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

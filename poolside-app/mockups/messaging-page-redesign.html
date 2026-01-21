@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poolside - Messages</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep: #050508;
+      --bg-primary: #0a0a0f;
+      --bg-elevated: #12121a;
+      --bg-glass: rgba(255, 255, 255, 0.03);
+      --bg-glass-hover: rgba(255, 255, 255, 0.06);
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-glass: rgba(255, 255, 255, 0.1);
+
+      --accent-blue: #667eea;
+      --accent-purple: #764ba2;
+      --accent-gold: #c9a959;
+      --accent-gold-soft: rgba(201, 169, 89, 0.15);
+      --accent-cyan: #4ecdc4;
+
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.6);
+      --text-tertiary: rgba(255, 255, 255, 0.4);
+
+      --online-green: #22c55e;
+      --unread-badge: #ef4444;
+
+      --font-display: 'Cormorant Garamond', serif;
+      --font-body: 'DM Sans', sans-serif;
+
+      --shadow-glow: 0 0 40px rgba(102, 126, 234, 0.15);
+      --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-deep);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+    }
+
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: var(--bg-primary);
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.1),
+        0 25px 80px rgba(0, 0, 0, 0.6),
+        var(--shadow-glow);
+    }
+
+    /* Animated ocean gradient background */
+    .bg-gradient {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 350px;
+      background:
+        radial-gradient(ellipse at 30% 0%, rgba(102, 126, 234, 0.2) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 20%, rgba(118, 75, 162, 0.15) 0%, transparent 40%),
+        radial-gradient(ellipse at 50% 50%, rgba(201, 169, 89, 0.08) 0%, transparent 50%);
+      animation: gradientPulse 8s ease-in-out infinite;
+    }
+
+    @keyframes gradientPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.05); }
+    }
+
+    /* Subtle wave pattern overlay */
+    .wave-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 300px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='rgba(255,255,255,0.02)' d='M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z'%3E%3C/path%3E%3C/svg%3E") repeat-x;
+      background-size: 200% 100%;
+      animation: waveMove 20s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes waveMove {
+      0% { background-position: 0% 0%; }
+      100% { background-position: 200% 0%; }
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Status bar */
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 24px 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .status-bar-right {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    /* Header */
+    .header {
+      padding: 8px 20px 20px;
+    }
+
+    .header-title {
+      font-family: var(--font-display);
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+      margin-bottom: 4px;
+    }
+
+    .header-subtitle {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .header-subtitle .ship-icon {
+      font-size: 14px;
+    }
+
+    /* Search bar */
+    .search-container {
+      padding: 0 20px 16px;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .search-bar:focus-within {
+      background: var(--bg-glass-hover);
+      border-color: var(--border-glass);
+      box-shadow: 0 0 20px rgba(102, 126, 234, 0.1);
+    }
+
+    .search-icon {
+      color: var(--text-tertiary);
+      font-size: 16px;
+    }
+
+    .search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 15px;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+    }
+
+    .search-input::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    /* Tab switcher */
+    .tabs-container {
+      padding: 0 20px 16px;
+    }
+
+    .tabs {
+      display: flex;
+      background: var(--bg-glass);
+      border-radius: 14px;
+      padding: 4px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .tab {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .tab.active {
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      color: var(--text-primary);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .tab:not(.active):hover {
+      color: var(--text-primary);
+      background: var(--bg-glass-hover);
+    }
+
+    .tab-badge {
+      position: absolute;
+      top: 6px;
+      right: 12px;
+      width: 8px;
+      height: 8px;
+      background: var(--accent-gold);
+      border-radius: 50%;
+      animation: badgePulse 2s ease-in-out infinite;
+    }
+
+    @keyframes badgePulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.7; }
+    }
+
+    /* Conversations list */
+    .conversations-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 12px;
+    }
+
+    .conversations-list::-webkit-scrollbar {
+      width: 0;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      padding: 8px 12px 12px;
+    }
+
+    .conversation-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 12px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      margin-bottom: 4px;
+    }
+
+    .conversation-item::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(201, 169, 89, 0.1), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .conversation-item:hover {
+      background: var(--bg-glass-hover);
+    }
+
+    .conversation-item:hover::before {
+      opacity: 1;
+    }
+
+    .conversation-item.unread {
+      background: var(--bg-glass);
+    }
+
+    .conversation-item:active {
+      transform: scale(0.98);
+    }
+
+    /* Avatar styles */
+    .avatar-container {
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .avatar {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid transparent;
+      background: linear-gradient(var(--bg-elevated), var(--bg-elevated)) padding-box,
+                  linear-gradient(135deg, var(--accent-blue), var(--accent-purple)) border-box;
+    }
+
+    .avatar.event {
+      border-radius: 14px;
+    }
+
+    .avatar-emoji {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+      border: 2px solid var(--border-glass);
+    }
+
+    .avatar-emoji.event {
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(201, 169, 89, 0.2), rgba(102, 126, 234, 0.15));
+    }
+
+    .online-indicator {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 14px;
+      height: 14px;
+      background: var(--online-green);
+      border-radius: 50%;
+      border: 3px solid var(--bg-primary);
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+    }
+
+    /* Conversation content */
+    .conversation-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .conversation-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .conversation-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .conversation-item.unread .conversation-name {
+      color: var(--text-primary);
+    }
+
+    .conversation-time {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      flex-shrink: 0;
+      margin-left: 8px;
+    }
+
+    .conversation-item.unread .conversation-time {
+      color: var(--accent-gold);
+      font-weight: 600;
+    }
+
+    .conversation-preview {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .conversation-message {
+      font-size: 13px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+
+    .conversation-item.unread .conversation-message {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .unread-badge {
+      flex-shrink: 0;
+      min-width: 22px;
+      height: 22px;
+      padding: 0 7px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      border-radius: 11px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
+    }
+
+    /* Event badge */
+    .event-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      color: var(--accent-gold);
+      background: var(--accent-gold-soft);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+
+    /* Floating action button */
+    .fab {
+      position: absolute;
+      bottom: 100px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 8px 30px rgba(102, 126, 234, 0.4),
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+
+    .fab:hover {
+      transform: scale(1.08);
+      box-shadow:
+        0 12px 40px rgba(102, 126, 234, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+    }
+
+    .fab:active {
+      transform: scale(0.95);
+    }
+
+    .fab-icon {
+      font-size: 28px;
+      color: var(--text-primary);
+    }
+
+    /* Bottom nav */
+    .bottom-nav {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 12px 20px 28px;
+      background: linear-gradient(to top, var(--bg-primary), transparent);
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-tertiary);
+      text-decoration: none;
+      transition: all 0.3s ease;
+      padding: 8px 16px;
+      border-radius: 12px;
+    }
+
+    .nav-item.active {
+      color: var(--accent-blue);
+    }
+
+    .nav-item:hover:not(.active) {
+      color: var(--text-secondary);
+    }
+
+    .nav-icon {
+      font-size: 22px;
+    }
+
+    .nav-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-item.active .nav-label {
+      color: var(--accent-blue);
+    }
+
+    /* Typing indicator */
+    .typing-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .typing-dot {
+      width: 5px;
+      height: 5px;
+      background: var(--accent-cyan);
+      border-radius: 50%;
+      animation: typingBounce 1.4s ease-in-out infinite;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-4px); }
+    }
+
+    /* Gold shimmer effect on hover */
+    .conversation-item::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(201, 169, 89, 0.1), transparent);
+      transition: left 0.6s ease;
+      pointer-events: none;
+    }
+
+    .conversation-item:hover::after {
+      left: 100%;
+    }
+
+    /* Staggered animation on load */
+    .conversation-item {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: slideIn 0.4s ease forwards;
+    }
+
+    .conversation-item:nth-child(1) { animation-delay: 0.1s; }
+    .conversation-item:nth-child(2) { animation-delay: 0.15s; }
+    .conversation-item:nth-child(3) { animation-delay: 0.2s; }
+    .conversation-item:nth-child(4) { animation-delay: 0.25s; }
+    .conversation-item:nth-child(5) { animation-delay: 0.3s; }
+    .conversation-item:nth-child(6) { animation-delay: 0.35s; }
+    .conversation-item:nth-child(7) { animation-delay: 0.4s; }
+    .conversation-item:nth-child(8) { animation-delay: 0.45s; }
+
+    @keyframes slideIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="bg-gradient"></div>
+    <div class="wave-overlay"></div>
+
+    <div class="content">
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span>9:41</span>
+        <div class="status-bar-right">
+          <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor">
+            <path d="M1 4.5h2v7H1zM5 3h2v8.5H5zM9 1.5h2V12H9zM13 0h2v12h-2z" opacity="0.3"/>
+            <path d="M1 4.5h2v7H1zM5 3h2v8.5H5zM9 1.5h2V12H9z"/>
+          </svg>
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor">
+            <path d="M8 2.4A8.5 8.5 0 0 0 1.2 5.3l1.4 1.4A6.5 6.5 0 0 1 8 4.4a6.5 6.5 0 0 1 5.4 2.3l1.4-1.4A8.5 8.5 0 0 0 8 2.4z"/>
+            <path d="M8 5.9a5 5 0 0 0-3.5 1.5l1.4 1.4A3 3 0 0 1 8 7.9a3 3 0 0 1 2.1.9l1.4-1.4A5 5 0 0 0 8 5.9z"/>
+            <circle cx="8" cy="10.5" r="1.5"/>
+          </svg>
+          <svg width="25" height="12" viewBox="0 0 25 12" fill="currentColor">
+            <rect x="0" y="1" width="21" height="10" rx="2" stroke="currentColor" stroke-width="1" fill="none"/>
+            <rect x="2" y="3" width="15" height="6" rx="1" fill="currentColor"/>
+            <path d="M23 4v4a2 2 0 0 0 0-4z"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Header -->
+      <div class="header">
+        <h1 class="header-title">Messages</h1>
+        <p class="header-subtitle">
+          <span class="ship-icon">🚢</span>
+          Caribbean Dreamer • Day 3
+        </p>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="search-container">
+        <div class="search-bar">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" placeholder="Search conversations...">
+        </div>
+      </div>
+
+      <!-- Tab Switcher -->
+      <div class="tabs-container">
+        <div class="tabs">
+          <button class="tab active">Direct Messages</button>
+          <button class="tab">
+            Event Chats
+            <span class="tab-badge"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Conversations List -->
+      <div class="conversations-list">
+        <div class="section-label">Recent</div>
+
+        <!-- Conversation 1 - Unread with typing -->
+        <div class="conversation-item unread">
+          <div class="avatar-container">
+            <div class="avatar-emoji">👩‍🦰</div>
+            <div class="online-indicator"></div>
+          </div>
+          <div class="conversation-content">
+            <div class="conversation-header">
+              <span class="conversation-name">Sarah Mitchell</span>
+              <span class="conversation-time">Now</span>
+            </div>
+            <div class="conversation-preview">
+              <span class="conversation-message">
+                <span class="typing-indicator">
+                  <span class="typing-dot"></span>
+                  <span class="typing-dot"></span>
+                  <span class="typing-dot"></span>
+                </span>
+                typing...
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conversation 2 - Unread -->
+        <div class="conversation-item unread">
+          <div class="avatar-container">
+            <div class="avatar-emoji">👨‍💼</div>
+            <div class="online-indicator"></div>
+          </div>
+          <div class="conversation-content">
+            <div class="conversation-header">
+              <span class="conversation-name">Marcus Chen</span>
+              <span class="conversation-time">2m</span>
+            </div>
+            <div class="conversation-preview">
+              <span class="conversation-message">Hey! Are you going to the pool party tonight? It's gonna be...</span>
+              <span class="unread-badge">3</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conversation 3 - Event Chat Unread -->
+        <div class="conversation-item unread">
+          <div class="avatar-container">
+            <div class="avatar-emoji event">🎭</div>
+          </div>
+          <div class="conversation-content">
+            <div class="conversation-header">
+              <span class="conversation-name">Deck 7 Comedy Night</span>
+              <span class="conversation-time">15m</span>
+            </div>
+            <div class="conversation-preview">
+              <span class="conversation-message">Jake: Who's saving seats in the front row? 😂</span>
+              <span class="unread-badge">12</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conversation 4 -->
+        <div class="conversation-item">
+          <div class="avatar-container">
+            <div class="avatar-emoji">👩‍🎨</div>
+          </div>
+          <div class="conversation-content">
+            <div class="conversation-header">
+              <span class="conversation-name">Emma Rodriguez</span>
+              <span class="conversation-time">1h</span>
+            </div>
+            <div class="conversation-preview">
+              <span class="conversation-message">The sunset photos from yesterday turned out amazing!</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conversation 5 - Event Chat -->
+        <div class="conversation-item">
+          <div class="avatar-container">
+            <div class="avatar-emoji event">🏊‍♂️</div>
+          </div>
+          <div class="conversation-content">
+            <div class="conversation-header">
+              <span class="conversation-name">Morning Swim Club</span>
+              <span class="conversation-time">3h</span>
+            </div>
+            <div class="conversation-preview">
+              <span class="conversation-message">Lisa: See everyone at 6am! Don't be late 🌅</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conversation 6 -->
+        <div class="conversation-item">
+          <div class="avatar-container">
+            <div class="avatar-emoji">🧔</div>
+            <div class="online-indicator"></div>
+          </div>
+          <div class="conversation-content">
+            <div class="conversation-header">
+              <span class="conversation-name">David Park</span>
+              <span class="conversation-time">5h</span>
+            </div>
+            <div class="conversation-preview">
+              <span class="conversation-message">That trivia team name was hilarious 😂</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conversation 7 -->
+        <div class="conversation-item">
+          <div class="avatar-container">
+            <div class="avatar-emoji">👱‍♀️</div>
+          </div>
+          <div class="conversation-content">
+            <div class="conversation-header">
+              <span class="conversation-name">Jennifer Walsh</span>
+              <span class="conversation-time">Yesterday</span>
+            </div>
+            <div class="conversation-preview">
+              <span class="conversation-message">Thanks for the restaurant recommendation!</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conversation 8 - Event Chat -->
+        <div class="conversation-item">
+          <div class="avatar-container">
+            <div class="avatar-emoji event">🍷</div>
+          </div>
+          <div class="conversation-content">
+            <div class="conversation-header">
+              <span class="conversation-name">Wine Tasting Group</span>
+              <span class="conversation-time">Yesterday</span>
+            </div>
+            <div class="conversation-preview">
+              <span class="conversation-message">Host: Next session is at 4pm in the Vintage Lounge</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Action Button -->
+      <button class="fab">
+        <span class="fab-icon">✏️</span>
+      </button>
+
+      <!-- Bottom Navigation -->
+      <nav class="bottom-nav">
+        <a href="#" class="nav-item">
+          <span class="nav-icon">🏠</span>
+          <span class="nav-label">Home</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="nav-icon">📅</span>
+          <span class="nav-label">Events</span>
+        </a>
+        <a href="#" class="nav-item active">
+          <span class="nav-icon">💬</span>
+          <span class="nav-label">Messages</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="nav-icon">👤</span>
+          <span class="nav-label">Profile</span>
+        </a>
+      </nav>
+    </div>
+  </div>
+
+  <script>
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+      });
+    });
+
+    // Conversation click effect
+    document.querySelectorAll('.conversation-item').forEach(item => {
+      item.addEventListener('click', () => {
+        item.style.background = 'rgba(102, 126, 234, 0.15)';
+        setTimeout(() => {
+          item.style.background = '';
+        }, 300);
+      });
+    });
+
+    // FAB pulse animation
+    const fab = document.querySelector('.fab');
+    setInterval(() => {
+      fab.style.boxShadow = '0 8px 30px rgba(102, 126, 234, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1) inset';
+      setTimeout(() => {
+        fab.style.boxShadow = '0 8px 30px rgba(102, 126, 234, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset';
+      }, 500);
+    }, 3000);
+  </script>
+</body>
+</html>

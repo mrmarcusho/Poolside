@@ -9,6 +9,7 @@ interface AuthContextType {
   register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  setAuthUser: (user: CurrentUser) => void;  // Direct user setter for magic link auth
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,9 +34,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const userData = await usersService.getMe();
         setUser(userData);
       }
-    } catch (error) {
-      // Token invalid or expired, clear it
-      await tokenStorage.clearTokens();
+    } catch (error: any) {
+      // Only clear tokens on explicit 401 (unauthorized) response
+      // Don't clear on network errors or other transient failures
+      if (error?.response?.status === 401) {
+        console.log('[AuthContext] Token invalid (401), clearing tokens');
+        await tokenStorage.clearTokens();
+      } else {
+        console.log('[AuthContext] checkAuthState error (not clearing tokens):', error?.message);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -60,11 +67,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const userData = await usersService.getMe();
       setUser(userData);
-    } catch (error) {
-      // If refresh fails, log out
-      await logout();
+    } catch (error: any) {
+      // Only log out on explicit 401 (token truly invalid)
+      // Don't log out on network errors or transient failures
+      if (error?.response?.status === 401) {
+        console.log('[AuthContext] refreshUser got 401, logging out');
+        await logout();
+      } else {
+        console.log('[AuthContext] refreshUser error (not logging out):', error?.message);
+      }
     }
   }, [logout]);
+
+  // Direct user setter - use when you already have user data (e.g., from verifyMagicLink)
+  const setAuthUser = useCallback((userData: CurrentUser) => {
+    console.log('[AuthContext] setAuthUser called for:', userData.email);
+    setUser(userData);
+  }, []);
 
   const value: AuthContextType = {
     user,
@@ -74,6 +93,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     register,
     logout,
     refreshUser,
+    setAuthUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

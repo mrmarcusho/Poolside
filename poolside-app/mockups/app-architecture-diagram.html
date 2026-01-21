@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poolside App Architecture</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d1117;
+      --bg-secondary: #161b22;
+      --bg-tertiary: #21262d;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --text-secondary: #8b949e;
+      --accent-blue: #58a6ff;
+      --accent-purple: #a371f7;
+      --accent-green: #3fb950;
+      --accent-orange: #d29922;
+      --accent-red: #f85149;
+      --accent-cyan: #39c5cf;
+      --accent-pink: #db61a2;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 40px;
+      line-height: 1.6;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 16px;
+      margin-bottom: 40px;
+    }
+
+    .diagram-container {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Section styles */
+    .section {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title .icon {
+      font-size: 24px;
+    }
+
+    /* Architecture Overview */
+    .architecture-row {
+      display: grid;
+      grid-template-columns: 1fr 100px 1fr 100px 1fr;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .layer {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .layer-title {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 12px;
+      color: var(--accent-blue);
+    }
+
+    .layer-items {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .layer-item {
+      background: var(--bg-secondary);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      border: 1px solid var(--border);
+    }
+
+    .arrow-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .arrow {
+      font-size: 24px;
+      color: var(--accent-green);
+    }
+
+    .arrow-label {
+      font-size: 10px;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    /* Flow diagram */
+    .flow-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .flow-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .flow-step {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 13px;
+      min-width: 200px;
+    }
+
+    .flow-step.highlight {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 20px rgba(88, 166, 255, 0.1);
+    }
+
+    .flow-arrow {
+      color: var(--accent-green);
+      font-size: 20px;
+    }
+
+    .flow-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+
+    /* Module grid */
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .module {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .module-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .module-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .module-icon.auth { background: rgba(248, 81, 73, 0.2); }
+    .module-icon.users { background: rgba(88, 166, 255, 0.2); }
+    .module-icon.events { background: rgba(163, 113, 247, 0.2); }
+    .module-icon.rsvp { background: rgba(63, 185, 80, 0.2); }
+    .module-icon.messages { background: rgba(57, 197, 207, 0.2); }
+    .module-icon.friends { background: rgba(219, 97, 162, 0.2); }
+    .module-icon.notifications { background: rgba(210, 153, 34, 0.2); }
+    .module-icon.eventchat { background: rgba(163, 113, 247, 0.2); }
+
+    .module-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .module-files {
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-secondary);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .module-file {
+      padding: 4px 8px;
+      background: var(--bg-secondary);
+      border-radius: 4px;
+    }
+
+    /* Database schema */
+    .schema-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+    }
+
+    .table {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .table-header {
+      background: var(--bg-secondary);
+      padding: 10px 12px;
+      font-weight: 600;
+      font-size: 13px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .table-icon {
+      font-size: 14px;
+    }
+
+    .table-fields {
+      padding: 8px 0;
+    }
+
+    .field {
+      padding: 4px 12px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .field-name {
+      color: var(--accent-cyan);
+    }
+
+    .field-type {
+      color: var(--text-secondary);
+    }
+
+    .field.pk .field-name {
+      color: var(--accent-orange);
+    }
+
+    .field.fk .field-name {
+      color: var(--accent-purple);
+    }
+
+    /* WebSocket section */
+    .socket-flow {
+      display: flex;
+      align-items: stretch;
+      gap: 20px;
+    }
+
+    .socket-side {
+      flex: 1;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .socket-title {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 12px;
+      color: var(--accent-cyan);
+    }
+
+    .socket-events {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .socket-event {
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 6px 10px;
+      background: var(--bg-secondary);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .event-direction {
+      font-size: 14px;
+    }
+
+    .event-direction.emit { color: var(--accent-green); }
+    .event-direction.listen { color: var(--accent-blue); }
+
+    .socket-middle {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      min-width: 120px;
+    }
+
+    .bidirectional {
+      font-size: 32px;
+      color: var(--accent-purple);
+    }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      padding: 16px;
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+
+    /* Navigation tabs */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      padding: 10px 20px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .tab:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .tab.active {
+      background: var(--accent-blue);
+      border-color: var(--accent-blue);
+      color: white;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Code block */
+    .code-block {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      overflow-x: auto;
+      white-space: pre;
+      line-height: 1.8;
+    }
+
+    .code-comment {
+      color: var(--text-secondary);
+    }
+
+    .code-keyword {
+      color: var(--accent-purple);
+    }
+
+    .code-string {
+      color: var(--accent-green);
+    }
+
+    .code-function {
+      color: var(--accent-blue);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .architecture-row {
+        grid-template-columns: 1fr;
+      }
+      .arrow-container {
+        transform: rotate(90deg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>🏊 Poolside App Architecture</h1>
+  <p class="subtitle">Cruise Social App - Full Stack Overview</p>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="overview">Overview</button>
+    <button class="tab" data-tab="frontend">Frontend</button>
+    <button class="tab" data-tab="backend">Backend</button>
+    <button class="tab" data-tab="database">Database</button>
+    <button class="tab" data-tab="websocket">WebSocket</button>
+    <button class="tab" data-tab="flows">Data Flows</button>
+  </div>
+
+  <div class="diagram-container">
+
+    <!-- OVERVIEW TAB -->
+    <div id="overview" class="tab-content active">
+      <div class="section">
+        <div class="section-title"><span class="icon">🏗️</span> High-Level Architecture</div>
+        <div class="architecture-row">
+          <div class="layer">
+            <div class="layer-title">📱 FRONTEND</div>
+            <div class="layer-items">
+              <div class="layer-item">React Native + Expo</div>
+              <div class="layer-item">TypeScript</div>
+              <div class="layer-item">React Navigation</div>
+              <div class="layer-item">Axios + Socket.io</div>
+            </div>
+          </div>
+
+          <div class="arrow-container">
+            <span class="arrow">⟷</span>
+            <span class="arrow-label">REST API<br>WebSocket</span>
+          </div>
+
+          <div class="layer">
+            <div class="layer-title">⚙️ BACKEND</div>
+            <div class="layer-items">
+              <div class="layer-item">NestJS Framework</div>
+              <div class="layer-item">TypeScript</div>
+              <div class="layer-item">Passport JWT Auth</div>
+              <div class="layer-item">Socket.io Gateway</div>
+            </div>
+          </div>
+
+          <div class="arrow-container">
+            <span class="arrow">⟷</span>
+            <span class="arrow-label">Prisma ORM</span>
+          </div>
+
+          <div class="layer">
+            <div class="layer-title">🗄️ DATABASE</div>
+            <div class="layer-items">
+              <div class="layer-item">SQLite (dev)</div>
+              <div class="layer-item">Prisma Schema</div>
+              <div class="layer-item">File Uploads</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title"><span class="icon">📁</span> Project Structure</div>
+        <div class="code-block">
+<span class="code-comment">poolside/</span>
+├── <span class="code-keyword">poolside-app/</span>              <span class="code-comment"># React Native Frontend</span>
+│   ├── App.tsx                  <span class="code-comment"># Entry point, providers, fonts</span>
+│   ├── src/
+│   │   ├── <span class="code-function">api/</span>               <span class="code-comment"># API client, services, socket</span>
+│   │   ├── <span class="code-function">components/</span>        <span class="code-comment"># Reusable UI components</span>
+│   │   ├── <span class="code-function">context/</span>           <span class="code-comment"># AuthContext, RsvpContext</span>
+│   │   ├── <span class="code-function">hooks/</span>             <span class="code-comment"># useSocket, useChat, useEventChat</span>
+│   │   ├── <span class="code-function">navigation/</span>        <span class="code-comment"># Tab, Auth, Main navigators</span>
+│   │   └── <span class="code-function">screens/</span>           <span class="code-comment"># All app screens</span>
+│
+└── <span class="code-keyword">poolside-backend/</span>           <span class="code-comment"># NestJS Backend</span>
+    ├── src/
+    │   ├── <span class="code-function">modules/</span>           <span class="code-comment"># Feature modules</span>
+    │   │   ├── auth/
+    │   │   ├── users/
+    │   │   ├── events/
+    │   │   ├── rsvp/
+    │   │   ├── messages/
+    │   │   ├── event-chat/
+    │   │   ├── friends/
+    │   │   └── notifications/
+    │   └── <span class="code-function">prisma/</span>            <span class="code-comment"># Database service</span>
+    └── prisma/
+        └── schema.prisma        <span class="code-comment"># Database schema</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- FRONTEND TAB -->
+    <div id="frontend" class="tab-content">
+      <div class="section">
+        <div class="section-title"><span class="icon">📱</span> Frontend Architecture</div>
+        <div class="module-grid">
+          <div class="module">
+            <div class="module-header">
+              <div class="module-icon" style="background: rgba(88, 166, 255, 0.2);">🔐</div>
+              <span class="module-name">Authentication</span>
+            </div>
+            <div class="module-files">
+              <div class="module-file">context/AuthContext.tsx</div>
+              <div class="module-file">api/services/auth.ts</div>
+              <div class="module-file">navigation/AuthNavigator.tsx</div>
+            </div>
+          </div>
+
+          <div class="module">
+            <div class="module-header">
+              <div class="module-icon" style="background: rgba(163, 113, 247, 0.2);">📡</div>
+              <span class="module-name">API Layer</span>
+            </div>
+            <div class="module-files">
+              <div class="module-file">api/client.ts</div>
+              <div class="module-file">api/socket.ts</div>
+              <div class="module-file">api/services/*.ts</div>
+            </div>
+          </div>
+
+          <div class="module">
+            <div class="module-header">
+              <div class="module-icon" style="background: rgba(63, 185, 80, 0.2);">🧭</div>
+              <span class="module-name">Navigation</span>
+            </div>
+            <div class="module-files">
+              <div class="module-file">MainNavigator.tsx</div>
+              <div class="module-file">TabNavigator.tsx</div>
+              <div class="module-file">AuthNavigator.tsx</div>
+            </div>
+          </div>
+
+          <div class="module">
+            <div class="module-header">
+              <div class="module-icon" style="background: rgba(57, 197, 207, 0.2);">🪝</div>
+              <span class="module-name">Custom Hooks</span>
+            </div>
+            <div class="module-files">
+              <div class="module-file">hooks/useSocket.ts</div>
+              <div class="module-file">hooks/useChat.ts</div>
+              <div class="module-file">hooks/useEventChat.ts</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title"><span class="icon">📄</span> Key Screens</div>
+        <div class="module-grid">
+          <div class="module">
+            <div class="module-header">
+              <div class="module-icon" style="background: rgba(88, 166, 255, 0.2);">🏠</div>
+              <span class="module-name">FeedScreen</span>
+            </div>
+            <div class="module-files">
+              <div class="module-file">Event cards feed</div>
+              <div class="module-file">Pull to refresh</div>
+              <div class="module-file">RSVP buttons</div>
+            </div>
+          </div>
+
+          <div class="module">
+            <div class="module-header">
+              <div class="module-icon" style="background: rgba(163, 113, 247, 0.2);">💬</div>
+              <span class="module-name">ChatScreen</span>
+            </div>
+            <div class="module-files">
+              <div class="module-file">DM + Event Chat</div>
+              <div class="module-file">Real-time messages</div>
+              <div class="module-file">Typing indicators</div>
+            </div>
+          </div>
+
+          <div class="module">
+            <div class="module-header">
+              <div class="module-icon" style="background: rgba(63, 185, 80, 0.2);">👤</div>
+              <span class="module-name">ProfileScreen</span>
+            </div>
+            <div class="module-files">
+              <div class="module-file">User profile</div>
+              <div class="module-file">Photo carousel</div>
+              <div class="module-file">Interest tags</div>
+            </div>
+          </div>
+
+          <div class="module">
+            <div class="module-header">
+              <div class="module-icon" style="background: rgba(219, 97, 162, 0.2);">📅</div>
+              <span class="module-name">CreateEventScreen</span>
+            </div>
+            <div class="module-files">
+              <div class="module-file">Event creation form</div>
+              <div class="module-file">Image upload</div>
+              <div class="module-file">Date/time picker</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BACKEND TAB -->
+    <div id="backend" class="tab-content">
+      <div class="section">
+        <div class="section-title"><span class="icon">⚙️</span> Backend Modules</div>
+        <div class="module-grid">
+          <div class="module">
+            <div class="module-header">
+              <div class="module-icon auth">🔐</div>
+              <span class="module-name">Auth Module</span>
+            </div>
+            <div class="module-files">
+              <div class="module-file">auth.controller.ts</div>
+              <div class="module-file">auth.service.ts</div>
+              <div class="module-file">jwt.strategy.ts</div>
+              <div class="module-file">POST /auth/login</div>
+              <div class="module-file">POST /auth/register</div>
+              <div class="module-file">POST /auth/refresh</div>
+            </div>
+          </div>
+
+          <div class="module">
+            <div class="module-header">
+              <div class="module-icon users">👥</div>
+              <span class="module-name">Users Module</span>
+            </div>
+            <div class="module-files">
+              <div class="module-file">users.controller.ts</div>
+              <div class="module-file">users.service.ts</div>
+              <div class="module-file">GET /users/me</div>
+              <div class="module-file">PATCH /users/me</div>
+              <div class="module-file">GET /users/:id</div>
+            </div>
+          </div>
+
+          <div class="module">
+            <div class="module-header">
+              <div class="module-icon events">📅</div>
+              <span class="module-name">Events Module</span>
+            </div>
+            <div class="module-files">
+              <div class="module-file">events.controller.ts</div>
+              <div class="module-file">events.service.ts</div>
+              <div class="module-file">GET /events</div>
+              <div class="module-file">POST /events</div>
+              <div class="module-file">GET /events/:id</div>
+            </div>
+          </div>
+
+          <div class="module">
+            <div class="module-header">
+              <div class="module-icon rsvp">✅</div>
+              <span class="module-name">RSVP Module</span>
+            </div>
+            <div class="module-files">
+              <div class="module-file">rsvp.controller.ts</div>
+              <div class="module-file">rsvp.service.ts</div>
+              <div class="module-file">POST /rsvp</div>
+              <div class="module-file">GET /rsvp/me</div>
+              <div class="module-file">DELETE /rsvp/:eventId</div>
+            </div>
+          </div>
+
+          <div class="module">
+            <div class="module-header">
+              <div class="module-icon messages">💬</div>
+              <span class="module-name">Messages Module</span>
+            </div>
+            <div class="module-files">
+              <div class="module-file">messages.controller.ts</div>
+              <div class="module-file">messages.service.ts</div>
+              <div class="module-file">messages.gateway.ts</div>
+              <div class="module-file">GET /conversations</div>
+              <div class="module-file">POST /messages</div>
+            </div>
+          </div>
+
+          <div class="module">
+            <div class="module-header">
+              <div class="module-icon eventchat">🎭</div>
+              <span class="module-name">Event Chat Module</span>
+            </div>
+            <div class="module-files">
+              <div class="module-file">event-chat.controller.ts</div>
+              <div class="module-file">event-chat.service.ts</div>
+              <div class="module-file">event-chat.gateway.ts</div>
+              <div class="module-file">GET /events/:id/chat</div>
+            </div>
+          </div>
+
+          <div class="module">
+            <div class="module-header">
+              <div class="module-icon friends">🤝</div>
+              <span class="module-name">Friends Module</span>
+            </div>
+            <div class="module-files">
+              <div class="module-file">friends.controller.ts</div>
+              <div class="module-file">friends.service.ts</div>
+              <div class="module-file">POST /friends/request</div>
+              <div class="module-file">POST /friends/accept</div>
+            </div>
+          </div>
+
+          <div class="module">
+            <div class="module-header">
+              <div class="module-icon notifications">🔔</div>
+              <span class="module-name">Notifications</span>
+            </div>
+            <div class="module-files">
+              <div class="module-file">notifications.controller.ts</div>
+              <div class="module-file">notifications.service.ts</div>
+              <div class="module-file">GET /notifications</div>
+              <div class="module-file">PATCH /notifications/read</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATABASE TAB -->
+    <div id="database" class="tab-content">
+      <div class="section">
+        <div class="section-title"><span class="icon">🗄️</span> Database Schema (Prisma)</div>
+        <div class="schema-grid">
+          <div class="table">
+            <div class="table-header"><span class="table-icon">👤</span> User</div>
+            <div class="table-fields">
+              <div class="field pk"><span class="field-name">id</span><span class="field-type">String @id</span></div>
+              <div class="field"><span class="field-name">email</span><span class="field-type">String @unique</span></div>
+              <div class="field"><span class="field-name">name</span><span class="field-type">String</span></div>
+              <div class="field"><span class="field-name">password</span><span class="field-type">String</span></div>
+              <div class="field"><span class="field-name">birthDate</span><span class="field-type">DateTime</span></div>
+              <div class="field"><span class="field-name">emoji</span><span class="field-type">String?</span></div>
+              <div class="field"><span class="field-name">bio</span><span class="field-type">String?</span></div>
+              <div class="field"><span class="field-name">interests</span><span class="field-type">String (JSON)</span></div>
+              <div class="field"><span class="field-name">isOnline</span><span class="field-type">Boolean</span></div>
+            </div>
+          </div>
+
+          <div class="table">
+            <div class="table-header"><span class="table-icon">📅</span> Event</div>
+            <div class="table-fields">
+              <div class="field pk"><span class="field-name">id</span><span class="field-type">String @id</span></div>
+              <div class="field"><span class="field-name">title</span><span class="field-type">String</span></div>
+              <div class="field"><span class="field-name">description</span><span class="field-type">String</span></div>
+              <div class="field"><span class="field-name">location</span><span class="field-type">String</span></div>
+              <div class="field"><span class="field-name">startTime</span><span class="field-type">DateTime</span></div>
+              <div class="field"><span class="field-name">endTime</span><span class="field-type">DateTime?</span></div>
+              <div class="field"><span class="field-name">emoji</span><span class="field-type">String</span></div>
+              <div class="field"><span class="field-name">imageUrl</span><span class="field-type">String?</span></div>
+              <div class="field fk"><span class="field-name">hostId</span><span class="field-type">→ User</span></div>
+            </div>
+          </div>
+
+          <div class="table">
+            <div class="table-header"><span class="table-icon">✅</span> Rsvp</div>
+            <div class="table-fields">
+              <div class="field pk"><span class="field-name">id</span><span class="field-type">String @id</span></div>
+              <div class="field fk"><span class="field-name">userId</span><span class="field-type">→ User</span></div>
+              <div class="field fk"><span class="field-name">eventId</span><span class="field-type">→ Event</span></div>
+              <div class="field"><span class="field-name">status</span><span class="field-type">GOING | INTERESTED</span></div>
+              <div class="field"><span class="field-name">createdAt</span><span class="field-type">DateTime</span></div>
+            </div>
+          </div>
+
+          <div class="table">
+            <div class="table-header"><span class="table-icon">💬</span> Message</div>
+            <div class="table-fields">
+              <div class="field pk"><span class="field-name">id</span><span class="field-type">String @id</span></div>
+              <div class="field fk"><span class="field-name">senderId</span><span class="field-type">→ User</span></div>
+              <div class="field fk"><span class="field-name">receiverId</span><span class="field-type">→ User</span></div>
+              <div class="field"><span class="field-name">text</span><span class="field-type">String</span></div>
+              <div class="field"><span class="field-name">sentAt</span><span class="field-type">DateTime</span></div>
+              <div class="field"><span class="field-name">readAt</span><span class="field-type">DateTime?</span></div>
+            </div>
+          </div>
+
+          <div class="table">
+            <div class="table-header"><span class="table-icon">🎭</span> EventMessage</div>
+            <div class="table-fields">
+              <div class="field pk"><span class="field-name">id</span><span class="field-type">String @id</span></div>
+              <div class="field fk"><span class="field-name">eventId</span><span class="field-type">→ Event</span></div>
+              <div class="field fk"><span class="field-name">senderId</span><span class="field-type">→ User</span></div>
+              <div class="field"><span class="field-name">text</span><span class="field-type">String</span></div>
+              <div class="field"><span class="field-name">readBy</span><span class="field-type">String (JSON)</span></div>
+              <div class="field"><span class="field-name">createdAt</span><span class="field-type">DateTime</span></div>
+            </div>
+          </div>
+
+          <div class="table">
+            <div class="table-header"><span class="table-icon">🤝</span> Friendship</div>
+            <div class="table-fields">
+              <div class="field pk"><span class="field-name">id</span><span class="field-type">String @id</span></div>
+              <div class="field fk"><span class="field-name">requesterId</span><span class="field-type">→ User</span></div>
+              <div class="field fk"><span class="field-name">addresseeId</span><span class="field-type">→ User</span></div>
+              <div class="field"><span class="field-name">status</span><span class="field-type">PENDING | ACCEPTED</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WEBSOCKET TAB -->
+    <div id="websocket" class="tab-content">
+      <div class="section">
+        <div class="section-title"><span class="icon">🔌</span> WebSocket Communication</div>
+
+        <div class="socket-flow">
+          <div class="socket-side">
+            <div class="socket-title">📱 Frontend (socket.ts)</div>
+            <div class="socket-events">
+              <div class="socket-event"><span class="event-direction emit">→</span> join_conversation</div>
+              <div class="socket-event"><span class="event-direction emit">→</span> send_message</div>
+              <div class="socket-event"><span class="event-direction emit">→</span> typing_start</div>
+              <div class="socket-event"><span class="event-direction emit">→</span> typing_stop</div>
+              <div class="socket-event"><span class="event-direction emit">→</span> join_event_chat</div>
+              <div class="socket-event"><span class="event-direction emit">→</span> send_event_message</div>
+              <div class="socket-event"><span class="event-direction listen">←</span> new_message</div>
+              <div class="socket-event"><span class="event-direction listen">←</span> new_event_message</div>
+              <div class="socket-event"><span class="event-direction listen">←</span> user_typing</div>
+            </div>
+          </div>
+
+          <div class="socket-middle">
+            <span class="bidirectional">⟷</span>
+            <span style="font-size: 12px; color: var(--text-secondary);">Socket.io</span>
+            <span style="font-size: 11px; color: var(--text-secondary);">JWT Auth</span>
+          </div>
+
+          <div class="socket-side">
+            <div class="socket-title">⚙️ Backend (*.gateway.ts)</div>
+            <div class="socket-events">
+              <div class="socket-event"><span class="event-direction listen">←</span> handleConnection</div>
+              <div class="socket-event"><span class="event-direction listen">←</span> @SubscribeMessage</div>
+              <div class="socket-event"><span class="event-direction emit">→</span> server.to(room).emit()</div>
+              <div class="socket-event"><span class="event-direction emit">→</span> client.to(room).emit()</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 24px; padding: 16px; background: var(--bg-tertiary); border-radius: 8px; border-left: 3px solid var(--accent-orange);">
+          <div style="font-weight: 600; margin-bottom: 8px; color: var(--accent-orange);">⚠️ Known Issue: Event Chat Gateway</div>
+          <div style="font-size: 13px; color: var(--text-secondary);">
+            <code>EventChatGateway</code> is missing <code>handleConnection()</code> authentication.
+            The <code>MessagesGateway</code> authenticates on connection, but race conditions may cause
+            <code>client.user</code> to be undefined when EventChatGateway handlers run.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATA FLOWS TAB -->
+    <div id="flows" class="tab-content">
+      <div class="section">
+        <div class="section-title"><span class="icon">🔐</span> Authentication Flow</div>
+        <div class="flow-container">
+          <div class="flow-row">
+            <div class="flow-step">User enters email/password</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">POST /auth/login</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">Validate credentials</div>
+          </div>
+          <div class="flow-row">
+            <div class="flow-step">Return access + refresh tokens</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">Store in SecureStore</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step highlight">AuthContext.isAuthenticated = true</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title"><span class="icon">💬</span> Direct Message Flow</div>
+        <div class="flow-container">
+          <div class="flow-row">
+            <div class="flow-step">User opens ChatScreen</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">useChat hook activates</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">Socket: join_conversation</div>
+          </div>
+          <div class="flow-row">
+            <div class="flow-step">User types message</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">Socket: send_message</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">Gateway saves to DB</div>
+          </div>
+          <div class="flow-row">
+            <div class="flow-step highlight">Gateway broadcasts: new_message</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">Both users receive</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">UI updates in real-time</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title"><span class="icon">🎭</span> Event Chat Flow</div>
+        <div class="flow-container">
+          <div class="flow-row">
+            <div class="flow-step">User taps "Event Chat"</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">Navigate with isEventChat=true</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">useEventChat hook activates</div>
+          </div>
+          <div class="flow-row">
+            <div class="flow-step">Socket: join_event_chat</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step" style="border-color: var(--accent-orange);">Gateway checks: host OR RSVP "GOING"</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">Join room: event:{id}</div>
+          </div>
+          <div class="flow-row">
+            <div class="flow-step">User sends message</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">Save to EventMessage table</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step highlight">Broadcast to room</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title"><span class="icon">✅</span> RSVP Flow</div>
+        <div class="flow-container">
+          <div class="flow-row">
+            <div class="flow-step">User taps "Going" on event</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">POST /rsvp { eventId, status: "GOING" }</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">Create/Update Rsvp record</div>
+          </div>
+          <div class="flow-row">
+            <div class="flow-step">RsvpContext updates local state</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">EventCard shows updated button</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step highlight">User can now access Event Chat</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-color" style="background: var(--accent-blue);"></div> Frontend</div>
+    <div class="legend-item"><div class="legend-color" style="background: var(--accent-purple);"></div> Backend</div>
+    <div class="legend-item"><div class="legend-color" style="background: var(--accent-green);"></div> Database</div>
+    <div class="legend-item"><div class="legend-color" style="background: var(--accent-cyan);"></div> WebSocket</div>
+    <div class="legend-item"><div class="legend-color" style="background: var(--accent-orange);"></div> Important Note</div>
+  </div>
+
+  <script>
+    // Tab switching logic
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        // Remove active from all tabs and contents
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+        // Add active to clicked tab and corresponding content
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.tab).classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

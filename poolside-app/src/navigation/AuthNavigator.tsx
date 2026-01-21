@@ -1,13 +1,25 @@
 import React, { useState } from 'react';
 import { LoginScreen } from '../screens/LoginScreen';
 import { RegisterScreen } from '../screens/RegisterScreen';
+import { WelcomeScreen } from '../screens/WelcomeScreen';
+
+type AuthScreen = 'welcome' | 'login' | 'register';
 
 export const AuthNavigator: React.FC = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  // Welcome screen is now handled in App.tsx, so start with login
+  const [currentScreen, setCurrentScreen] = useState<AuthScreen>('login');
 
-  if (isLogin) {
-    return <LoginScreen onSwitchToRegister={() => setIsLogin(false)} />;
+  const handleWelcomeComplete = () => {
+    setCurrentScreen('login');
+  };
+
+  if (currentScreen === 'welcome') {
+    return <WelcomeScreen onComplete={handleWelcomeComplete} />;
   }
 
-  return <RegisterScreen onSwitchToLogin={() => setIsLogin(true)} />;
+  if (currentScreen === 'login') {
+    return <LoginScreen onSwitchToRegister={() => setCurrentScreen('register')} />;
+  }
+
+  return <RegisterScreen onSwitchToLogin={() => setCurrentScreen('login')} />;
 };

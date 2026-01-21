@@ -9,7 +9,7 @@ export const ProfileBackground: React.FC<ProfileBackgroundProps> = ({ style }) =
   return (
     <View style={[styles.container, style]}>
       <Image
-        source={require('../assets/images/Starynight.png')}
+        source={require('../assets/images/OfficialBackground.png')}
         style={styles.backgroundImage}
         resizeMode="cover"
       />

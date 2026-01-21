@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auth Choice Screen - Poolside</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #ffe8dc 0%, #ffd9c8 33%, #ffcdb8 66%, #ffc4a8 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .phone-frame {
+      width: 390px;
+      height: 844px;
+      background: linear-gradient(180deg, #ffe8dc 0%, #ffd9c8 33%, #ffcdb8 66%, #ffc4a8 100%);
+      border-radius: 50px;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      position: relative;
+      border: 12px solid #1a1a1a;
+    }
+
+    .notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 160px;
+      height: 34px;
+      background: #1a1a1a;
+      border-radius: 0 0 20px 20px;
+      z-index: 10;
+    }
+
+    .screen-content {
+      padding: 80px 28px 40px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Mascot Section */
+    .mascot-section {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .mascot-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    .mascot {
+      font-size: 80px;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .mascot-line {
+      width: 100px;
+      height: 3px;
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 2px;
+      margin: -8px auto 0;
+    }
+
+    /* Title Section */
+    .title-section {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .title {
+      font-family: 'Syne', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: #1a1a1a;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+
+    .highlight {
+      color: #ff6b4a;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: rgba(0, 0, 0, 0.5);
+      line-height: 1.5;
+    }
+
+    /* Glass Card */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      border-radius: 24px;
+      padding: 28px 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+    }
+
+    .card-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.5);
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      width: 100%;
+      padding: 18px 24px;
+      border: none;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      color: white;
+      background: linear-gradient(135deg, #ff6b4a 0%, #8b5cf6 100%);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 8px 24px rgba(255, 107, 74, 0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-bottom: 12px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(255, 107, 74, 0.4);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 18px 24px;
+      border: 2px solid rgba(0, 0, 0, 0.1);
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #1a1a1a;
+      background: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.2s, background 0.2s, border-color 0.2s;
+    }
+
+    .btn-secondary:hover {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.9);
+      border-color: rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-arrow {
+      font-size: 18px;
+    }
+
+    .btn-icon {
+      font-size: 18px;
+    }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 24px 0;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    .divider-text {
+      padding: 0 16px;
+      font-size: 13px;
+      color: rgba(0, 0, 0, 0.35);
+      font-weight: 500;
+    }
+
+    /* Email hint */
+    .email-hint {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 20px;
+      padding: 12px;
+      background: rgba(255, 107, 74, 0.08);
+      border-radius: 12px;
+    }
+
+    .email-hint-text {
+      font-size: 13px;
+      color: rgba(0, 0, 0, 0.5);
+    }
+
+    .email-hint-highlight {
+      font-weight: 600;
+      color: #ff6b4a;
+    }
+
+    /* Spacer */
+    .spacer {
+      flex: 1;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.35);
+      line-height: 1.5;
+    }
+
+    .footer-link {
+      color: rgba(0, 0, 0, 0.5);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    /* Floating orbs for background decoration */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.4;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .orb-1 {
+      width: 120px;
+      height: 120px;
+      background: rgba(255, 107, 74, 0.3);
+      top: 10%;
+      right: -30px;
+      animation-delay: 0s;
+    }
+
+    .orb-2 {
+      width: 80px;
+      height: 80px;
+      background: rgba(139, 92, 246, 0.25);
+      top: 30%;
+      left: -20px;
+      animation-delay: 1s;
+    }
+
+    .orb-3 {
+      width: 60px;
+      height: 60px;
+      background: rgba(34, 211, 238, 0.2);
+      bottom: 25%;
+      right: 10%;
+      animation-delay: 2s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-20px) scale(1.05); }
+    }
+
+    /* Back button */
+    .back-button {
+      position: absolute;
+      top: 60px;
+      left: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #1a1a1a;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .back-button:hover {
+      background: rgba(255, 255, 255, 0.9);
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="notch"></div>
+
+    <!-- Floating orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <!-- Back button -->
+    <div class="back-button">←</div>
+
+    <div class="screen-content">
+      <!-- Mascot -->
+      <div class="mascot-section">
+        <div class="mascot-container">
+          <div class="mascot">🐘</div>
+          <div class="mascot-line"></div>
+        </div>
+      </div>
+
+      <!-- Title -->
+      <div class="title-section">
+        <h1 class="title">Welcome to<br><span class="highlight">Tufts</span></h1>
+        <p class="subtitle">Join your campus community.<br>Connect with fellow Jumbos!</p>
+      </div>
+
+      <!-- Glass Card with Options -->
+      <div class="glass-card">
+        <p class="card-label">Get started with your Tufts email</p>
+
+        <button class="btn-primary">
+          <span>Create Account</span>
+          <span class="btn-arrow">→</span>
+        </button>
+
+        <button class="btn-secondary">
+          <span class="btn-icon">👋</span>
+          <span>I already have an account</span>
+        </button>
+
+        <div class="email-hint">
+          <span class="email-hint-text">🎓 Use your </span>
+          <span class="email-hint-highlight">@tufts.edu</span>
+          <span class="email-hint-text"> email</span>
+        </div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <!-- Footer -->
+      <p class="footer">
+        By continuing, you agree to our<br>
+        <span class="footer-link">Terms</span> & <span class="footer-link">Privacy Policy</span>
+      </p>
+    </div>
+  </div>
+</body>
+</html>

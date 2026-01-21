@@ -11,6 +11,8 @@ import {
   StatusBar,
   Animated as RNAnimated,
   Image,
+  Modal,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
@@ -30,7 +32,9 @@ import Animated, {
 import { usersService } from '../api/services/users';
 import { uploadsService } from '../api/services/uploads';
 import { eventsService } from '../api/services/events';
-import { ProfileBackground } from '../components/ProfileBackground';
+import { fixImageUrl } from '../api/client';
+// Feed background image (same as Cruise Feed)
+const FeedBackground = require('../assets/images/feed-background.png');
 import { DeckCarousel } from '../components/DeckCarousel';
 import { InterestsGallery, Interest } from '../components/InterestsGallery';
 import { FavoritesSearchModal } from '../components/FavoritesSearchModal';
@@ -128,6 +132,9 @@ export const ProfileScreen: React.FC = () => {
   // Photo management modal state
   const [photoModalVisible, setPhotoModalVisible] = useState(false);
 
+  // Settings modal state
+  const [settingsModalVisible, setSettingsModalVisible] = useState(false);
+
   // Cascade animation shared values (0 = hidden, 1 = visible)
   const cascade0 = useSharedValue(0); // Profile picture
   const cascade1 = useSharedValue(0); // Name
@@ -141,13 +148,15 @@ export const ProfileScreen: React.FC = () => {
   // My Events tab state
   const [activeEventTab, setActiveEventTab] = useState<EventTabType>('going');
   const [hostingEvents, setHostingEvents] = useState<Event[]>([]);
+  const [draftEvents, setDraftEvents] = useState<Event[]>([]);
   const [isLoadingHosting, setIsLoadingHosting] = useState(false);
+  const [isLoadingDrafts, setIsLoadingDrafts] = useState(false);
   const tabSlideAnim = useRef(new RNAnimated.Value(0)).current;
   const eventsOpacity = useRef(new RNAnimated.Value(1)).current;
 
   // Get RSVP data
   const { getEventsByStatus, isLoading: isLoadingRsvp } = useRsvp();
-  const { user: authUser } = useAuth();
+  const { user: authUser, logout } = useAuth();
 
   // Original values for cancel
   const [originalValues, setOriginalValues] = useState({
@@ -311,45 +320,17 @@ export const ProfileScreen: React.FC = () => {
   }, []);
 
   // Replay cascade animation when screen is focused (tab switch)
-  // Uses withSequence to smoothly fade out then cascade in, avoiding black screen bug
+  // Just spring to visible - no fade to 0 which can cause black screens
   useFocusEffect(
     useCallback(() => {
-      const FADE_OUT_DURATION = 50; // Quick fade out to avoid black screen
-
-      // Animate out smoothly, then cascade back in
-      // This prevents the instant opacity=0 that causes black screens
-      cascade0.value = withSequence(
-        withTiming(0, { duration: FADE_OUT_DURATION }),
-        withDelay(0 * CASCADE_STAGGER, withSpring(1, CASCADE_SPRING))
-      );
-      cascade1.value = withSequence(
-        withTiming(0, { duration: FADE_OUT_DURATION }),
-        withDelay(1 * CASCADE_STAGGER, withSpring(1, CASCADE_SPRING))
-      );
-      cascade2.value = withSequence(
-        withTiming(0, { duration: FADE_OUT_DURATION }),
-        withDelay(2 * CASCADE_STAGGER, withSpring(1, CASCADE_SPRING))
-      );
-      cascade3.value = withSequence(
-        withTiming(0, { duration: FADE_OUT_DURATION }),
-        withDelay(3 * CASCADE_STAGGER, withSpring(1, CASCADE_SPRING))
-      );
-      cascade4.value = withSequence(
-        withTiming(0, { duration: FADE_OUT_DURATION }),
-        withDelay(4 * CASCADE_STAGGER, withSpring(1, CASCADE_SPRING))
-      );
-      cascade5.value = withSequence(
-        withTiming(0, { duration: FADE_OUT_DURATION }),
-        withDelay(5 * CASCADE_STAGGER, withSpring(1, CASCADE_SPRING))
-      );
-      cascade6.value = withSequence(
-        withTiming(0, { duration: FADE_OUT_DURATION }),
-        withDelay(6 * CASCADE_STAGGER, withSpring(1, CASCADE_SPRING))
-      );
-      cascade7.value = withSequence(
-        withTiming(0, { duration: FADE_OUT_DURATION }),
-        withDelay(7 * CASCADE_STAGGER, withSpring(1, CASCADE_SPRING))
-      );
+      cascade0.value = withDelay(0 * CASCADE_STAGGER, withSpring(1, CASCADE_SPRING));
+      cascade1.value = withDelay(1 * CASCADE_STAGGER, withSpring(1, CASCADE_SPRING));
+      cascade2.value = withDelay(2 * CASCADE_STAGGER, withSpring(1, CASCADE_SPRING));
+      cascade3.value = withDelay(3 * CASCADE_STAGGER, withSpring(1, CASCADE_SPRING));
+      cascade4.value = withDelay(4 * CASCADE_STAGGER, withSpring(1, CASCADE_SPRING));
+      cascade5.value = withDelay(5 * CASCADE_STAGGER, withSpring(1, CASCADE_SPRING));
+      cascade6.value = withDelay(6 * CASCADE_STAGGER, withSpring(1, CASCADE_SPRING));
+      cascade7.value = withDelay(7 * CASCADE_STAGGER, withSpring(1, CASCADE_SPRING));
     }, [])
   );
 
@@ -370,9 +351,27 @@ export const ProfileScreen: React.FC = () => {
     }
   }, [authUser?.id]);
 
+  // Fetch draft events
+  const fetchDraftEvents = useCallback(async () => {
+    if (!authUser?.id) return;
+
+    try {
+      setIsLoadingDrafts(true);
+      const response = await eventsService.getEvents({ hostId: authUser.id, status: 'DRAFT' });
+      const mappedEvents = mapApiEventsToEvents(response.events);
+      setDraftEvents(mappedEvents);
+    } catch (error) {
+      console.error('Failed to fetch draft events:', error);
+      setDraftEvents([]);
+    } finally {
+      setIsLoadingDrafts(false);
+    }
+  }, [authUser?.id]);
+
   useEffect(() => {
     fetchHostingEvents();
-  }, [fetchHostingEvents]);
+    fetchDraftEvents();
+  }, [fetchHostingEvents, fetchDraftEvents]);
 
   // Get events based on active tab
   const getActiveEvents = useCallback((): Event[] => {
@@ -387,10 +386,12 @@ export const ProfileScreen: React.FC = () => {
       }
       case 'hosting':
         return hostingEvents;
+      case 'drafts':
+        return draftEvents;
       default:
         return [];
     }
-  }, [activeEventTab, getEventsByStatus, hostingEvents]);
+  }, [activeEventTab, getEventsByStatus, hostingEvents, draftEvents]);
 
   // Get event counts for tabs
   const getEventCounts = useCallback(() => {
@@ -400,8 +401,9 @@ export const ProfileScreen: React.FC = () => {
       going: goingEvents.length,
       interested: interestedEvents.length,
       hosting: hostingEvents.length,
+      drafts: draftEvents.length,
     };
-  }, [getEventsByStatus, hostingEvents]);
+  }, [getEventsByStatus, hostingEvents, draftEvents]);
 
   // Handle tab change with animation
   const handleEventTabChange = (tab: EventTabType) => {
@@ -410,7 +412,7 @@ export const ProfileScreen: React.FC = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     // Calculate tab index for slide animation
-    const tabIndex = tab === 'going' ? 0 : tab === 'interested' ? 1 : 2;
+    const tabIndex = tab === 'going' ? 0 : tab === 'interested' ? 1 : tab === 'hosting' ? 2 : 3;
 
     // Animate tab indicator
     RNAnimated.spring(tabSlideAnim, {
@@ -438,7 +440,7 @@ export const ProfileScreen: React.FC = () => {
 
   const activeEvents = getActiveEvents();
   const eventCounts = getEventCounts();
-  const isLoadingEvents = isLoadingRsvp || isLoadingHosting;
+  const isLoadingEvents = isLoadingRsvp || isLoadingHosting || isLoadingDrafts;
 
   const fetchProfile = async () => {
     try {
@@ -450,8 +452,18 @@ export const ProfileScreen: React.FC = () => {
       const firstName = nameParts[0] || 'Sarah';
       const lastName = nameParts.slice(1).join(' ') || 'Mitchell';
 
-      // Use user's photos or empty array
-      const photos = apiUser.photos || [];
+      // Use user's photos or empty array - filter out invalid entries and fix URLs
+      const photos = (apiUser.photos || [])
+        .filter((photo) => photo && typeof photo === 'string' && photo.trim() !== '')
+        .map((photo) => fixImageUrl(photo))
+        .filter((photo): photo is string => photo !== null);
+
+      // Fix avatar URL as well
+      const avatar = fixImageUrl(apiUser.avatar);
+
+      // Debug: log photo URLs to help diagnose loading issues
+      console.log('[ProfileScreen] User photos (fixed):', photos);
+      console.log('[ProfileScreen] User avatar (fixed):', avatar);
 
       setUser({
         id: apiUser.id,
@@ -460,7 +472,7 @@ export const ProfileScreen: React.FC = () => {
         bio: apiUser.bio || '',
         photos,
         interests: sampleInterests,
-        profilePicture: apiUser.avatar || null,
+        profilePicture: avatar,
       });
     } catch (error) {
       console.error('Failed to fetch profile:', error);
@@ -615,14 +627,37 @@ export const ProfileScreen: React.FC = () => {
 
   const handleSavePhotos = async (newPhotos: string[]) => {
     if (user) {
+      // Show optimistic update with local URIs
       setUser({ ...user, photos: newPhotos });
       setEditPhotos(newPhotos);
 
-      // Persist to backend immediately
+      // Upload any local file URIs to the server first
       try {
-        await usersService.updateProfile({ photos: newPhotos });
+        const uploadedPhotos: string[] = [];
+
+        for (const photo of newPhotos) {
+          if (photo.startsWith('file://')) {
+            // Local file - needs to be uploaded
+            console.log('[ProfileScreen] Uploading local photo:', photo);
+            const uploadResult = await uploadsService.uploadImage(photo);
+            uploadedPhotos.push(uploadResult.url);
+            console.log('[ProfileScreen] Uploaded to:', uploadResult.url);
+          } else {
+            // Already a server URL - keep as is
+            uploadedPhotos.push(photo);
+          }
+        }
+
+        // Update local state with server URLs
+        setUser({ ...user, photos: uploadedPhotos });
+        setEditPhotos(uploadedPhotos);
+
+        // Persist server URLs to backend
+        await usersService.updateProfile({ photos: uploadedPhotos });
+        console.log('[ProfileScreen] Saved photos to profile:', uploadedPhotos);
       } catch (error) {
         console.error('Failed to save photos:', error);
+        alert('Failed to upload some photos. Please try again.');
       }
     }
   };
@@ -678,6 +713,35 @@ export const ProfileScreen: React.FC = () => {
     // Add friend logic
   };
 
+  const handleSettingsPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setSettingsModalVisible(true);
+  };
+
+  const handleLogout = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    Alert.alert(
+      'Log Out',
+      'Are you sure you want to log out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Log Out',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await logout();
+              setSettingsModalVisible(false);
+            } catch (error) {
+              console.error('Logout failed:', error);
+              Alert.alert('Error', 'Failed to log out. Please try again.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const handleInterestPress = (index: number, type: Interest['type']) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setEditingInterestIndex(index);
@@ -696,7 +760,7 @@ export const ProfileScreen: React.FC = () => {
   if (isLoading || !user) {
     return (
       <View style={styles.loadingContainer}>
-        <ProfileBackground />
+        <Image source={FeedBackground} style={styles.feedBackgroundImage} resizeMode="cover" />
         <ActivityIndicator size="large" color="#FF8C00" style={{ zIndex: 10 }} />
       </View>
     );
@@ -713,7 +777,7 @@ export const ProfileScreen: React.FC = () => {
       <StatusBar barStyle="light-content" />
 
       {/* Lottie Background Layer */}
-      <ProfileBackground />
+      <Image source={FeedBackground} style={styles.feedBackgroundImage} resizeMode="cover" />
 
       {/* Back Button */}
       <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
@@ -724,7 +788,7 @@ export const ProfileScreen: React.FC = () => {
 
       {/* Settings Button (hidden in edit mode) */}
       {!isEditMode && (
-        <TouchableOpacity style={styles.settingsButton} onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}>
+        <TouchableOpacity style={styles.settingsButton} onPress={handleSettingsPress}>
           <BlurView intensity={12} tint="light" style={styles.settingsButtonBlur}>
             <Text style={styles.settingsButtonIcon}>⚙️</Text>
           </BlurView>
@@ -936,6 +1000,21 @@ export const ProfileScreen: React.FC = () => {
                     activeEventTab === 'hosting' && styles.eventTabTextActive,
                   ]}>Hosting</Text>
                 </TouchableOpacity>
+
+                {/* Drafts Tab */}
+                <TouchableOpacity
+                  style={[
+                    styles.eventTab,
+                    activeEventTab === 'drafts' && styles.eventTabActive,
+                  ]}
+                  onPress={() => handleEventTabChange('drafts')}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[
+                    styles.eventTabText,
+                    activeEventTab === 'drafts' && styles.eventTabTextActive,
+                  ]}>Drafts</Text>
+                </TouchableOpacity>
               </View>
 
               {/* Events List */}
@@ -947,14 +1026,16 @@ export const ProfileScreen: React.FC = () => {
                 ) : activeEvents.length === 0 ? (
                   <View style={styles.emptyEvents}>
                     <Text style={styles.emptyEventsEmoji}>
-                      {activeEventTab === 'hosting' ? '🎉' : '📅'}
+                      {activeEventTab === 'hosting' || activeEventTab === 'drafts' ? '🎉' : '📅'}
                     </Text>
                     <Text style={styles.emptyEventsTitle}>
-                      No {activeEventTab} events yet
+                      No {activeEventTab === 'drafts' ? 'draft' : activeEventTab} events yet
                     </Text>
                     <Text style={styles.emptyEventsText}>
                       {activeEventTab === 'hosting'
                         ? 'Create your first event to start hosting!'
+                        : activeEventTab === 'drafts'
+                        ? 'Save an event as a draft to finish it later!'
                         : 'Browse events and tap RSVP to get started'}
                     </Text>
                   </View>
@@ -1016,6 +1097,73 @@ export const ProfileScreen: React.FC = () => {
         onClose={() => setPhotoModalVisible(false)}
         onSave={handleSavePhotos}
       />
+
+      {/* Settings Modal */}
+      <Modal
+        visible={settingsModalVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setSettingsModalVisible(false)}
+      >
+        <View style={styles.settingsModalContainer}>
+          {/* Header */}
+          <View style={styles.settingsModalHeader}>
+            <Text style={styles.settingsModalTitle}>Settings</Text>
+            <TouchableOpacity
+              style={styles.settingsModalCloseButton}
+              onPress={() => setSettingsModalVisible(false)}
+            >
+              <Text style={styles.settingsModalCloseText}>Done</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Settings Options */}
+          <ScrollView style={styles.settingsModalContent}>
+            {/* Account Section */}
+            <Text style={styles.settingsSectionTitle}>Account</Text>
+            <View style={styles.settingsSection}>
+              <TouchableOpacity style={styles.settingsItem}>
+                <Text style={styles.settingsItemIcon}>👤</Text>
+                <Text style={styles.settingsItemText}>Account Info</Text>
+                <Text style={styles.settingsItemArrow}>›</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.settingsItem}>
+                <Text style={styles.settingsItemIcon}>🔔</Text>
+                <Text style={styles.settingsItemText}>Notifications</Text>
+                <Text style={styles.settingsItemArrow}>›</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.settingsItem}>
+                <Text style={styles.settingsItemIcon}>🔒</Text>
+                <Text style={styles.settingsItemText}>Privacy</Text>
+                <Text style={styles.settingsItemArrow}>›</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Support Section */}
+            <Text style={styles.settingsSectionTitle}>Support</Text>
+            <View style={styles.settingsSection}>
+              <TouchableOpacity style={styles.settingsItem}>
+                <Text style={styles.settingsItemIcon}>❓</Text>
+                <Text style={styles.settingsItemText}>Help Center</Text>
+                <Text style={styles.settingsItemArrow}>›</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.settingsItem}>
+                <Text style={styles.settingsItemIcon}>📝</Text>
+                <Text style={styles.settingsItemText}>Send Feedback</Text>
+                <Text style={styles.settingsItemArrow}>›</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Logout Button */}
+            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+              <Text style={styles.logoutButtonText}>Log Out</Text>
+            </TouchableOpacity>
+
+            {/* App Version */}
+            <Text style={styles.appVersion}>JumboHQ v1.0.0</Text>
+          </ScrollView>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -1023,11 +1171,19 @@ export const ProfileScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAF8F6',  // Warm white base (matches background)
+    backgroundColor: '#0a0a0f',
+  },
+  feedBackgroundImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    zIndex: 0,
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#FAF8F6',  // Warm white base (matches background)
+    backgroundColor: '#0a0a0f',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -1396,5 +1552,99 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255, 255, 255, 0.45)',
     textAlign: 'center',
+  },
+  // Settings Modal
+  settingsModalContainer: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  settingsModalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 20,
+    paddingBottom: 16,
+    paddingHorizontal: 20,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  settingsModalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1a1a1a',
+  },
+  settingsModalCloseButton: {
+    position: 'absolute',
+    right: 20,
+    top: 20,
+  },
+  settingsModalCloseText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#667eea',
+  },
+  settingsModalContent: {
+    flex: 1,
+    paddingTop: 20,
+  },
+  settingsSectionTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: 'rgba(0, 0, 0, 0.5)',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    paddingHorizontal: 20,
+    marginBottom: 8,
+  },
+  settingsSection: {
+    backgroundColor: '#fff',
+    marginBottom: 24,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  settingsItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  settingsItemIcon: {
+    fontSize: 20,
+    marginRight: 14,
+  },
+  settingsItemText: {
+    flex: 1,
+    fontSize: 16,
+    color: '#1a1a1a',
+  },
+  settingsItemArrow: {
+    fontSize: 20,
+    color: 'rgba(0, 0, 0, 0.3)',
+  },
+  logoutButton: {
+    marginHorizontal: 20,
+    marginTop: 20,
+    paddingVertical: 16,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+  },
+  logoutButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ef4444',
+  },
+  appVersion: {
+    textAlign: 'center',
+    fontSize: 13,
+    color: 'rgba(0, 0, 0, 0.35)',
+    marginTop: 24,
+    marginBottom: 40,
   },
 });

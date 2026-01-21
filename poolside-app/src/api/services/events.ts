@@ -25,6 +25,11 @@ export interface ApiEvent {
   } | number;
   myRsvp?: string | null;
   createdAt?: string;
+  spots?: number | null;
+  displayDuration?: number; // Duration in minutes to show event on feed
+  isFull?: boolean; // True when spots limit is reached
+  waitlistEnabled?: boolean; // Allow users to join waitlist when full
+  hideDetailsWhenFull?: boolean; // Hide location & time from non-attendees when full
 }
 
 export interface EventsResponse {
@@ -40,6 +45,7 @@ export interface EventFilters {
   hostId?: string;
   limit?: number;
   cursor?: string;
+  status?: 'DRAFT' | 'PUBLISHED';
 }
 
 export interface CreateEventData {
@@ -54,6 +60,11 @@ export interface CreateEventData {
   endTime?: string;
   category?: string;
   theme?: Record<string, unknown>;
+  spots?: number; // Max capacity (null/undefined = unlimited)
+  displayDuration?: number; // Duration in minutes to show event on feed (30-180)
+  status?: 'DRAFT' | 'PUBLISHED';
+  waitlistEnabled?: boolean; // Allow users to join waitlist when full
+  hideDetailsWhenFull?: boolean; // Hide location & time from non-attendees when full
 }
 
 export interface EventAttendee {

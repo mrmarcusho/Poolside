@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poolside - Event Card Button Variations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-dark: #1a1a2e;
+      --bg-darker: #12121f;
+      --bg-card: #252538;
+      --purple-accent: #a78bfa;
+      --pink-accent: #f472b6;
+      --blue-accent: #60a5fa;
+      --glass-bg: rgba(255, 255, 255, 0.08);
+      --glass-bg-hover: rgba(255, 255, 255, 0.12);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --glass-border-hover: rgba(255, 255, 255, 0.2);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --text-muted: rgba(255, 255, 255, 0.5);
+    }
+
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-darker);
+      min-height: 100vh;
+      color: var(--text-primary);
+      padding: 40px 20px;
+    }
+
+    .page-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--purple-accent), var(--pink-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .page-subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 48px;
+      font-size: 15px;
+    }
+
+    .variations-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 32px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .variation-card {
+      background: var(--bg-dark);
+      border-radius: 24px;
+      padding: 24px;
+      border: 1px solid var(--glass-border);
+    }
+
+    .variation-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--purple-accent);
+      margin-bottom: 8px;
+    }
+
+    .variation-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: var(--text-primary);
+    }
+
+    /* Mock Event Card Footer */
+    .event-footer {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid var(--glass-border);
+    }
+
+    /* ========================================
+       VARIATION 1: MINIMAL GLASS
+       ======================================== */
+    .v1-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .v1-secondary-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .v1-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      color: var(--text-primary);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .v1-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(167, 139, 250, 0.15), rgba(244, 114, 182, 0.15));
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+
+    .v1-btn:hover {
+      background: var(--glass-bg-hover);
+      border-color: var(--glass-border-hover);
+      transform: translateY(-2px);
+    }
+
+    .v1-btn:hover::before {
+      opacity: 1;
+    }
+
+    .v1-btn:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    .v1-btn svg {
+      width: 16px;
+      height: 16px;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+
+    .v1-btn:hover svg {
+      opacity: 1;
+    }
+
+    .v1-btn-primary {
+      background: linear-gradient(135deg, var(--purple-accent), var(--pink-accent));
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      padding: 10px 24px;
+      box-shadow: 0 4px 20px rgba(167, 139, 250, 0.3);
+    }
+
+    .v1-btn-primary::before {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+    }
+
+    .v1-btn-primary:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 28px rgba(167, 139, 250, 0.45);
+    }
+
+    /* ========================================
+       VARIATION 2: ICON-FORWARD
+       ======================================== */
+    .v2-container {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+
+    .v2-secondary-group {
+      display: flex;
+      gap: 20px;
+    }
+
+    .v2-icon-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .v2-icon-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: var(--glass-bg);
+      border: 1.5px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .v2-icon-circle::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(167, 139, 250, 0.3), transparent 70%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .v2-icon-btn:hover .v2-icon-circle {
+      border-color: var(--purple-accent);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(167, 139, 250, 0.25);
+    }
+
+    .v2-icon-btn:hover .v2-icon-circle::after {
+      opacity: 1;
+    }
+
+    .v2-icon-btn:active .v2-icon-circle {
+      transform: translateY(-2px) scale(0.95);
+    }
+
+    .v2-icon-circle svg {
+      width: 22px;
+      height: 22px;
+      color: var(--text-secondary);
+      transition: color 0.2s;
+      position: relative;
+      z-index: 1;
+    }
+
+    .v2-icon-btn:hover .v2-icon-circle svg {
+      color: var(--text-primary);
+    }
+
+    .v2-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+
+    .v2-icon-btn:hover .v2-label {
+      color: var(--text-secondary);
+    }
+
+    .v2-rsvp-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 28px;
+      background: linear-gradient(135deg, var(--purple-accent), var(--pink-accent), var(--blue-accent));
+      background-size: 200% 200%;
+      border: none;
+      border-radius: 16px;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 24px rgba(167, 139, 250, 0.35);
+      animation: gradient-shift 3s ease infinite;
+    }
+
+    @keyframes gradient-shift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .v2-rsvp-btn:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 8px 32px rgba(167, 139, 250, 0.5);
+    }
+
+    .v2-rsvp-btn:active {
+      transform: translateY(-1px) scale(0.98);
+    }
+
+    .v2-rsvp-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* ========================================
+       VARIATION 3: SEGMENTED
+       ======================================== */
+    .v3-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .v3-segment-group {
+      display: flex;
+      background: var(--glass-bg);
+      border-radius: 14px;
+      border: 1px solid var(--glass-border);
+      overflow: hidden;
+    }
+
+    .v3-segment-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .v3-segment-btn:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 25%;
+      height: 50%;
+      width: 1px;
+      background: var(--glass-border);
+    }
+
+    .v3-segment-btn:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-primary);
+    }
+
+    .v3-segment-btn:active {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .v3-segment-btn svg {
+      width: 16px;
+      height: 16px;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+
+    .v3-segment-btn:hover svg {
+      opacity: 1;
+    }
+
+    .v3-rsvp-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: var(--glass-bg);
+      border: 2px solid var(--purple-accent);
+      border-radius: 14px;
+      color: var(--text-primary);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .v3-rsvp-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--purple-accent), var(--pink-accent));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .v3-rsvp-btn span,
+    .v3-rsvp-btn svg {
+      position: relative;
+      z-index: 1;
+    }
+
+    .v3-rsvp-btn:hover {
+      border-color: transparent;
+      transform: scale(1.03);
+      box-shadow: 0 4px 20px rgba(167, 139, 250, 0.4);
+    }
+
+    .v3-rsvp-btn:hover::before {
+      opacity: 1;
+    }
+
+    .v3-rsvp-btn:active {
+      transform: scale(0.98);
+    }
+
+    .v3-rsvp-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ========================================
+       VARIATION 4: FLOATING ACTION
+       ======================================== */
+    .v4-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      position: relative;
+    }
+
+    .v4-mini-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .v4-mini-btn::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .v4-mini-btn:hover::after {
+      opacity: 1;
+    }
+
+    .v4-mini-btn:hover {
+      background: var(--glass-bg-hover);
+      border-color: var(--glass-border-hover);
+      transform: translateY(-3px);
+    }
+
+    .v4-mini-btn:active {
+      transform: translateY(-1px) scale(0.95);
+    }
+
+    .v4-mini-btn svg {
+      width: 20px;
+      height: 20px;
+      color: var(--text-secondary);
+      transition: color 0.2s;
+    }
+
+    .v4-mini-btn:hover svg {
+      color: var(--text-primary);
+    }
+
+    .v4-rsvp-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px 40px;
+      background: linear-gradient(135deg, var(--purple-accent), var(--pink-accent));
+      border: none;
+      border-radius: 50px;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow:
+        0 4px 24px rgba(167, 139, 250, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .v4-rsvp-btn::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+      );
+      transform: rotate(45deg);
+      transition: transform 0.6s;
+    }
+
+    .v4-rsvp-btn:hover::before {
+      transform: rotate(45deg) translateY(100%);
+    }
+
+    .v4-rsvp-btn:hover {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow:
+        0 8px 32px rgba(167, 139, 250, 0.5),
+        0 0 0 4px rgba(167, 139, 250, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .v4-rsvp-btn:active {
+      transform: translateY(-2px) scale(1.02);
+    }
+
+    .v4-rsvp-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* ========================================
+       BONUS: CONFIRMED STATES
+       ======================================== */
+    .states-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--glass-border);
+    }
+
+    .state-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .state-btn-going {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: rgba(74, 222, 128, 0.15);
+      border: 1.5px solid rgba(74, 222, 128, 0.5);
+      border-radius: 12px;
+      color: #4ade80;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+
+    .state-btn-going:hover {
+      background: rgba(74, 222, 128, 0.25);
+      transform: scale(1.02);
+    }
+
+    .state-btn-interested {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: rgba(251, 191, 36, 0.15);
+      border: 1.5px solid rgba(251, 191, 36, 0.5);
+      border-radius: 12px;
+      color: #fbbf24;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+
+    .state-btn-interested:hover {
+      background: rgba(251, 191, 36, 0.25);
+      transform: scale(1.02);
+    }
+
+    /* Ripple effect */
+    .ripple {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ripple::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.4s, height 0.4s, opacity 0.4s;
+      opacity: 0;
+    }
+
+    .ripple:active::after {
+      width: 200px;
+      height: 200px;
+      opacity: 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 400px) {
+      .variations-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1 class="page-title">Event Card Buttons</h1>
+  <p class="page-subtitle">Four design variations for Guest List, Event Chat, and RSVP</p>
+
+  <div class="variations-grid">
+    <!-- Variation 1: Minimal Glass -->
+    <div class="variation-card">
+      <div class="variation-label">Variation 1</div>
+      <div class="variation-title">Minimal Glass</div>
+      <div class="event-footer">
+        <div class="v1-container">
+          <div class="v1-secondary-group">
+            <button class="v1-btn ripple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+              <span>Guest List</span>
+            </button>
+            <button class="v1-btn ripple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              <span>Chat</span>
+            </button>
+          </div>
+          <button class="v1-btn v1-btn-primary ripple">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <span>RSVP</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Variation 2: Icon-Forward -->
+    <div class="variation-card">
+      <div class="variation-label">Variation 2</div>
+      <div class="variation-title">Icon-Forward</div>
+      <div class="event-footer">
+        <div class="v2-container">
+          <div class="v2-secondary-group">
+            <div class="v2-icon-btn">
+              <div class="v2-icon-circle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+              </div>
+              <span class="v2-label">Guests</span>
+            </div>
+            <div class="v2-icon-btn">
+              <div class="v2-icon-circle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+              </div>
+              <span class="v2-label">Chat</span>
+            </div>
+          </div>
+          <button class="v2-rsvp-btn ripple">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <span>RSVP</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Variation 3: Segmented -->
+    <div class="variation-card">
+      <div class="variation-label">Variation 3</div>
+      <div class="variation-title">Segmented</div>
+      <div class="event-footer">
+        <div class="v3-container">
+          <div class="v3-segment-group">
+            <button class="v3-segment-btn ripple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+              <span>Guests</span>
+            </button>
+            <button class="v3-segment-btn ripple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              <span>Chat</span>
+            </button>
+          </div>
+          <button class="v3-rsvp-btn ripple">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <span>RSVP</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Variation 4: Floating Action -->
+    <div class="variation-card">
+      <div class="variation-label">Variation 4</div>
+      <div class="variation-title">Floating Action</div>
+      <div class="event-footer">
+        <div class="v4-container">
+          <button class="v4-mini-btn ripple" data-tooltip="Guest List">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </button>
+          <button class="v4-rsvp-btn ripple">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <span>RSVP</span>
+          </button>
+          <button class="v4-mini-btn ripple" data-tooltip="Event Chat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bonus: Confirmed States -->
+    <div class="variation-card" style="grid-column: 1 / -1;">
+      <div class="variation-label">Bonus</div>
+      <div class="variation-title">Confirmed States (Going / Interested)</div>
+      <div class="event-footer">
+        <div class="states-row" style="border-top: none; padding-top: 0; margin-top: 0;">
+          <div>
+            <div class="state-label">After selecting "Going"</div>
+            <button class="state-btn-going ripple">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              <span>Going</span>
+            </button>
+          </div>
+          <div>
+            <div class="state-label">After selecting "Interested"</div>
+            <button class="state-btn-interested ripple">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+              <span>Interested</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Add click feedback to all buttons
+    document.querySelectorAll('button, .v2-icon-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        // Create ripple
+        const ripple = document.createElement('span');
+        ripple.style.cssText = `
+          position: absolute;
+          background: rgba(255, 255, 255, 0.3);
+          border-radius: 50%;
+          transform: scale(0);
+          animation: ripple-effect 0.6s linear;
+          pointer-events: none;
+        `;
+
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = (e.clientX - rect.left - size/2) + 'px';
+        ripple.style.top = (e.clientY - rect.top - size/2) + 'px';
+
+        this.style.position = 'relative';
+        this.style.overflow = 'hidden';
+        this.appendChild(ripple);
+
+        setTimeout(() => ripple.remove(), 600);
+      });
+    });
+
+    // Add keyframe for ripple
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes ripple-effect {
+        to {
+          transform: scale(4);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>

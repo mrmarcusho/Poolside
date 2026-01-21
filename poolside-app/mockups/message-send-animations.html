@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=375, initial-scale=1.0">
+  <title>Message Send Animations - Poolside</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #0a0a0f;
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+      padding-bottom: 60px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .animation-section {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .section-badge {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(102, 126, 234, 0.2);
+      color: #667eea;
+      font-weight: 500;
+    }
+
+    .chat-preview {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 16px;
+      padding: 16px;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-bottom: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .message-row {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .message-row.received {
+      justify-content: flex-start;
+    }
+
+    .message-bubble {
+      max-width: 75%;
+      padding: 12px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .message-bubble.sent {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
+      border-bottom-right-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .message-bubble.received {
+      background: rgba(255, 255, 255, 0.1);
+      border-bottom-left-radius: 6px;
+    }
+
+    .animated-message {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .try-button {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .try-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .try-button:active {
+      transform: translateY(0);
+    }
+
+    .description {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+
+    /* Animation 1: Slide Up & Fade */
+    @keyframes slideUpFade {
+      0% {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .anim-slide-up.animate {
+      animation: slideUpFade 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    /* Animation 2: Scale Pop */
+    @keyframes scalePop {
+      0% {
+        opacity: 0;
+        transform: scale(0.3);
+      }
+      50% {
+        transform: scale(1.08);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .anim-scale-pop.animate {
+      animation: scalePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    /* Animation 3: Elastic Bounce */
+    @keyframes elasticBounce {
+      0% {
+        opacity: 0;
+        transform: translateY(40px) scale(0.8);
+      }
+      40% {
+        opacity: 1;
+        transform: translateY(-10px) scale(1.05);
+      }
+      60% {
+        transform: translateY(5px) scale(0.98);
+      }
+      80% {
+        transform: translateY(-3px) scale(1.01);
+      }
+      100% {
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .anim-elastic.animate {
+      animation: elasticBounce 0.7s ease-out forwards;
+    }
+
+    /* Animation 4: Slide from Right */
+    @keyframes slideFromRight {
+      0% {
+        opacity: 0;
+        transform: translateX(100px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .anim-slide-right.animate {
+      animation: slideFromRight 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+
+    /* Animation 5: Bubble Expand */
+    @keyframes bubbleExpand {
+      0% {
+        opacity: 0;
+        transform: scale(0) translateY(20px);
+        border-radius: 50%;
+      }
+      60% {
+        border-radius: 50%;
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        border-radius: 20px 20px 6px 20px;
+      }
+    }
+
+    .anim-bubble.animate {
+      animation: bubbleExpand 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    /* Animation 6: Typewriter Reveal */
+    @keyframes typewriterSlide {
+      0% {
+        opacity: 0;
+        transform: translateY(15px);
+        max-width: 0;
+        padding: 12px 0;
+      }
+      30% {
+        opacity: 1;
+        max-width: 20px;
+        padding: 12px 8px;
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+        max-width: 300px;
+        padding: 12px 16px;
+      }
+    }
+
+    .anim-typewriter.animate {
+      animation: typewriterSlide 0.6s ease-out forwards;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    /* Animation 7: Flip In */
+    @keyframes flipIn {
+      0% {
+        opacity: 0;
+        transform: perspective(400px) rotateX(90deg) translateY(20px);
+      }
+      40% {
+        transform: perspective(400px) rotateX(-10deg);
+      }
+      70% {
+        transform: perspective(400px) rotateX(5deg);
+      }
+      100% {
+        opacity: 1;
+        transform: perspective(400px) rotateX(0) translateY(0);
+      }
+    }
+
+    .anim-flip.animate {
+      animation: flipIn 0.6s ease-out forwards;
+    }
+
+    /* Animation 8: Wobble Rise */
+    @keyframes wobbleRise {
+      0% {
+        opacity: 0;
+        transform: translateY(30px) rotate(-3deg);
+      }
+      25% {
+        transform: translateY(-5px) rotate(2deg);
+      }
+      50% {
+        transform: translateY(3px) rotate(-1deg);
+      }
+      75% {
+        transform: translateY(-2px) rotate(0.5deg);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) rotate(0);
+      }
+    }
+
+    .anim-wobble.animate {
+      animation: wobbleRise 0.6s ease-out forwards;
+    }
+
+    /* Glow effect for sent messages */
+    .message-bubble.sent.animate {
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Message Send Animations</h1>
+    <p>Tap "Try Animation" to preview each style</p>
+  </div>
+
+  <!-- 1. Slide Up & Fade -->
+  <div class="animation-section">
+    <div class="section-header">
+      <span class="section-title">1. Slide Up & Fade</span>
+      <span class="section-badge">Smooth</span>
+    </div>
+    <div class="chat-preview" id="chat1">
+      <div class="message-row received">
+        <div class="message-bubble received">Hey, are you coming to the party tonight?</div>
+      </div>
+      <div class="message-row">
+        <div class="message-bubble sent animated-message anim-slide-up" id="msg1">Yes! Can't wait 🎉</div>
+      </div>
+    </div>
+    <button class="try-button" onclick="playAnimation(1)">Try Animation</button>
+    <p class="description">Classic and clean. Message slides up from below while fading in. Feels natural and responsive.</p>
+  </div>
+
+  <!-- 2. Scale Pop -->
+  <div class="animation-section">
+    <div class="section-header">
+      <span class="section-title">2. Scale Pop</span>
+      <span class="section-badge">Playful</span>
+    </div>
+    <div class="chat-preview" id="chat2">
+      <div class="message-row received">
+        <div class="message-bubble received">What time should we meet?</div>
+      </div>
+      <div class="message-row">
+        <div class="message-bubble sent animated-message anim-scale-pop" id="msg2">How about 8pm?</div>
+      </div>
+    </div>
+    <button class="try-button" onclick="playAnimation(2)">Try Animation</button>
+    <p class="description">Message pops in from small to large with a slight overshoot. Energetic and fun feeling.</p>
+  </div>
+
+  <!-- 3. Elastic Bounce -->
+  <div class="animation-section">
+    <div class="section-header">
+      <span class="section-title">3. Elastic Bounce</span>
+      <span class="section-badge">Bouncy</span>
+    </div>
+    <div class="chat-preview" id="chat3">
+      <div class="message-row received">
+        <div class="message-bubble received">Did you see the sunset?</div>
+      </div>
+      <div class="message-row">
+        <div class="message-bubble sent animated-message anim-elastic" id="msg3">It was amazing! 🌅</div>
+      </div>
+    </div>
+    <button class="try-button" onclick="playAnimation(3)">Try Animation</button>
+    <p class="description">Satisfying spring physics with multiple bounces. Feels tactile and premium.</p>
+  </div>
+
+  <!-- 4. Slide from Right -->
+  <div class="animation-section">
+    <div class="section-header">
+      <span class="section-title">4. Slide from Right</span>
+      <span class="section-badge">Swift</span>
+    </div>
+    <div class="chat-preview" id="chat4">
+      <div class="message-row received">
+        <div class="message-bubble received">Are you free tomorrow?</div>
+      </div>
+      <div class="message-row">
+        <div class="message-bubble sent animated-message anim-slide-right" id="msg4">Let me check my schedule</div>
+      </div>
+    </div>
+    <button class="try-button" onclick="playAnimation(4)">Try Animation</button>
+    <p class="description">Message swoops in from the right side. Quick and decisive, like sending a fast reply.</p>
+  </div>
+
+  <!-- 5. Bubble Expand -->
+  <div class="animation-section">
+    <div class="section-header">
+      <span class="section-title">5. Bubble Expand</span>
+      <span class="section-badge">Unique</span>
+    </div>
+    <div class="chat-preview" id="chat5">
+      <div class="message-row received">
+        <div class="message-bubble received">Guess what!</div>
+      </div>
+      <div class="message-row">
+        <div class="message-bubble sent animated-message anim-bubble" id="msg5">What happened?? 👀</div>
+      </div>
+    </div>
+    <button class="try-button" onclick="playAnimation(5)">Try Animation</button>
+    <p class="description">Starts as a small circle and expands into the message shape. Distinctive and memorable.</p>
+  </div>
+
+  <!-- 6. Typewriter Reveal -->
+  <div class="animation-section">
+    <div class="section-header">
+      <span class="section-title">6. Typewriter Reveal</span>
+      <span class="section-badge">Subtle</span>
+    </div>
+    <div class="chat-preview" id="chat6">
+      <div class="message-row received">
+        <div class="message-bubble received">Where are you?</div>
+      </div>
+      <div class="message-row">
+        <div class="message-bubble sent animated-message anim-typewriter" id="msg6">On my way!</div>
+      </div>
+    </div>
+    <button class="try-button" onclick="playAnimation(6)">Try Animation</button>
+    <p class="description">Message width expands as if being typed out. Subtle but engaging reveal effect.</p>
+  </div>
+
+  <!-- 7. Flip In -->
+  <div class="animation-section">
+    <div class="section-header">
+      <span class="section-title">7. 3D Flip In</span>
+      <span class="section-badge">Dynamic</span>
+    </div>
+    <div class="chat-preview" id="chat7">
+      <div class="message-row received">
+        <div class="message-bubble received">Ready for the event?</div>
+      </div>
+      <div class="message-row">
+        <div class="message-bubble sent animated-message anim-flip" id="msg7">Born ready! 💪</div>
+      </div>
+    </div>
+    <button class="try-button" onclick="playAnimation(7)">Try Animation</button>
+    <p class="description">3D perspective flip animation. Adds depth and dimension to the send action.</p>
+  </div>
+
+  <!-- 8. Wobble Rise -->
+  <div class="animation-section">
+    <div class="section-header">
+      <span class="section-title">8. Wobble Rise</span>
+      <span class="section-badge">Casual</span>
+    </div>
+    <div class="chat-preview" id="chat8">
+      <div class="message-row received">
+        <div class="message-bubble received">Movie night?</div>
+      </div>
+      <div class="message-row">
+        <div class="message-bubble sent animated-message anim-wobble" id="msg8">I'm in! 🍿</div>
+      </div>
+    </div>
+    <button class="try-button" onclick="playAnimation(8)">Try Animation</button>
+    <p class="description">Message rises with a playful wobble. Casual and friendly vibe, perfect for social apps.</p>
+  </div>
+
+  <script>
+    function playAnimation(num) {
+      const msg = document.getElementById(`msg${num}`);
+
+      // Reset the animation
+      msg.classList.remove('animate');
+      msg.style.opacity = '0';
+
+      // Force reflow
+      void msg.offsetWidth;
+
+      // Play the animation
+      setTimeout(() => {
+        msg.classList.add('animate');
+      }, 50);
+    }
+
+    // Auto-play first animation on load
+    setTimeout(() => playAnimation(1), 500);
+  </script>
+</body>
+</html>

@@ -54,6 +54,8 @@ const SlideItem: React.FC<SlideItemProps> = ({
   totalPhotos,
   onRemovePhoto,
 }) => {
+  const [imageError, setImageError] = useState(false);
+
   const animatedStyle = useAnimatedStyle(() => {
     const position = slideIndex - animatedIndex.value;
     const dragInfluence = dragOffset.value / SLIDE_WIDTH;
@@ -97,7 +99,18 @@ const SlideItem: React.FC<SlideItemProps> = ({
 
   return (
     <Animated.View style={[styles.slide, animatedStyle]}>
-      <Image source={{ uri: photo }} style={styles.slideImage} />
+      {imageError ? (
+        <View style={styles.imageErrorPlaceholder}>
+          <Text style={styles.imageErrorIcon}>📷</Text>
+          <Text style={styles.imageErrorText}>Image not available</Text>
+        </View>
+      ) : (
+        <Image
+          source={{ uri: photo }}
+          style={styles.slideImage}
+          onError={() => setImageError(true)}
+        />
+      )}
 
       {isEditMode && (
         <TouchableOpacity
@@ -338,6 +351,23 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
+  },
+  imageErrorPlaceholder: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(30, 30, 40, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 12,
+  },
+  imageErrorIcon: {
+    fontSize: 48,
+    opacity: 0.5,
+  },
+  imageErrorText: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.5)',
+    fontWeight: '500',
   },
   removeButton: {
     position: 'absolute',

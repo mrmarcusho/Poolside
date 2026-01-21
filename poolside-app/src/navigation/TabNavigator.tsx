@@ -168,7 +168,7 @@ const CustomTabBar = ({ state, descriptors, navigation }: any) => {
 
   return (
     <View style={styles.tabBarContainer}>
-      <BlurView intensity={60} tint="light" style={styles.tabBar}>
+      <BlurView intensity={60} tint="dark" style={styles.tabBar}>
         {/* Animated white circle indicator */}
         <Animated.View
           style={[
@@ -308,17 +308,17 @@ const styles = StyleSheet.create({
   },
   tabBar: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    backgroundColor: 'rgba(30, 30, 50, 0.7)',
     borderRadius: 28,
     height: 56,
     justifyContent: 'space-around',
     alignItems: 'center',
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.3,
     shadowRadius: 24,
     elevation: 12,
   },
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
     width: ACTIVE_INDICATOR_SIZE,
     height: ACTIVE_INDICATOR_SIZE,
     borderRadius: ACTIVE_INDICATOR_SIZE / 2,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     left: 0,
   },
   tabButton: {
@@ -341,29 +341,29 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   homeIcon: {
-    width: 22,
-    height: 22,
-    opacity: 0.4,
+    width: 28,
+    height: 28,
+    opacity: 0.5,
   },
   iconImage: {
-    width: 22,
-    height: 22,
-    opacity: 0.4,
+    width: 28,
+    height: 28,
+    opacity: 0.5,
   },
   createButtonImage: {
-    width: 32,
-    height: 24,
-    opacity: 0.4,
+    width: 38,
+    height: 30,
+    opacity: 0.5,
   },
   friendsIcon: {
-    width: 24,
-    height: 38,
-    opacity: 0.4,
+    width: 30,
+    height: 46,
+    opacity: 0.5,
   },
   profileIcon: {
-    width: 24,
-    height: 38,
-    opacity: 0.4,
+    width: 30,
+    height: 46,
+    opacity: 0.5,
   },
   iconFocused: {
     opacity: 1,

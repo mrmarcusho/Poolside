@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { eventsService, ApiEvent, EventFilters } from '../api';
+import { socketService, EventRsvpUpdatedEvent } from '../api/socket';
 
 interface UseEventsResult {
   events: ApiEvent[];
@@ -82,6 +83,70 @@ export const useEvents = (filters?: EventFilters): UseEventsResult => {
   useEffect(() => {
     fetchEvents(true);
   }, [fetchEvents]);
+
+  // Listen for real-time RSVP updates
+  useEffect(() => {
+    let isSubscribed = true;
+    let currentHandler: ((data: EventRsvpUpdatedEvent) => void) | null = null;
+
+    const handleRsvpUpdate = (data: EventRsvpUpdatedEvent) => {
+      if (!isMountedRef.current || !isSubscribed) return;
+
+      console.log('[useEvents] RSVP update received:', JSON.stringify(data));
+
+      // Update the RSVP count and isFull status for the event
+      setEvents((prevEvents) =>
+        prevEvents.map((event) => {
+          if (event.id === data.eventId) {
+            console.log(`[useEvents] Updating event ${data.eventId}: isFull=${data.isFull}, going=${data.rsvpCount.going}`);
+            return {
+              ...event,
+              rsvpCount: data.rsvpCount,
+              isFull: data.isFull,
+            };
+          }
+          return event;
+        })
+      );
+    };
+
+    // Connect to socket and register listener
+    const setupSocket = async () => {
+      try {
+        console.log('[useEvents] Setting up socket, isConnected:', socketService.isConnected());
+        // Connect if not already connected
+        if (!socketService.isConnected()) {
+          console.log('[useEvents] Connecting to socket...');
+          await socketService.connect();
+          console.log('[useEvents] Socket connected successfully');
+        }
+        // Register listener
+        console.log('[useEvents] Registering event_rsvp_updated listener');
+        currentHandler = handleRsvpUpdate;
+        socketService.onEventRsvpUpdated(handleRsvpUpdate);
+        console.log('[useEvents] Listener registered, socket connected:', socketService.isConnected());
+
+        // Also register for reconnect to re-setup listener
+        socketService.onReconnect(() => {
+          console.log('[useEvents] Socket reconnected, re-registering RSVP listener');
+          if (currentHandler && isSubscribed) {
+            socketService.onEventRsvpUpdated(currentHandler);
+          }
+        });
+      } catch (err) {
+        console.warn('[useEvents] Socket connection failed:', err);
+      }
+    };
+
+    setupSocket();
+
+    return () => {
+      isSubscribed = false;
+      if (currentHandler) {
+        socketService.offEventRsvpUpdated(currentHandler);
+      }
+    };
+  }, []);
 
   // Refetch when filters change
   useEffect(() => {

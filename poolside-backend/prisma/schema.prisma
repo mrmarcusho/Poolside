@@ -10,10 +10,11 @@ datasource db {
 // ============== USERS ==============
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  name      String
+  id            String   @id @default(cuid())
+  email         String   @unique
+  password      String?  // Optional - not needed for magic link auth
+  emailVerified Boolean  @default(false)
+  name          String
   emoji     String   @default("👤")
   avatar    String?
   bio       String?
@@ -45,6 +46,9 @@ model User {
   conversationsAs1 Conversation[] @relation("ConversationUser1")
   conversationsAs2 Conversation[] @relation("ConversationUser2")
 
+  // Event Chat
+  eventMessages EventMessage[] @relation("EventMessageSender")
+
   @@map("users")
 }
 
@@ -60,6 +64,21 @@ model PushToken {
   @@map("push_tokens")
 }
 
+// ============== MAGIC LINK TOKENS ==============
+
+model MagicLinkToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([token])
+  @@map("magic_link_tokens")
+}
+
 // ============== EVENTS ==============
 
 model Event {
@@ -73,13 +92,19 @@ model Event {
   locationImage   String?
   dateTime        DateTime
   endTime         DateTime?
+  spots           Int?     // Max capacity, null means unlimited
+  displayDuration Int      @default(180) // Duration in minutes to show event (default 3 hours)
+  status          String   @default("PUBLISHED") // "DRAFT" | "PUBLISHED"
+  waitlistEnabled Boolean  @default(true) // Allow users to join waitlist when full
+  hideDetailsWhenFull Boolean @default(false) // Hide location & time from non-attendees when full
   hostId          String
   host            User     @relation("EventHost", fields: [hostId], references: [id], onDelete: Cascade)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   // Relations
-  rsvps Rsvp[]
+  rsvps         Rsvp[]
+  eventMessages EventMessage[]
 
   @@map("events")
 }
@@ -157,6 +182,35 @@ model Message {
   createdAt      DateTime     @default(now())
 
   @@map("messages")
+}
+
+// ============== EVENT CHAT ==============
+
+model EventMessage {
+  id        String   @id @default(cuid())
+  eventId   String
+  senderId  String
+  text      String
+  imageUrl  String?
+  replyToId String?
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  sender    User     @relation("EventMessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  replyTo   EventMessage?  @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies   EventMessage[] @relation("MessageReplies")
+  createdAt DateTime @default(now())
+
+  @@map("event_messages")
+}
+
+// Track when users last read an event chat
+model EventChatRead {
+  id         String   @id @default(cuid())
+  userId     String
+  eventId    String
+  lastReadAt DateTime @default(now())
+
+  @@unique([userId, eventId])
+  @@map("event_chat_reads")
 }
 
 // ============== NOTIFICATIONS ==============

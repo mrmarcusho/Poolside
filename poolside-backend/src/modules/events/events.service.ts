@@ -11,7 +11,7 @@ export class EventsService {
   constructor(private prisma: PrismaService) {}
 
   async getEvents(query: EventQueryDto, userId: string) {
-    const { date, location, hostId, limit = 20, cursor } = query;
+    const { date, location, hostId, limit = 20, cursor, status } = query;
 
     // Build date filter
     let dateFilter = {};
@@ -54,6 +54,7 @@ export class EventsService {
         ...dateFilter,
         ...(location && { locationDeck: { contains: location } }),
         ...(hostId && { hostId }),
+        status: status || 'PUBLISHED', // Use provided status or default to PUBLISHED
       },
       take: limit + 1,
       ...(cursor && { cursor: { id: cursor }, skip: 1 }),
@@ -72,36 +73,60 @@ export class EventsService {
           select: { status: true },
         },
         _count: {
-          select: { rsvps: true },
+          select: {
+            rsvps: {
+              where: { status: 'GOING' },
+            },
+          },
         },
       },
     });
 
-    const hasMore = events.length > limit;
-    const results = hasMore ? events.slice(0, -1) : events;
+    // Filter out expired events (but keep full events visible)
+    const now = new Date();
+    const activeEvents = events.filter((event) => {
+      const eventTime = new Date(event.dateTime).getTime();
+      const expiryTime = eventTime + event.displayDuration * 60 * 1000;
+      const isExpired = now.getTime() > expiryTime;
 
-    // Get total count
-    const total = await this.prisma.event.count();
+      return !isExpired;
+    });
+
+    const hasMore = activeEvents.length > limit;
+    const results = hasMore ? activeEvents.slice(0, -1) : activeEvents;
+
+    // Get total count of active events
+    const total = activeEvents.length;
 
     return {
-      events: results.map((event) => ({
-        id: event.id,
-        title: event.title,
-        description: event.description,
-        fullDescription: event.fullDescription,
-        eventImage: event.eventImage,
-        locationName: event.locationName,
-        locationDeck: event.locationDeck,
-        dateTime: event.dateTime,
-        endTime: event.endTime,
-        host: event.host,
-        rsvpCount: {
-          going: event._count.rsvps, // Simplified - would need aggregation for accurate counts
-          interested: 0,
-        },
-        myRsvp: event.rsvps[0]?.status?.toLowerCase() || null,
-        createdAt: event.createdAt,
-      })),
+      events: results.map((event) => {
+        const goingCount = event._count.rsvps;
+        const isFull = event.spots !== null && goingCount >= event.spots;
+
+        return {
+          id: event.id,
+          title: event.title,
+          description: event.description,
+          fullDescription: event.fullDescription,
+          eventImage: event.eventImage,
+          locationName: event.locationName,
+          locationDeck: event.locationDeck,
+          dateTime: event.dateTime,
+          endTime: event.endTime,
+          spots: event.spots,
+          displayDuration: event.displayDuration,
+          waitlistEnabled: event.waitlistEnabled,
+          hideDetailsWhenFull: event.hideDetailsWhenFull,
+          host: event.host,
+          rsvpCount: {
+            going: goingCount,
+            interested: 0,
+          },
+          isFull,
+          myRsvp: event.rsvps[0]?.status?.toLowerCase() || null,
+          createdAt: event.createdAt,
+        };
+      }),
       nextCursor: hasMore ? results[results.length - 1].id : null,
       hasMore,
       total,
@@ -142,6 +167,7 @@ export class EventsService {
     const goingRsvps = event.rsvps.filter((r) => r.status === 'GOING');
     const interestedRsvps = event.rsvps.filter((r) => r.status === 'INTERESTED');
     const myRsvp = event.rsvps.find((r) => r.userId === userId);
+    const isFull = event.spots !== null && goingRsvps.length >= event.spots;
 
     return {
       id: event.id,
@@ -154,11 +180,16 @@ export class EventsService {
       locationImage: event.locationImage,
       dateTime: event.dateTime,
       endTime: event.endTime,
+      spots: event.spots,
+      displayDuration: event.displayDuration,
+      waitlistEnabled: event.waitlistEnabled,
+      hideDetailsWhenFull: event.hideDetailsWhenFull,
       host: event.host,
       rsvpCount: {
         going: goingRsvps.length,
         interested: interestedRsvps.length,
       },
+      isFull,
       myRsvp: myRsvp?.status?.toLowerCase() || null,
       attendees: {
         going: goingRsvps.map((r) => r.user),
@@ -260,6 +291,7 @@ export class EventsService {
               },
             },
           },
+          orderBy: { createdAt: 'desc' },
         },
       },
     });
@@ -268,13 +300,12 @@ export class EventsService {
       throw new NotFoundException('Event not found');
     }
 
+    // Return flat array with status for each attendee
     return {
-      going: event.rsvps
-        .filter((r) => r.status === 'GOING')
-        .map((r) => r.user),
-      interested: event.rsvps
-        .filter((r) => r.status === 'INTERESTED')
-        .map((r) => r.user),
+      attendees: event.rsvps.map((r) => ({
+        ...r.user,
+        status: r.status,
+      })),
     };
   }
 }

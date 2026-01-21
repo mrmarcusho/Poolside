@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Footer - Simple</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #1a1a2e;
+      min-height: 100vh;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .label {
+      color: rgba(255,255,255,0.4);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .footer {
+      width: 360px;
+      padding: 14px 16px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    /* Left: Avatars + Count */
+    .attendance {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      padding: 6px 12px 6px 6px;
+      border-radius: 12px;
+      transition: background 0.2s;
+    }
+
+    .attendance:hover {
+      background: rgba(255,255,255,0.08);
+    }
+
+    .avatars {
+      display: flex;
+    }
+
+    .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid #1a1a2e;
+      margin-left: -8px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .avatar:first-child { margin-left: 0; }
+    .avatar.more {
+      background: rgba(255,255,255,0.15);
+      font-size: 10px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .count {
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .count span {
+      color: rgba(255,255,255,0.5);
+      font-weight: 400;
+    }
+
+    /* Right: Chat + RSVP */
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chat-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.08);
+      border: 1.5px solid rgba(255,255,255,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .chat-btn:hover {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.25);
+      transform: scale(1.05);
+    }
+
+    .chat-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: #fff;
+      fill: none;
+    }
+
+    .rsvp-btn {
+      padding: 12px 24px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(90deg, #c084fc, #e9d5ff, #f5f3ff, #ddd6fe, #93c5fd);
+      color: #1a1a2e;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .rsvp-btn:hover {
+      transform: scale(1.03);
+      box-shadow: 0 4px 20px rgba(192,132,252,0.4);
+    }
+
+    .rsvp-btn.going {
+      background: rgba(74, 222, 128, 0.2);
+      border: 1.5px solid rgba(74, 222, 128, 0.5);
+      color: #4ade80;
+    }
+
+    .rsvp-btn.interested {
+      background: rgba(251, 191, 36, 0.2);
+      border: 1.5px solid rgba(251, 191, 36, 0.5);
+      color: #fbbf24;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <div class="label">Default State</div>
+    <div class="footer">
+      <div class="attendance">
+        <div class="avatars">
+          <div class="avatar">😎</div>
+          <div class="avatar">🎉</div>
+          <div class="avatar">✨</div>
+          <div class="avatar more">+5</div>
+        </div>
+        <div class="count">8 <span>/ 20</span></div>
+      </div>
+      <div class="actions">
+        <div class="chat-btn">
+          <svg viewBox="0 0 24 24" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <button class="rsvp-btn">RSVP</button>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="label">Going State</div>
+    <div class="footer">
+      <div class="attendance">
+        <div class="avatars">
+          <div class="avatar">😎</div>
+          <div class="avatar">🎉</div>
+          <div class="avatar">✨</div>
+          <div class="avatar more">+12</div>
+        </div>
+        <div class="count">15 <span>/ 20</span></div>
+      </div>
+      <div class="actions">
+        <div class="chat-btn">
+          <svg viewBox="0 0 24 24" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <button class="rsvp-btn going">✓ Going</button>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="label">Unlimited Spots</div>
+    <div class="footer">
+      <div class="attendance">
+        <div class="avatars">
+          <div class="avatar">🔥</div>
+          <div class="avatar">💫</div>
+        </div>
+        <div class="count">2 <span>going</span></div>
+      </div>
+      <div class="actions">
+        <div class="chat-btn">
+          <svg viewBox="0 0 24 24" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <button class="rsvp-btn">RSVP</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -2,14 +2,19 @@ import {
   IsString,
   IsOptional,
   IsDateString,
+  IsInt,
+  IsBoolean,
+  Min,
+  Max,
   MinLength,
+  IsIn,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateEventDto {
   @ApiProperty({ example: 'Pool Party at Deck 7' })
   @IsString()
-  @MinLength(3)
+  @MinLength(1)
   title: string;
 
   @ApiProperty({ example: 'Short description...' })
@@ -48,13 +53,42 @@ export class CreateEventDto {
   @IsOptional()
   @IsDateString()
   endTime?: string;
+
+  @ApiProperty({ required: false, example: 10, description: 'Max capacity (null = unlimited)' })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  spots?: number;
+
+  @ApiProperty({ required: false, example: 180, description: 'Duration in minutes to show event on feed (30-180)' })
+  @IsOptional()
+  @IsInt()
+  @Min(30)
+  @Max(180)
+  displayDuration?: number;
+
+  @ApiProperty({ required: false, enum: ['DRAFT', 'PUBLISHED'], description: 'Event status' })
+  @IsOptional()
+  @IsString()
+  @IsIn(['DRAFT', 'PUBLISHED'])
+  status?: string;
+
+  @ApiProperty({ required: false, description: 'Enable waitlist when event is full' })
+  @IsOptional()
+  @IsBoolean()
+  waitlistEnabled?: boolean;
+
+  @ApiProperty({ required: false, description: 'Hide location & time from non-attendees when full' })
+  @IsOptional()
+  @IsBoolean()
+  hideDetailsWhenFull?: boolean;
 }
 
 export class UpdateEventDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
-  @MinLength(3)
+  @MinLength(1)
   title?: string;
 
   @ApiProperty({ required: false })
@@ -96,6 +130,29 @@ export class UpdateEventDto {
   @IsOptional()
   @IsDateString()
   endTime?: string;
+
+  @ApiProperty({ required: false, example: 10, description: 'Max capacity (null = unlimited)' })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  spots?: number;
+
+  @ApiProperty({ required: false, example: 180, description: 'Duration in minutes to show event on feed (30-180)' })
+  @IsOptional()
+  @IsInt()
+  @Min(30)
+  @Max(180)
+  displayDuration?: number;
+
+  @ApiProperty({ required: false, description: 'Enable waitlist when event is full' })
+  @IsOptional()
+  @IsBoolean()
+  waitlistEnabled?: boolean;
+
+  @ApiProperty({ required: false, description: 'Hide location & time from non-attendees when full' })
+  @IsOptional()
+  @IsBoolean()
+  hideDetailsWhenFull?: boolean;
 }
 
 export class EventQueryDto {
@@ -122,4 +179,10 @@ export class EventQueryDto {
   @IsString()
   @IsOptional()
   cursor?: string;
+
+  @ApiProperty({ required: false, enum: ['DRAFT', 'PUBLISHED'], description: 'Filter by event status' })
+  @IsOptional()
+  @IsString()
+  @IsIn(['DRAFT', 'PUBLISHED'])
+  status?: string;
 }

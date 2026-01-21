@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0f0f1a;
+      padding: 40px;
+      font-family: 'DM Sans', sans-serif;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+      min-height: 100vh;
+    }
+
+    .section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .label {
+      color: rgba(255,255,255,0.4);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .option {
+      background: rgba(37, 37, 56, 0.8);
+      padding: 12px 16px;
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid rgba(255,255,255,0.06);
+      width: fit-content;
+    }
+
+    .text {
+      color: rgba(255,255,255,0.5);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .emoji { font-size: 16px; }
+
+    .highlight {
+      color: #a78bfa;
+      font-weight: 600;
+    }
+
+    .gradient-text {
+      background: linear-gradient(90deg, #c084fc, #f5f3ff, #93c5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    /* Pulsing placeholder avatar */
+    .pulse-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px dashed rgba(167, 139, 250, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .pulse-avatar span {
+      color: rgba(167, 139, 250, 0.7);
+      font-size: 14px;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        border-color: rgba(167, 139, 250, 0.3);
+        transform: scale(1);
+      }
+      50% {
+        border-color: rgba(167, 139, 250, 0.7);
+        transform: scale(1.05);
+      }
+    }
+
+    /* Glowing dot */
+    .glow-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #4ade80;
+      box-shadow: 0 0 12px rgba(74, 222, 128, 0.6);
+      animation: glow 1.5s ease-in-out infinite;
+    }
+
+    @keyframes glow {
+      0%, 100% {
+        box-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
+      }
+      50% {
+        box-shadow: 0 0 16px rgba(74, 222, 128, 0.8);
+      }
+    }
+
+    /* Shimmer text effect */
+    .shimmer {
+      background: linear-gradient(
+        90deg,
+        rgba(255,255,255,0.4) 0%,
+        rgba(255,255,255,0.7) 50%,
+        rgba(255,255,255,0.4) 100%
+      );
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 2s linear infinite;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 100% 0; }
+      100% { background-position: -100% 0; }
+    }
+
+    /* Stacked empty avatars */
+    .empty-stack {
+      display: flex;
+    }
+
+    .empty-avatar {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid #1a1a2e;
+      margin-left: -8px;
+      background: rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .empty-avatar:first-child { margin-left: 0; }
+
+    .empty-avatar.plus {
+      background: linear-gradient(135deg, rgba(167, 139, 250, 0.2), rgba(96, 165, 250, 0.2));
+      border: 2px dashed rgba(167, 139, 250, 0.4);
+      font-size: 14px;
+      color: #a78bfa;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* Wave animation for hand emoji */
+    .wave {
+      display: inline-block;
+      animation: wave 1.5s ease-in-out infinite;
+      transform-origin: 70% 70%;
+    }
+
+    @keyframes wave {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(20deg); }
+      75% { transform: rotate(-10deg); }
+    }
+
+    /* Bouncing arrow */
+    .bounce-arrow {
+      animation: bounce 1s ease-in-out infinite;
+      color: #a78bfa;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(4px); }
+    }
+
+    /* Fire glow effect */
+    .fire-glow {
+      text-shadow: 0 0 8px rgba(251, 146, 60, 0.5);
+    }
+
+    /* Mascot style */
+    .mascot-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mascot {
+      font-size: 22px;
+      animation: peek 2s ease-in-out infinite;
+    }
+
+    @keyframes peek {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-3px) rotate(5deg); }
+    }
+
+    /* Invitation card style */
+    .invite-card {
+      background: linear-gradient(135deg, rgba(167, 139, 250, 0.1), rgba(96, 165, 250, 0.1));
+      border: 1px solid rgba(167, 139, 250, 0.3);
+      padding: 10px 16px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .invite-card .icon {
+      font-size: 18px;
+    }
+
+    /* Counter with empty state */
+    .counter-empty {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .zero-fancy {
+      font-size: 15px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.3);
+    }
+
+    .divider {
+      width: 1px;
+      height: 16px;
+      background: rgba(255,255,255,0.15);
+    }
+  </style>
+</head>
+<body>
+  <!-- Option 1: Pulsing placeholder with question mark -->
+  <div class="section">
+    <div class="label">Option 1: Pulsing placeholder "You?"</div>
+    <div class="option">
+      <div class="pulse-avatar">
+        <span>?</span>
+      </div>
+      <span class="text highlight">You?</span>
+    </div>
+  </div>
+
+  <!-- Option 2: Waving hand with invitation -->
+  <div class="section">
+    <div class="label">Option 2: Waving hand "Join in!"</div>
+    <div class="option">
+      <span class="wave">👋</span>
+      <span class="gradient-text">Join in!</span>
+    </div>
+  </div>
+
+  <!-- Option 3: Green availability dot -->
+  <div class="section">
+    <div class="label">Option 3: Availability dot "Spots open"</div>
+    <div class="option">
+      <div class="glow-dot"></div>
+      <span class="text">Spots open</span>
+    </div>
+  </div>
+
+  <!-- Option 4: Gradient CTA -->
+  <div class="section">
+    <div class="label">Option 4: Gradient text "Claim your spot"</div>
+    <div class="option">
+      <span class="gradient-text">Claim your spot</span>
+      <span class="bounce-arrow">→</span>
+    </div>
+  </div>
+
+  <!-- Option 5: Empty avatar stack with plus -->
+  <div class="section">
+    <div class="label">Option 5: Empty avatar stack with "+"</div>
+    <div class="option">
+      <div class="empty-stack">
+        <div class="empty-avatar"></div>
+        <div class="empty-avatar"></div>
+        <div class="empty-avatar plus">+</div>
+      </div>
+      <span class="text">Be first</span>
+    </div>
+  </div>
+
+  <!-- Option 6: Trendsetter fire -->
+  <div class="section">
+    <div class="label">Option 6: Trendsetter vibe</div>
+    <div class="option">
+      <span class="emoji fire-glow">🔥</span>
+      <span class="text">Start the vibe</span>
+    </div>
+  </div>
+
+  <!-- Option 7: Mascot peek -->
+  <div class="section">
+    <div class="label">Option 7: Mascot invitation</div>
+    <div class="option mascot-container">
+      <span class="mascot">🐘</span>
+      <span class="text highlight">Come hang!</span>
+    </div>
+  </div>
+
+  <!-- Option 8: Subtle invitation card -->
+  <div class="section">
+    <div class="label">Option 8: Subtle invite card style</div>
+    <div class="invite-card">
+      <span class="icon">✨</span>
+      <span class="gradient-text">First dibs</span>
+    </div>
+  </div>
+
+  <!-- Option 9: Counter with empty message -->
+  <div class="section">
+    <div class="label">Option 9: Counter style with message</div>
+    <div class="option">
+      <span class="zero-fancy">0</span>
+      <div class="divider"></div>
+      <span class="shimmer">Be the first!</span>
+    </div>
+  </div>
+
+  <!-- Option 10: Party starter -->
+  <div class="section">
+    <div class="label">Option 10: Party starter</div>
+    <div class="option">
+      <span class="emoji">🎪</span>
+      <span class="text">Empty for now... <span class="highlight">start the party?</span></span>
+    </div>
+  </div>
+</body>
+</html>

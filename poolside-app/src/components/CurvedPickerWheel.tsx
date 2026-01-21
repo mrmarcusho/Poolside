@@ -19,15 +19,17 @@ interface CurvedPickerWheelProps {
   onSelect: (index: number) => void;
   label?: string;
   width?: number;
+  touchPadding?: number; // Extra horizontal padding for easier touch targeting
 }
 
 interface PickerItemProps {
   item: string;
   index: number;
   scrollY: Animated.Value;
+  width?: number;
 }
 
-const PickerItem: React.FC<PickerItemProps> = ({ item, index, scrollY }) => {
+const PickerItem: React.FC<PickerItemProps> = ({ item, index, scrollY, width }) => {
   // Calculate the center position for this item
   const itemCenterY = index * ITEM_HEIGHT;
 
@@ -75,6 +77,7 @@ const PickerItem: React.FC<PickerItemProps> = ({ item, index, scrollY }) => {
       style={[
         styles.pickerItem,
         {
+          width: width,
           transform: [
             { perspective: 1000 },
             { rotateX },
@@ -96,6 +99,7 @@ export const CurvedPickerWheel: React.FC<CurvedPickerWheelProps> = ({
   onSelect,
   label,
   width = 100,
+  touchPadding = 20, // Default 20px extra on each side for easier scrolling
 }) => {
   const scrollViewRef = useRef<Animated.ScrollView>(null);
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -136,24 +140,27 @@ export const CurvedPickerWheel: React.FC<CurvedPickerWheelProps> = ({
 
   const paddingVertical = (PICKER_HEIGHT - ITEM_HEIGHT) / 2;
 
+  // Total touchable width including padding on each side
+  const touchableWidth = width + touchPadding * 2;
+
   return (
-    <View style={[styles.container, { width }]}>
+    <View style={[styles.container, { width: touchableWidth }]}>
       {label && <Text style={styles.label}>{label}</Text>}
 
-      <View style={styles.wheelContainer}>
-        {/* Selection highlight bar */}
-        <View style={styles.selectionBar} pointerEvents="none" />
+      <View style={[styles.wheelContainer, { width: touchableWidth }]}>
+        {/* Selection highlight bar - centered within the visible area */}
+        <View style={[styles.selectionBar, { left: touchPadding, right: touchPadding }]} pointerEvents="none" />
 
         {/* Top fade gradient */}
-        <View style={styles.fadeTop} pointerEvents="none" />
+        <View style={[styles.fadeTop, { left: touchPadding, right: touchPadding }]} pointerEvents="none" />
 
         {/* Bottom fade gradient */}
-        <View style={styles.fadeBottom} pointerEvents="none" />
+        <View style={[styles.fadeBottom, { left: touchPadding, right: touchPadding }]} pointerEvents="none" />
 
         <Animated.ScrollView
           ref={scrollViewRef}
-          style={styles.scrollView}
-          contentContainerStyle={{ paddingVertical }}
+          style={[styles.scrollView, { width: touchableWidth }]}
+          contentContainerStyle={{ paddingVertical, paddingHorizontal: touchPadding }}
           showsVerticalScrollIndicator={false}
           snapToInterval={ITEM_HEIGHT}
           decelerationRate="fast"
@@ -175,6 +182,7 @@ export const CurvedPickerWheel: React.FC<CurvedPickerWheelProps> = ({
               item={item}
               index={index}
               scrollY={scrollY}
+              width={width}
             />
           ))}
         </Animated.ScrollView>

@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Date & Time Picker - Poolside</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .phone-frame {
+      width: 390px;
+      height: 844px;
+      background: linear-gradient(145deg,
+        rgba(30, 30, 50, 0.95) 0%,
+        rgba(20, 25, 40, 0.98) 50%,
+        rgba(15, 20, 35, 0.95) 100%);
+      border-radius: 50px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow:
+        0 25px 80px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    /* Ambient glow effects */
+    .phone-frame::before {
+      content: '';
+      position: absolute;
+      top: 20%;
+      left: -20%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(100, 200, 100, 0.15) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(40px);
+      pointer-events: none;
+    }
+
+    .phone-frame::after {
+      content: '';
+      position: absolute;
+      bottom: 30%;
+      right: -10%;
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, rgba(150, 100, 200, 0.12) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(50px);
+      pointer-events: none;
+    }
+
+    .notch {
+      width: 120px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 10px;
+      margin: 0 auto 15px;
+    }
+
+    .modal-content {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 5px 20px;
+    }
+
+    .header-btn {
+      font-size: 17px;
+      color: rgba(255, 255, 255, 0.6);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      transition: color 0.2s;
+    }
+
+    .header-btn:hover {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .header-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+
+    /* Tab Selector */
+    .tab-container {
+      display: flex;
+      align-items: center;
+      background: rgba(60, 60, 80, 0.3);
+      border-radius: 14px;
+      padding: 6px;
+      margin: 0 5px 25px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .tab {
+      flex: 1;
+      padding: 14px 16px;
+      border-radius: 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .tab.active {
+      background: rgba(80, 80, 100, 0.5);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .tab-label {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .tab.active .tab-label {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .tab-value {
+      font-size: 16px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .tab.active .tab-value {
+      color: #fff;
+    }
+
+    .tab.has-value .tab-value {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .tab-arrow {
+      font-size: 20px;
+      color: rgba(255, 255, 255, 0.3);
+      padding: 0 8px;
+    }
+
+    /* Calendar */
+    .calendar-section {
+      padding: 0 5px;
+      margin-bottom: 20px;
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .month-year {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .month-year-text {
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .month-year-arrow {
+      font-size: 14px;
+      color: #4ade80;
+    }
+
+    .nav-arrows {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-btn {
+      font-size: 18px;
+      color: #4ade80;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      transition: opacity 0.2s;
+    }
+
+    .nav-btn:hover {
+      opacity: 0.7;
+    }
+
+    .nav-btn.disabled {
+      color: rgba(255, 255, 255, 0.2);
+      cursor: not-allowed;
+    }
+
+    .weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      margin-bottom: 12px;
+    }
+
+    .weekday {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .day {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      color: rgba(255, 255, 255, 0.35);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .day.current-month {
+      color: #fff;
+    }
+
+    .day.today {
+      color: #4ade80;
+      font-weight: 600;
+    }
+
+    .day.selected {
+      background: rgba(74, 222, 128, 0.25);
+      color: #4ade80;
+      font-weight: 600;
+    }
+
+    .day.in-range {
+      background: rgba(74, 222, 128, 0.1);
+      border-radius: 0;
+    }
+
+    .day.range-start {
+      border-radius: 50% 0 0 50%;
+      background: rgba(74, 222, 128, 0.25);
+    }
+
+    .day.range-end {
+      border-radius: 0 50% 50% 0;
+      background: rgba(74, 222, 128, 0.25);
+    }
+
+    .day:hover:not(.selected) {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .day.past {
+      color: rgba(255, 255, 255, 0.2);
+      cursor: not-allowed;
+    }
+
+    /* Time Picker */
+    .time-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      margin: 0 5px;
+    }
+
+    .time-wheel {
+      position: relative;
+      height: 180px;
+      overflow: hidden;
+    }
+
+    .time-highlight {
+      position: absolute;
+      top: 50%;
+      left: 20px;
+      right: 20px;
+      height: 44px;
+      transform: translateY(-50%);
+      background: rgba(60, 60, 80, 0.5);
+      border-radius: 10px;
+      pointer-events: none;
+    }
+
+    .time-items {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 68px 0;
+    }
+
+    .time-item {
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: rgba(255, 255, 255, 0.3);
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .time-item.selected {
+      color: #fff;
+      font-weight: 500;
+    }
+
+    .time-item:hover:not(.selected) {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* Fade gradients */
+    .time-wheel::before,
+    .time-wheel::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 60px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .time-wheel::before {
+      top: 0;
+      background: linear-gradient(to bottom, rgba(25, 25, 45, 1), transparent);
+    }
+
+    .time-wheel::after {
+      bottom: 0;
+      background: linear-gradient(to top, rgba(25, 25, 45, 1), transparent);
+    }
+
+    /* Footer */
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 5px 30px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      margin-top: auto;
+    }
+
+    .timezone {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 15px;
+    }
+
+    .timezone-icon {
+      font-size: 18px;
+    }
+
+    .done-btn {
+      background: #fff;
+      color: #000;
+      border: none;
+      padding: 14px 40px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .done-btn:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+    }
+
+    /* Alternative: Show both start/end side by side */
+    .variant-note {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="notch"></div>
+
+    <div class="modal-content">
+      <!-- Header -->
+      <div class="header">
+        <button class="header-btn">Clear</button>
+        <span class="header-title">Date & Time</span>
+        <button class="header-btn" style="opacity: 0;">X</button>
+      </div>
+
+      <!-- Start/End Tab Selector -->
+      <div class="tab-container">
+        <div class="tab active has-value" onclick="selectTab('start')">
+          <span class="tab-label">Starts</span>
+          <span class="tab-value">Fri Jan 24<br>8:00pm</span>
+        </div>
+        <span class="tab-arrow">›</span>
+        <div class="tab" onclick="selectTab('end')">
+          <span class="tab-label">Ends (Optional)</span>
+          <span class="tab-value">Add End Time</span>
+        </div>
+      </div>
+
+      <!-- Calendar -->
+      <div class="calendar-section">
+        <div class="calendar-header">
+          <div class="month-year">
+            <span class="month-year-text">January 2026</span>
+            <span class="month-year-arrow">›</span>
+          </div>
+          <div class="nav-arrows">
+            <button class="nav-btn disabled">‹</button>
+            <button class="nav-btn">›</button>
+          </div>
+        </div>
+
+        <div class="weekdays">
+          <span class="weekday">Sun</span>
+          <span class="weekday">Mon</span>
+          <span class="weekday">Tue</span>
+          <span class="weekday">Wed</span>
+          <span class="weekday">Thu</span>
+          <span class="weekday">Fri</span>
+          <span class="weekday">Sat</span>
+        </div>
+
+        <div class="days-grid">
+          <!-- Previous month days (grayed out) -->
+          <div class="day past">28</div>
+          <div class="day past">29</div>
+          <div class="day past">30</div>
+          <div class="day past">31</div>
+
+          <!-- Current month -->
+          <div class="day current-month past">1</div>
+          <div class="day current-month past">2</div>
+          <div class="day current-month past">3</div>
+          <div class="day current-month past">4</div>
+          <div class="day current-month past">5</div>
+          <div class="day current-month past">6</div>
+          <div class="day current-month past">7</div>
+          <div class="day current-month past">8</div>
+          <div class="day current-month past">9</div>
+          <div class="day current-month past">10</div>
+          <div class="day current-month past">11</div>
+          <div class="day current-month past">12</div>
+          <div class="day current-month past">13</div>
+          <div class="day current-month past">14</div>
+          <div class="day current-month past">15</div>
+          <div class="day current-month past">16</div>
+          <div class="day current-month past">17</div>
+          <div class="day current-month past">18</div>
+          <div class="day current-month past">19</div>
+          <div class="day current-month today">20</div>
+          <div class="day current-month">21</div>
+          <div class="day current-month">22</div>
+          <div class="day current-month">23</div>
+          <div class="day current-month selected">24</div>
+          <div class="day current-month">25</div>
+          <div class="day current-month">26</div>
+          <div class="day current-month">27</div>
+          <div class="day current-month">28</div>
+          <div class="day current-month">29</div>
+          <div class="day current-month">30</div>
+          <div class="day current-month">31</div>
+        </div>
+      </div>
+
+      <!-- Time Picker -->
+      <div class="time-section">
+        <div class="time-wheel">
+          <div class="time-highlight"></div>
+          <div class="time-items">
+            <div class="time-item">7:30pm</div>
+            <div class="time-item">7:45pm</div>
+            <div class="time-item selected">8:00pm</div>
+            <div class="time-item">8:15pm</div>
+            <div class="time-item">8:30pm</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <div class="timezone">
+          <span class="timezone-icon">🌐</span>
+          <span>Eastern Time (ET)</span>
+        </div>
+        <button class="done-btn">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tab selection
+    function selectTab(tab) {
+      const tabs = document.querySelectorAll('.tab');
+      tabs.forEach(t => t.classList.remove('active'));
+
+      if (tab === 'start') {
+        tabs[0].classList.add('active');
+      } else {
+        tabs[1].classList.add('active');
+      }
+    }
+
+    // Day selection
+    document.querySelectorAll('.day:not(.past)').forEach(day => {
+      day.addEventListener('click', () => {
+        document.querySelectorAll('.day').forEach(d => d.classList.remove('selected'));
+        day.classList.add('selected');
+      });
+    });
+
+    // Time selection
+    document.querySelectorAll('.time-item').forEach(time => {
+      time.addEventListener('click', () => {
+        document.querySelectorAll('.time-item').forEach(t => t.classList.remove('selected'));
+        time.classList.add('selected');
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Title Validation Shake Animation</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0a0a12 0%, #1a1a2e 50%, #16213e 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .phone-frame {
+      width: 390px;
+      height: 844px;
+      background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);
+      border-radius: 50px;
+      padding: 20px;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .notch {
+      width: 150px;
+      height: 35px;
+      background: #000;
+      border-radius: 0 0 20px 20px;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .content {
+      padding-top: 60px;
+      height: 100%;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .back-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    /* Progress */
+    .progress-bar {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      margin-bottom: 16px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 20%;
+      background: #2dd4bf;
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+
+    .progress-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 40px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .dot.active {
+      background: #2dd4bf;
+    }
+
+    /* Slide content */
+    .slide-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 24px;
+      background: rgba(45, 212, 191, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      margin-bottom: 24px;
+    }
+
+    .slide-question {
+      font-size: 32px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .slide-hint {
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.55);
+      margin-bottom: 32px;
+    }
+
+    /* Title input */
+    .title-input-container {
+      position: relative;
+    }
+
+    .title-input {
+      width: 100%;
+      font-size: 24px;
+      font-weight: 500;
+      color: #fff;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      padding: 16px 0;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+
+    .title-input::placeholder {
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    .title-input:focus {
+      border-bottom-color: #2dd4bf;
+    }
+
+    .title-input.error {
+      border-bottom-color: #ff6b6b;
+    }
+
+    .char-count {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.35);
+      text-align: right;
+      margin-top: 12px;
+    }
+
+    /* Error message */
+    .error-message {
+      color: #ff6b6b;
+      font-size: 14px;
+      margin-top: 12px;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+    }
+
+    .error-message.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Shake animation */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+      20%, 40%, 60%, 80% { transform: translateX(8px); }
+    }
+
+    .shake {
+      animation: shake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+
+    /* Pulse glow animation for error */
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 2px 0 0 #ff6b6b; }
+      50% { box-shadow: 0 2px 20px 0 rgba(255, 107, 107, 0.5); }
+    }
+
+    .title-input.error-glow {
+      animation: pulseGlow 1s ease-in-out;
+    }
+
+    /* Next button */
+    .next-btn {
+      position: absolute;
+      bottom: 120px;
+      left: 20px;
+      right: 20px;
+      background: #2dd4bf;
+      border: none;
+      border-radius: 20px;
+      padding: 20px;
+      font-size: 17px;
+      font-weight: 600;
+      color: #0a0a12;
+      cursor: pointer;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .next-btn:hover {
+      transform: scale(1.02);
+    }
+
+    .next-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Demo controls */
+    .demo-controls {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      z-index: 100;
+    }
+
+    .demo-btn {
+      padding: 12px 24px;
+      border-radius: 12px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .demo-btn.primary {
+      background: #2dd4bf;
+      color: #0a0a12;
+    }
+
+    .demo-btn.secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .demo-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Animation variations */
+    .variation-label {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      z-index: 100;
+    }
+
+    /* Variation 2: Bounce shake */
+    @keyframes bounceShake {
+      0%, 100% { transform: translateX(0); }
+      15% { transform: translateX(-12px) rotate(-1deg); }
+      30% { transform: translateX(10px) rotate(1deg); }
+      45% { transform: translateX(-8px) rotate(-0.5deg); }
+      60% { transform: translateX(6px) rotate(0.5deg); }
+      75% { transform: translateX(-4px); }
+      90% { transform: translateX(2px); }
+    }
+
+    .bounce-shake {
+      animation: bounceShake 0.7s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+
+    /* Variation 3: Quick jolt */
+    @keyframes quickJolt {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      50% { transform: translateX(6px); }
+      75% { transform: translateX(-3px); }
+    }
+
+    .quick-jolt {
+      animation: quickJolt 0.3s ease-in-out;
+    }
+
+    /* Variation 4: Wobble */
+    @keyframes wobble {
+      0%, 100% { transform: translateX(0) rotate(0); }
+      15% { transform: translateX(-10px) rotate(-2deg); }
+      30% { transform: translateX(8px) rotate(2deg); }
+      45% { transform: translateX(-6px) rotate(-1deg); }
+      60% { transform: translateX(4px) rotate(1deg); }
+      75% { transform: translateX(-2px) rotate(-0.5deg); }
+    }
+
+    .wobble {
+      animation: wobble 0.8s ease-in-out;
+    }
+  </style>
+</head>
+<body>
+  <div class="variation-label" id="variationLabel">Variation 1: Classic Shake</div>
+
+  <div class="phone-frame">
+    <div class="notch"></div>
+    <div class="content">
+      <div class="header">
+        <div class="back-btn">&larr;</div>
+      </div>
+
+      <div class="progress-bar">
+        <div class="progress-fill"></div>
+      </div>
+      <div class="progress-dots">
+        <div class="dot active"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+
+      <div class="slide-icon">&#10024;</div>
+      <h1 class="slide-question">What's happening?</h1>
+      <p class="slide-hint">Give your event a catchy name</p>
+
+      <div class="title-input-container" id="inputContainer">
+        <input
+          type="text"
+          class="title-input"
+          id="titleInput"
+          placeholder="Pool party at sunset..."
+          maxlength="50"
+        >
+        <p class="error-message" id="errorMessage">Please enter a title for your event</p>
+        <p class="char-count"><span id="charCount">0</span>/50</p>
+      </div>
+
+      <button class="next-btn" id="nextBtn">Next</button>
+    </div>
+  </div>
+
+  <div class="demo-controls">
+    <button class="demo-btn primary" onclick="triggerShake(1)">Classic Shake</button>
+    <button class="demo-btn secondary" onclick="triggerShake(2)">Bounce Shake</button>
+    <button class="demo-btn secondary" onclick="triggerShake(3)">Quick Jolt</button>
+    <button class="demo-btn secondary" onclick="triggerShake(4)">Wobble</button>
+    <button class="demo-btn secondary" onclick="resetInput()">Reset</button>
+  </div>
+
+  <script>
+    const titleInput = document.getElementById('titleInput');
+    const inputContainer = document.getElementById('inputContainer');
+    const errorMessage = document.getElementById('errorMessage');
+    const charCount = document.getElementById('charCount');
+    const nextBtn = document.getElementById('nextBtn');
+    const variationLabel = document.getElementById('variationLabel');
+
+    const variationNames = {
+      1: 'Variation 1: Classic Shake',
+      2: 'Variation 2: Bounce Shake',
+      3: 'Variation 3: Quick Jolt (Recommended)',
+      4: 'Variation 4: Wobble'
+    };
+
+    const animationClasses = {
+      1: 'shake',
+      2: 'bounce-shake',
+      3: 'quick-jolt',
+      4: 'wobble'
+    };
+
+    // Update character count
+    titleInput.addEventListener('input', () => {
+      charCount.textContent = titleInput.value.length;
+
+      // Clear error state when typing
+      titleInput.classList.remove('error', 'error-glow');
+      errorMessage.classList.remove('visible');
+      inputContainer.classList.remove('shake', 'bounce-shake', 'quick-jolt', 'wobble');
+    });
+
+    // Next button click
+    nextBtn.addEventListener('click', () => {
+      if (!titleInput.value.trim()) {
+        triggerShake(3); // Default to quick jolt
+      } else {
+        alert('Proceeding to next slide!');
+      }
+    });
+
+    function triggerShake(variation) {
+      // Update label
+      variationLabel.textContent = variationNames[variation];
+
+      // Clear previous animations
+      inputContainer.classList.remove('shake', 'bounce-shake', 'quick-jolt', 'wobble');
+      titleInput.classList.remove('error', 'error-glow');
+      errorMessage.classList.remove('visible');
+
+      // Force reflow to restart animation
+      void inputContainer.offsetWidth;
+
+      // Add error state
+      titleInput.classList.add('error');
+      errorMessage.classList.add('visible');
+
+      // Add shake animation
+      const animClass = animationClasses[variation];
+      inputContainer.classList.add(animClass);
+
+      // Add glow effect
+      setTimeout(() => {
+        titleInput.classList.add('error-glow');
+      }, 100);
+
+      // Haptic feedback simulation (visual pulse)
+      nextBtn.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        nextBtn.style.transform = 'scale(1)';
+      }, 100);
+
+      // Focus the input
+      titleInput.focus();
+    }
+
+    function resetInput() {
+      titleInput.value = '';
+      charCount.textContent = '0';
+      titleInput.classList.remove('error', 'error-glow');
+      errorMessage.classList.remove('visible');
+      inputContainer.classList.remove('shake', 'bounce-shake', 'quick-jolt', 'wobble');
+      variationLabel.textContent = 'Click a button to see the animation';
+    }
+  </script>
+</body>
+</html>

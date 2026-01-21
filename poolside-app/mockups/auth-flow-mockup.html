@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JumboHQ - Authentication Flow</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --coral: #ff6b4a;
+      --coral-light: #ff8a70;
+      --violet: #8b5cf6;
+      --violet-light: #a78bfa;
+      --text-primary: #1a1a1a;
+      --text-secondary: rgba(0, 0, 0, 0.5);
+      --text-tertiary: rgba(0, 0, 0, 0.35);
+      --glass-bg: rgba(255, 255, 255, 0.85);
+      --glass-border: rgba(255, 255, 255, 0.9);
+      --input-bg: rgba(255, 255, 255, 0.95);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #1a1a1a;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .flow-container {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      flex-wrap: wrap;
+      max-width: 1800px;
+      margin: 0 auto;
+    }
+
+    .flow-label {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .flow-label h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 32px;
+      color: white;
+      margin-bottom: 8px;
+    }
+
+    .flow-label p {
+      color: rgba(255,255,255,0.5);
+      font-size: 14px;
+    }
+
+    /* Phone Frame */
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      border-radius: 50px;
+      position: relative;
+      overflow: hidden;
+      box-shadow:
+        0 25px 80px rgba(0,0,0,0.4),
+        0 0 0 1px rgba(255,255,255,0.1);
+      flex-shrink: 0;
+    }
+
+    /* Warm gradient background */
+    .phone-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background:
+        radial-gradient(ellipse at 30% 20%, rgba(255, 180, 150, 0.6) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(255, 140, 100, 0.5) 0%, transparent 40%),
+        radial-gradient(ellipse at 50% 50%, rgba(255, 200, 180, 0.4) 0%, transparent 60%),
+        linear-gradient(180deg,
+          #ffe8dc 0%,
+          #ffd9c8 30%,
+          #ffcdb8 60%,
+          #ffc4a8 100%
+        );
+    }
+
+    /* Floating orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(40px);
+      opacity: 0.5;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .orb-1 {
+      width: 200px;
+      height: 200px;
+      background: var(--coral-light);
+      top: -50px;
+      right: -50px;
+      animation-delay: 0s;
+    }
+
+    .orb-2 {
+      width: 150px;
+      height: 150px;
+      background: var(--violet-light);
+      bottom: 100px;
+      left: -40px;
+      animation-delay: 2s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-20px) scale(1.05); }
+    }
+
+    /* Screen content */
+    .screen-content {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 60px 28px 40px;
+    }
+
+    /* Step indicator */
+    .step-indicator {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+
+    .step-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.15);
+      transition: all 0.3s ease;
+    }
+
+    .step-dot.active {
+      width: 24px;
+      border-radius: 4px;
+      background: var(--coral);
+    }
+
+    .step-dot.completed {
+      background: var(--coral);
+    }
+
+    /* Mascot container */
+    .mascot-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .mascot {
+      width: 140px;
+      height: 90px;
+      background: linear-gradient(135deg, #e8f4fc, #d4ecf9);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+      position: relative;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    .mascot-peek {
+      width: 160px;
+      height: 80px;
+      background: none;
+      box-shadow: none;
+      margin-bottom: -10px;
+    }
+
+    .mascot-peek::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 3px;
+      background: rgba(0,0,0,0.1);
+      border-radius: 2px;
+    }
+
+    /* Mascot states */
+    .mascot-mail {
+      animation: bounce-mail 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce-mail {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .mascot-celebrate {
+      animation: celebrate 0.6s ease-in-out infinite;
+    }
+
+    @keyframes celebrate {
+      0%, 100% { transform: rotate(-5deg); }
+      50% { transform: rotate(5deg); }
+    }
+
+    /* Headings */
+    .screen-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-align: center;
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+
+    .screen-title .highlight {
+      color: var(--coral);
+    }
+
+    .screen-subtitle {
+      font-size: 15px;
+      color: var(--text-secondary);
+      text-align: center;
+      line-height: 1.5;
+      margin-bottom: 36px;
+    }
+
+    /* Glass card */
+    .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 24px;
+      border: 1px solid var(--glass-border);
+      padding: 24px;
+      box-shadow:
+        0 8px 32px rgba(0,0,0,0.06),
+        0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    /* Input styles */
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      margin-left: 4px;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 16px 20px;
+      font-size: 16px;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text-primary);
+      background: var(--input-bg);
+      border: 2px solid transparent;
+      border-radius: 16px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .input-field::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    .input-field:focus {
+      border-color: var(--coral);
+      box-shadow: 0 0 0 4px rgba(255, 107, 74, 0.1);
+    }
+
+    .input-suffix {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-tertiary);
+    }
+
+    .input-hint {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      margin-left: 4px;
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+
+    /* Primary button */
+    .btn-primary {
+      width: 100%;
+      padding: 18px 24px;
+      font-size: 16px;
+      font-weight: 700;
+      color: white;
+      background: linear-gradient(135deg, var(--coral) 0%, var(--violet) 100%);
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow:
+        0 8px 24px rgba(255, 107, 74, 0.3),
+        0 2px 8px rgba(139, 92, 246, 0.2);
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 12px 32px rgba(255, 107, 74, 0.4),
+        0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-arrow {
+      font-size: 18px;
+      transition: transform 0.2s ease;
+    }
+
+    .btn-primary:hover .btn-arrow {
+      transform: translateX(4px);
+    }
+
+    /* Secondary/text button */
+    .btn-text {
+      background: none;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 12px;
+      margin-top: 16px;
+      width: 100%;
+      text-align: center;
+      transition: color 0.2s ease;
+    }
+
+    .btn-text:hover {
+      color: var(--coral);
+    }
+
+    .btn-text span {
+      color: var(--coral);
+      font-weight: 700;
+    }
+
+    /* Email sent state */
+    .email-sent-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--coral) 0%, var(--violet) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      margin: 0 auto 24px;
+      animation: pulse-glow 2s ease-in-out infinite;
+      box-shadow: 0 8px 32px rgba(255, 107, 74, 0.3);
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% {
+        box-shadow: 0 8px 32px rgba(255, 107, 74, 0.3);
+        transform: scale(1);
+      }
+      50% {
+        box-shadow: 0 12px 48px rgba(255, 107, 74, 0.5);
+        transform: scale(1.05);
+      }
+    }
+
+    .email-display {
+      text-align: center;
+      padding: 16px 20px;
+      background: rgba(255, 107, 74, 0.08);
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .email-display-label {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-bottom: 4px;
+    }
+
+    .email-display-value {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .resend-timer {
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-tertiary);
+      margin-top: 16px;
+    }
+
+    .resend-timer span {
+      color: var(--coral);
+      font-weight: 600;
+    }
+
+    /* Success state */
+    .success-icon {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      margin: 0 auto 24px;
+      box-shadow: 0 12px 40px rgba(34, 197, 94, 0.35);
+      animation: success-pop 0.5s ease-out;
+    }
+
+    @keyframes success-pop {
+      0% { transform: scale(0); opacity: 0; }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Confetti */
+    .confetti-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      opacity: 0;
+      animation: confetti-fall 3s ease-out forwards;
+    }
+
+    .confetti-1 { left: 10%; animation-delay: 0s; background: var(--coral); border-radius: 50%; }
+    .confetti-2 { left: 20%; animation-delay: 0.1s; background: var(--violet); }
+    .confetti-3 { left: 30%; animation-delay: 0.2s; background: #22c55e; border-radius: 50%; }
+    .confetti-4 { left: 40%; animation-delay: 0.15s; background: #fbbf24; }
+    .confetti-5 { left: 50%; animation-delay: 0.25s; background: var(--coral); }
+    .confetti-6 { left: 60%; animation-delay: 0.05s; background: #22d3ee; border-radius: 50%; }
+    .confetti-7 { left: 70%; animation-delay: 0.3s; background: var(--violet); }
+    .confetti-8 { left: 80%; animation-delay: 0.12s; background: #f472b6; border-radius: 50%; }
+    .confetti-9 { left: 90%; animation-delay: 0.22s; background: var(--coral); }
+
+    @keyframes confetti-fall {
+      0% {
+        top: -10px;
+        opacity: 1;
+        transform: rotate(0deg) translateX(0);
+      }
+      100% {
+        top: 100%;
+        opacity: 0;
+        transform: rotate(720deg) translateX(50px);
+      }
+    }
+
+    /* Welcome back state */
+    .welcome-mascot {
+      width: 180px;
+      height: 180px;
+      margin: 0 auto 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .welcome-mascot-inner {
+      font-size: 100px;
+      animation: welcome-bounce 1s ease-in-out infinite;
+    }
+
+    @keyframes welcome-bounce {
+      0%, 100% { transform: translateY(0) rotate(-3deg); }
+      50% { transform: translateY(-15px) rotate(3deg); }
+    }
+
+    .welcome-ring {
+      position: absolute;
+      border: 2px solid;
+      border-radius: 50%;
+      animation: ring-pulse 2s ease-out infinite;
+    }
+
+    .welcome-ring-1 {
+      width: 140px;
+      height: 140px;
+      border-color: rgba(255, 107, 74, 0.3);
+      animation-delay: 0s;
+    }
+
+    .welcome-ring-2 {
+      width: 180px;
+      height: 180px;
+      border-color: rgba(139, 92, 246, 0.2);
+      animation-delay: 0.3s;
+    }
+
+    .welcome-ring-3 {
+      width: 220px;
+      height: 220px;
+      border-color: rgba(34, 211, 238, 0.15);
+      animation-delay: 0.6s;
+    }
+
+    @keyframes ring-pulse {
+      0% { transform: scale(0.8); opacity: 1; }
+      100% { transform: scale(1.3); opacity: 0; }
+    }
+
+    /* Spacer */
+    .spacer {
+      flex: 1;
+    }
+
+    /* Footer text */
+    .footer-text {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-top: 24px;
+    }
+
+    .footer-text a {
+      color: var(--text-secondary);
+      text-decoration: underline;
+    }
+
+    /* Page label */
+    .page-label {
+      position: absolute;
+      bottom: -36px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.4);
+      white-space: nowrap;
+    }
+
+    /* Flow arrow between phones */
+    .flow-arrow {
+      display: flex;
+      align-items: center;
+      font-size: 32px;
+      color: rgba(255,255,255,0.2);
+      padding: 0 8px;
+      align-self: center;
+    }
+
+    @media (max-width: 1600px) {
+      .flow-arrow {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="flow-label">
+    <h1>JumboHQ Authentication Flow</h1>
+    <p>Email verification flow for Tufts students</p>
+  </div>
+
+  <div class="flow-container">
+    <!-- Page 1: Email Entry -->
+    <div style="position: relative;">
+      <div class="phone-frame">
+        <div class="phone-bg">
+          <div class="orb orb-1"></div>
+          <div class="orb orb-2"></div>
+        </div>
+
+        <div class="screen-content">
+          <div class="step-indicator">
+            <div class="step-dot active"></div>
+            <div class="step-dot"></div>
+            <div class="step-dot"></div>
+          </div>
+
+          <div class="mascot-container">
+            <div class="mascot mascot-peek">
+              <span style="font-size: 70px; margin-top: 20px;">🐘</span>
+            </div>
+          </div>
+
+          <h1 class="screen-title">
+            Join your<br><span class="highlight">campus</span>
+          </h1>
+          <p class="screen-subtitle">
+            Enter your Tufts email to get started.<br>We'll send you a magic link ✨
+          </p>
+
+          <div class="glass-card">
+            <div class="input-group">
+              <label class="input-label">Your Tufts Email</label>
+              <div class="input-wrapper">
+                <input
+                  type="text"
+                  class="input-field"
+                  placeholder="first.last"
+                  value="marcus.ho"
+                >
+                <span class="input-suffix">@tufts.edu</span>
+              </div>
+              <div class="input-hint">
+                <span>🎓</span> Only .edu emails can join
+              </div>
+            </div>
+
+            <button class="btn-primary">
+              Send Magic Link
+              <span class="btn-arrow">→</span>
+            </button>
+          </div>
+
+          <div class="spacer"></div>
+
+          <p class="footer-text">
+            By continuing, you agree to our<br>
+            <a href="#">Terms</a> & <a href="#">Privacy Policy</a>
+          </p>
+        </div>
+      </div>
+      <div class="page-label">1. Email Entry</div>
+    </div>
+
+    <div class="flow-arrow">→</div>
+
+    <!-- Page 2: Check Your Email -->
+    <div style="position: relative;">
+      <div class="phone-frame">
+        <div class="phone-bg">
+          <div class="orb orb-1"></div>
+          <div class="orb orb-2"></div>
+        </div>
+
+        <div class="screen-content">
+          <div class="step-indicator">
+            <div class="step-dot completed"></div>
+            <div class="step-dot active"></div>
+            <div class="step-dot"></div>
+          </div>
+
+          <div class="spacer" style="flex: 0.3;"></div>
+
+          <div class="email-sent-icon mascot-mail">
+            ✉️
+          </div>
+
+          <h1 class="screen-title">
+            Check your<br><span class="highlight">inbox</span>
+          </h1>
+          <p class="screen-subtitle">
+            We sent a magic link to your email.<br>Tap it to verify you're a Jumbo! 🐘
+          </p>
+
+          <div class="glass-card">
+            <div class="email-display">
+              <div class="email-display-label">Sent to</div>
+              <div class="email-display-value">marcus.ho@tufts.edu</div>
+            </div>
+
+            <button class="btn-primary" style="background: rgba(0,0,0,0.08); color: var(--text-primary); box-shadow: none;">
+              Open Email App
+              <span class="btn-arrow">📬</span>
+            </button>
+
+            <div class="resend-timer">
+              Didn't get it? <span>Resend in 0:47</span>
+            </div>
+          </div>
+
+          <button class="btn-text">
+            ← Use a different email
+          </button>
+
+          <div class="spacer"></div>
+        </div>
+      </div>
+      <div class="page-label">2. Check Email</div>
+    </div>
+
+    <div class="flow-arrow">→</div>
+
+    <!-- Page 3: Email Verified -->
+    <div style="position: relative;">
+      <div class="phone-frame">
+        <div class="phone-bg">
+          <div class="orb orb-1"></div>
+          <div class="orb orb-2"></div>
+        </div>
+
+        <div class="confetti-container">
+          <div class="confetti confetti-1"></div>
+          <div class="confetti confetti-2"></div>
+          <div class="confetti confetti-3"></div>
+          <div class="confetti confetti-4"></div>
+          <div class="confetti confetti-5"></div>
+          <div class="confetti confetti-6"></div>
+          <div class="confetti confetti-7"></div>
+          <div class="confetti confetti-8"></div>
+          <div class="confetti confetti-9"></div>
+        </div>
+
+        <div class="screen-content">
+          <div class="step-indicator">
+            <div class="step-dot completed"></div>
+            <div class="step-dot completed"></div>
+            <div class="step-dot active"></div>
+          </div>
+
+          <div class="spacer" style="flex: 0.5;"></div>
+
+          <div class="success-icon">
+            ✓
+          </div>
+
+          <h1 class="screen-title">
+            You're<br><span class="highlight">verified!</span>
+          </h1>
+          <p class="screen-subtitle">
+            Welcome to the Tufts community 🎉<br>Your email has been confirmed.
+          </p>
+
+          <div class="glass-card" style="text-align: center; padding: 32px 24px;">
+            <div style="font-size: 48px; margin-bottom: 12px;">🐘</div>
+            <div style="font-size: 15px; color: var(--text-secondary);">
+              <strong style="color: var(--text-primary);">marcus.ho@tufts.edu</strong><br>
+              is now verified
+            </div>
+          </div>
+
+          <div class="spacer"></div>
+
+          <button class="btn-primary">
+            Continue
+            <span class="btn-arrow">→</span>
+          </button>
+        </div>
+      </div>
+      <div class="page-label">3. Verified</div>
+    </div>
+
+    <div class="flow-arrow">→</div>
+
+    <!-- Page 4: Welcome / Ready to Enter -->
+    <div style="position: relative;">
+      <div class="phone-frame">
+        <div class="phone-bg">
+          <div class="orb orb-1"></div>
+          <div class="orb orb-2"></div>
+        </div>
+
+        <div class="screen-content">
+          <div class="spacer" style="flex: 0.3;"></div>
+
+          <div class="welcome-mascot">
+            <div class="welcome-ring welcome-ring-1"></div>
+            <div class="welcome-ring welcome-ring-2"></div>
+            <div class="welcome-ring welcome-ring-3"></div>
+            <div class="welcome-mascot-inner">🐘</div>
+          </div>
+
+          <h1 class="screen-title" style="font-size: 42px;">
+            JumboHQ
+          </h1>
+          <p class="screen-subtitle" style="font-size: 17px; margin-bottom: 48px;">
+            Your campus. Your community.
+          </p>
+
+          <button class="btn-primary" style="padding: 22px 32px; font-size: 18px;">
+            Let's Go!
+            <span class="btn-arrow">🎉</span>
+          </button>
+
+          <div class="spacer"></div>
+
+          <p class="footer-text" style="margin-top: 32px;">
+            Signed in as <strong>marcus.ho@tufts.edu</strong>
+          </p>
+        </div>
+      </div>
+      <div class="page-label">4. Welcome</div>
+    </div>
+  </div>
+</body>
+</html>

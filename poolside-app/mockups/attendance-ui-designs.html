@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance UI Design Options</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: white;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 40px;
+            font-size: 14px;
+        }
+
+        .designs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .design-card {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 20px;
+            padding: 24px;
+            backdrop-filter: blur(20px);
+        }
+
+        .design-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .design-description {
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .preview-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 12px;
+        }
+
+        .preview-box {
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        /* Design 1: Progress Bar */
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .circular-progress {
+            width: 48px;
+            height: 48px;
+            position: relative;
+        }
+
+        .circular-progress svg {
+            transform: rotate(-90deg);
+        }
+
+        .circular-progress .bg {
+            fill: none;
+            stroke: rgba(255,255,255,0.1);
+            stroke-width: 4;
+        }
+
+        .circular-progress .progress {
+            fill: none;
+            stroke: url(#gradient1);
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-dasharray: 126;
+            stroke-dashoffset: 88; /* 126 - (126 * 0.3) for 30% */
+            transition: stroke-dashoffset 0.5s ease;
+        }
+
+        .circular-progress .progress.filling {
+            stroke: url(#gradient2);
+            stroke-dashoffset: 38; /* 70% filled */
+        }
+
+        .circular-progress .progress.almost-full {
+            stroke: url(#gradient3);
+            stroke-dashoffset: 13; /* 90% filled */
+        }
+
+        .circular-progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .progress-info {
+            flex: 1;
+        }
+
+        .progress-count {
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .progress-count span {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .progress-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            margin-top: 2px;
+        }
+
+        /* Linear progress bar variant */
+        .linear-progress-container {
+            margin-top: 16px;
+        }
+
+        .linear-progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .linear-progress-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .linear-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #4ade80);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .linear-progress-fill.filling {
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+        }
+
+        .linear-progress-fill.almost-full {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+        }
+
+        /* Design 2: Pill Badge */
+        .pill-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .pill-badge.available {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #4ade80;
+        }
+
+        .pill-badge.filling {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #fbbf24;
+        }
+
+        .pill-badge.almost-full {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        .pill-badge.full {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #ef4444;
+        }
+
+        .pill-icon {
+            font-size: 14px;
+        }
+
+        .pill-variants {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        /* Design 3: Stacked Avatars + Count */
+        .avatars-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stacked-avatars {
+            display: flex;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid rgba(30, 30, 45, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .avatar:not(:first-child) {
+            margin-left: -12px;
+        }
+
+        .avatar.more {
+            background: rgba(255,255,255,0.15);
+            font-size: 10px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .avatar-count-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .avatar-count {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        .avatar-count .highlight {
+            color: #2dd4bf;
+        }
+
+        .avatar-count .divider {
+            color: rgba(255,255,255,0.3);
+            margin: 0 2px;
+        }
+
+        .avatar-count .total {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .avatar-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Design 4: Minimal Counter */
+        .minimal-container {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+
+        .minimal-current {
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .minimal-of {
+            font-size: 14px;
+            color: rgba(255,255,255,0.4);
+            font-weight: 500;
+        }
+
+        .minimal-total {
+            font-size: 20px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .minimal-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.4);
+            margin-left: 8px;
+        }
+
+        /* Minimal variant 2 */
+        .minimal-v2 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .minimal-v2-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(45, 212, 191, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .minimal-v2-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .minimal-v2-text strong {
+            color: #2dd4bf;
+            font-weight: 700;
+        }
+
+        /* State labels */
+        .state-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            color: rgba(255,255,255,0.3);
+        }
+
+        .states-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .state-item {
+            flex: 1;
+            min-width: 100px;
+        }
+
+        /* Event card context preview */
+        .event-context {
+            background: rgba(0,0,0,0.4);
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 20px;
+        }
+
+        .event-context-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.3);
+            margin-bottom: 12px;
+        }
+
+        .event-meta-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        /* SVG Gradients */
+        .svg-defs {
+            position: absolute;
+            width: 0;
+            height: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- SVG Gradient Definitions -->
+    <svg class="svg-defs">
+        <defs>
+            <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#22c55e"/>
+                <stop offset="100%" style="stop-color:#4ade80"/>
+            </linearGradient>
+            <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#f59e0b"/>
+                <stop offset="100%" style="stop-color:#fbbf24"/>
+            </linearGradient>
+            <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#ef4444"/>
+                <stop offset="100%" style="stop-color:#f87171"/>
+            </linearGradient>
+        </defs>
+    </svg>
+
+    <h1>Attendance UI Designs</h1>
+    <p class="subtitle">Showing RSVPs vs Total Capacity for Event Cards</p>
+
+    <div class="designs-grid">
+        <!-- Design 1: Progress Bar -->
+        <div class="design-card">
+            <div class="design-title">1. Progress Bar</div>
+            <div class="design-description">Circular or linear progress bar showing spots filled with visual fill indicator. Color changes based on capacity.</div>
+
+            <div class="preview-label">Circular Progress</div>
+            <div class="preview-box">
+                <div class="states-row">
+                    <div class="state-item">
+                        <div class="state-label">Available</div>
+                        <div class="progress-container">
+                            <div class="circular-progress">
+                                <svg width="48" height="48">
+                                    <circle class="bg" cx="24" cy="24" r="20"/>
+                                    <circle class="progress" cx="24" cy="24" r="20"/>
+                                </svg>
+                                <span class="circular-progress-text">3/10</span>
+                            </div>
+                            <div class="progress-info">
+                                <div class="progress-count">3 <span>/ 10</span></div>
+                                <div class="progress-label">spots filled</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="state-item">
+                        <div class="state-label">Filling Up</div>
+                        <div class="progress-container">
+                            <div class="circular-progress">
+                                <svg width="48" height="48">
+                                    <circle class="bg" cx="24" cy="24" r="20"/>
+                                    <circle class="progress filling" cx="24" cy="24" r="20"/>
+                                </svg>
+                                <span class="circular-progress-text">7/10</span>
+                            </div>
+                            <div class="progress-info">
+                                <div class="progress-count">7 <span>/ 10</span></div>
+                                <div class="progress-label">spots filled</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="state-item">
+                        <div class="state-label">Almost Full</div>
+                        <div class="progress-container">
+                            <div class="circular-progress">
+                                <svg width="48" height="48">
+                                    <circle class="bg" cx="24" cy="24" r="20"/>
+                                    <circle class="progress almost-full" cx="24" cy="24" r="20"/>
+                                </svg>
+                                <span class="circular-progress-text">9/10</span>
+                            </div>
+                            <div class="progress-info">
+                                <div class="progress-count">9 <span>/ 10</span></div>
+                                <div class="progress-label">spots filled</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-label">Linear Progress</div>
+            <div class="preview-box">
+                <div class="linear-progress-container">
+                    <div class="linear-progress-header">
+                        <span style="font-size: 13px; color: rgba(255,255,255,0.7);">3 going</span>
+                        <span style="font-size: 12px; color: rgba(255,255,255,0.4);">10 spots</span>
+                    </div>
+                    <div class="linear-progress-bar">
+                        <div class="linear-progress-fill" style="width: 30%"></div>
+                    </div>
+                </div>
+                <div class="linear-progress-container">
+                    <div class="linear-progress-header">
+                        <span style="font-size: 13px; color: rgba(255,255,255,0.7);">7 going</span>
+                        <span style="font-size: 12px; color: rgba(255,255,255,0.4);">10 spots</span>
+                    </div>
+                    <div class="linear-progress-bar">
+                        <div class="linear-progress-fill filling" style="width: 70%"></div>
+                    </div>
+                </div>
+                <div class="linear-progress-container">
+                    <div class="linear-progress-header">
+                        <span style="font-size: 13px; color: rgba(255,255,255,0.7);">9 going</span>
+                        <span style="font-size: 12px; color: rgba(255,255,255,0.4);">10 spots</span>
+                    </div>
+                    <div class="linear-progress-bar">
+                        <div class="linear-progress-fill almost-full" style="width: 90%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Design 2: Pill Badge -->
+        <div class="design-card">
+            <div class="design-title">2. Pill Badge</div>
+            <div class="design-description">Compact pill showing spots with color coding: green = available, yellow = filling up, red = almost full/full.</div>
+
+            <div class="preview-label">Badge States</div>
+            <div class="preview-box">
+                <div class="pill-variants">
+                    <div class="pill-badge available">
+                        <span class="pill-icon">👥</span>
+                        <span>3/10 spots</span>
+                    </div>
+                    <div class="pill-badge filling">
+                        <span class="pill-icon">🔥</span>
+                        <span>7/10 spots</span>
+                    </div>
+                    <div class="pill-badge almost-full">
+                        <span class="pill-icon">⚡</span>
+                        <span>9/10 spots</span>
+                    </div>
+                    <div class="pill-badge full">
+                        <span class="pill-icon">🚫</span>
+                        <span>FULL</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-label">Alternative (No Emoji)</div>
+            <div class="preview-box">
+                <div class="pill-variants">
+                    <div class="pill-badge available">
+                        <span>3 of 10 going</span>
+                    </div>
+                    <div class="pill-badge filling">
+                        <span>7 of 10 going</span>
+                    </div>
+                    <div class="pill-badge almost-full">
+                        <span>1 spot left!</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-label">Compact Version</div>
+            <div class="preview-box">
+                <div class="pill-variants">
+                    <div class="pill-badge available" style="padding: 6px 10px; font-size: 11px;">
+                        <span>3/10</span>
+                    </div>
+                    <div class="pill-badge filling" style="padding: 6px 10px; font-size: 11px;">
+                        <span>7/10</span>
+                    </div>
+                    <div class="pill-badge almost-full" style="padding: 6px 10px; font-size: 11px;">
+                        <span>9/10</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Design 3: Stacked Avatars + Count -->
+        <div class="design-card">
+            <div class="design-title">3. Stacked Avatars + Count</div>
+            <div class="design-description">Keep the avatar display but improve the count with better typography and a clear capacity indicator.</div>
+
+            <div class="preview-label">With Avatars</div>
+            <div class="preview-box">
+                <div class="avatars-container">
+                    <div class="stacked-avatars">
+                        <div class="avatar">😎</div>
+                        <div class="avatar">🎉</div>
+                        <div class="avatar">🌟</div>
+                        <div class="avatar more">+2</div>
+                    </div>
+                    <div class="avatar-count-info">
+                        <div class="avatar-count">
+                            <span class="highlight">5</span>
+                            <span class="divider">/</span>
+                            <span class="total">10</span>
+                        </div>
+                        <div class="avatar-label">going</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-label">Inline Version</div>
+            <div class="preview-box">
+                <div class="avatars-container">
+                    <div class="stacked-avatars">
+                        <div class="avatar">😎</div>
+                        <div class="avatar">🎉</div>
+                        <div class="avatar">🌟</div>
+                    </div>
+                    <span style="font-size: 14px; color: rgba(255,255,255,0.7);">
+                        <strong style="color: #2dd4bf;">3</strong> of <strong>10</strong> spots filled
+                    </span>
+                </div>
+            </div>
+
+            <div class="preview-label">With Progress Indicator</div>
+            <div class="preview-box">
+                <div class="avatars-container" style="margin-bottom: 10px;">
+                    <div class="stacked-avatars">
+                        <div class="avatar">😎</div>
+                        <div class="avatar">🎉</div>
+                        <div class="avatar">🌟</div>
+                    </div>
+                    <div class="avatar-count-info">
+                        <div class="avatar-count">
+                            <span class="highlight">3</span>
+                            <span class="divider">/</span>
+                            <span class="total">10</span>
+                            <span style="font-size: 12px; color: rgba(255,255,255,0.4); margin-left: 4px;">going</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="linear-progress-bar" style="height: 4px;">
+                    <div class="linear-progress-fill" style="width: 30%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Design 4: Minimal Counter -->
+        <div class="design-card">
+            <div class="design-title">4. Minimal Counter</div>
+            <div class="design-description">Simple bold number display with subtle styling. Clean and easy to read at a glance.</div>
+
+            <div class="preview-label">Large Numbers</div>
+            <div class="preview-box">
+                <div class="minimal-container">
+                    <span class="minimal-current">3</span>
+                    <span class="minimal-of">of</span>
+                    <span class="minimal-total">10</span>
+                    <span class="minimal-label">going</span>
+                </div>
+            </div>
+
+            <div class="preview-label">With Icon</div>
+            <div class="preview-box">
+                <div class="minimal-v2">
+                    <div class="minimal-v2-icon">👥</div>
+                    <span class="minimal-v2-text"><strong>3</strong> of <strong>10</strong> spots filled</span>
+                </div>
+                <div class="minimal-v2" style="margin-top: 12px;">
+                    <div class="minimal-v2-icon" style="background: rgba(245, 158, 11, 0.2);">🔥</div>
+                    <span class="minimal-v2-text"><strong>7</strong> of <strong>10</strong> spots filled</span>
+                </div>
+                <div class="minimal-v2" style="margin-top: 12px;">
+                    <div class="minimal-v2-icon" style="background: rgba(239, 68, 68, 0.2);">⚡</div>
+                    <span class="minimal-v2-text"><strong>1 spot left!</strong></span>
+                </div>
+            </div>
+
+            <div class="preview-label">Inline Text</div>
+            <div class="preview-box">
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <span style="font-size: 14px; color: rgba(255,255,255,0.7);">
+                        <span style="color: #2dd4bf; font-weight: 700;">3</span>
+                        <span style="color: rgba(255,255,255,0.4);">/</span>
+                        <span style="font-weight: 600;">10</span>
+                        <span style="color: rgba(255,255,255,0.5);"> going</span>
+                    </span>
+                    <span style="font-size: 14px; color: rgba(255,255,255,0.7);">
+                        <span style="font-weight: 700;">3</span> going
+                        <span style="color: rgba(255,255,255,0.4);">•</span>
+                        <span style="color: rgba(255,255,255,0.5);">7 spots left</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Card Context -->
+    <div style="max-width: 400px; margin: 40px auto;">
+        <h2 style="font-size: 18px; margin-bottom: 20px; text-align: center;">In Context: Event Card Preview</h2>
+        <div class="design-card">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                <div class="avatar" style="width: 36px; height: 36px;">🎸</div>
+                <div>
+                    <div style="font-weight: 600; font-size: 14px;">Marcus Ho</div>
+                    <div style="font-size: 11px; color: rgba(255,255,255,0.5);">Host</div>
+                </div>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #667eea, #764ba2); height: 160px; border-radius: 12px; margin-bottom: 16px;"></div>
+
+            <div style="font-size: 20px; font-weight: 700; margin-bottom: 12px;">Pick Up Soccer</div>
+
+            <div class="event-meta-row">
+                <span>📅</span>
+                <span>Today at 4:00 PM</span>
+            </div>
+            <div class="event-meta-row">
+                <span>📍</span>
+                <span>Campus Field</span>
+            </div>
+
+            <!-- Attendance UI - Pick your favorite from above -->
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <div class="avatars-container">
+                    <div class="stacked-avatars">
+                        <div class="avatar">😎</div>
+                    </div>
+                    <div class="avatar-count-info">
+                        <div class="avatar-count">
+                            <span class="highlight">1</span>
+                            <span class="divider">/</span>
+                            <span class="total">10</span>
+                        </div>
+                        <div class="avatar-label">going</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

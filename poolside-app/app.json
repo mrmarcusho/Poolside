@@ -2,11 +2,12 @@
   "expo": {
     "name": "poolside-app",
     "slug": "poolside-app",
+    "scheme": "jumbohq",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -14,7 +15,8 @@
     },
     "ios": {
       "supportsTablet": true,
-      "backgroundColor": "#0a0a0f"
+      "backgroundColor": "#0a0a0f",
+      "bundleIdentifier": "com.anonymous.poolside-app"
     },
     "android": {
       "adaptiveIcon": {

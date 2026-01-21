@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Send Button Animations - Poolside</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0a0a0f;
+      --bg-card: #12121a;
+      --bg-input: rgba(255, 255, 255, 0.05);
+      --accent-1: #667eea;
+      --accent-2: #764ba2;
+      --accent-glow: rgba(102, 126, 234, 0.4);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.6);
+      --text-muted: rgba(255, 255, 255, 0.3);
+      --border: rgba(255, 255, 255, 0.08);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Space Mono', monospace;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 20px;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(102, 126, 234, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(118, 75, 162, 0.08) 0%, transparent 50%);
+    }
+
+    .container {
+      max-width: 375px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      padding: 30px 0 40px;
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 28px;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .animation-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .animation-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent-1), transparent);
+      opacity: 0.5;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .card-number {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 11px;
+      color: var(--accent-1);
+      background: rgba(102, 126, 234, 0.15);
+      padding: 4px 10px;
+      border-radius: 20px;
+      letter-spacing: 1px;
+    }
+
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text-primary);
+    }
+
+    .chat-preview {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 16px;
+      padding: 16px;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .message-bubble {
+      align-self: flex-end;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      padding: 10px 16px;
+      border-radius: 18px 18px 4px 18px;
+      font-size: 14px;
+      max-width: 80%;
+      position: relative;
+      transform-origin: bottom right;
+    }
+
+    .input-area {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .input-field {
+      flex: 1;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 12px 18px;
+      color: var(--text-secondary);
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+    }
+
+    .send-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: visible;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .send-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 30px var(--accent-glow);
+    }
+
+    .send-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: white;
+      position: relative;
+      z-index: 2;
+    }
+
+    .try-btn {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text-secondary);
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .try-btn:hover {
+      background: rgba(102, 126, 234, 0.1);
+      border-color: var(--accent-1);
+      color: var(--accent-1);
+    }
+
+    /* ========== ANIMATION 1: FLY AWAY ========== */
+    .fly-away .message-bubble.animate {
+      animation: flyAway 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+    }
+
+    @keyframes flyAway {
+      0% {
+        transform: translateY(0) rotate(0deg) scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: translateY(-30px) rotate(-5deg) scale(0.95);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-150px) rotate(-15deg) scale(0.3);
+        opacity: 0;
+      }
+    }
+
+    .fly-away .send-btn.animate svg {
+      animation: sendPush 0.3s ease-out;
+    }
+
+    @keyframes sendPush {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(3px); }
+    }
+
+    /* ========== ANIMATION 2: PULSE & SHRINK ========== */
+    .pulse-shrink .send-btn.animate {
+      animation: buttonPulse 0.6s ease-out;
+    }
+
+    @keyframes buttonPulse {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.3); box-shadow: 0 0 40px var(--accent-glow); }
+      100% { transform: scale(1); }
+    }
+
+    .pulse-shrink .message-bubble.animate {
+      animation: shrinkInto 0.5s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards;
+      animation-delay: 0.1s;
+    }
+
+    @keyframes shrinkInto {
+      0% {
+        transform: scale(1) translateX(0);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(0) translateX(50px);
+        opacity: 0;
+      }
+    }
+
+    /* ========== ANIMATION 3: RIPPLE BURST ========== */
+    .ripple-burst .send-btn {
+      overflow: visible;
+    }
+
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      border: 2px solid var(--accent-1);
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .ripple-burst .send-btn.animate .ripple-1 {
+      animation: rippleExpand 0.8s ease-out forwards;
+    }
+
+    .ripple-burst .send-btn.animate .ripple-2 {
+      animation: rippleExpand 0.8s ease-out 0.15s forwards;
+    }
+
+    .ripple-burst .send-btn.animate .ripple-3 {
+      animation: rippleExpand 0.8s ease-out 0.3s forwards;
+    }
+
+    @keyframes rippleExpand {
+      0% {
+        width: 48px;
+        height: 48px;
+        top: 0;
+        left: 0;
+        opacity: 0.8;
+      }
+      100% {
+        width: 150px;
+        height: 150px;
+        top: -51px;
+        left: -51px;
+        opacity: 0;
+      }
+    }
+
+    .ripple-burst .message-bubble.animate {
+      animation: messagePop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes messagePop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 0.5; }
+    }
+
+    /* ========== ANIMATION 4: ROCKET LAUNCH ========== */
+    .rocket-launch .send-btn.animate svg {
+      animation: rocketLaunch 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+    }
+
+    @keyframes rocketLaunch {
+      0% {
+        transform: translateY(0) rotate(-45deg);
+      }
+      30% {
+        transform: translateY(5px) rotate(-45deg) scale(1.2);
+      }
+      100% {
+        transform: translateY(-80px) rotate(-45deg) scale(0.5);
+        opacity: 0;
+      }
+    }
+
+    .rocket-launch .send-btn.animate::after {
+      content: '';
+      position: absolute;
+      bottom: 50%;
+      left: 50%;
+      width: 8px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--accent-1), transparent);
+      border-radius: 4px;
+      transform: translateX(-50%) rotate(-45deg);
+      transform-origin: top center;
+      animation: rocketTrail 0.6s ease-out forwards;
+      animation-delay: 0.2s;
+      opacity: 0;
+    }
+
+    @keyframes rocketTrail {
+      0% { opacity: 0; height: 0; }
+      30% { opacity: 1; height: 40px; }
+      100% { opacity: 0; height: 60px; }
+    }
+
+    .rocket-launch .message-bubble.animate {
+      animation: messageShake 0.5s ease-out forwards;
+    }
+
+    @keyframes messageShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-5px); }
+      40% { transform: translateX(5px); }
+      60% { transform: translateX(-3px); }
+      80% { transform: translateX(3px); }
+    }
+
+    /* ========== ANIMATION 5: MORPH & SLIDE ========== */
+    .morph-slide .message-bubble.animate {
+      animation: morphSlide 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes morphSlide {
+      0% {
+        transform: translateY(0) scaleX(1);
+        border-radius: 18px 18px 4px 18px;
+      }
+      30% {
+        transform: translateY(-10px) scaleX(1.1);
+        border-radius: 25px;
+      }
+      60% {
+        transform: translateY(-60px) scaleX(0.9);
+        border-radius: 18px;
+      }
+      100% {
+        transform: translateY(-100px) scaleX(0.8);
+        border-radius: 18px 18px 18px 4px;
+        opacity: 0;
+      }
+    }
+
+    .morph-slide .send-btn.animate {
+      animation: sendGlow 0.5s ease-out;
+    }
+
+    @keyframes sendGlow {
+      0%, 100% { box-shadow: 0 0 0 var(--accent-glow); }
+      50% { box-shadow: 0 0 40px var(--accent-glow), inset 0 0 20px rgba(255,255,255,0.2); }
+    }
+
+    /* ========== ANIMATION 6: CONFETTI POP ========== */
+    .confetti-pop .confetti-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      pointer-events: none;
+    }
+
+    .confetti {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      opacity: 0;
+    }
+
+    .confetti-pop .send-btn.animate .confetti {
+      animation: confettiBurst 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+
+    .confetti-pop .send-btn.animate .confetti:nth-child(1) {
+      background: #ff6b6b;
+      animation-delay: 0s;
+      --tx: -40px;
+      --ty: -50px;
+      --r: 180deg;
+    }
+    .confetti-pop .send-btn.animate .confetti:nth-child(2) {
+      background: #4ecdc4;
+      animation-delay: 0.05s;
+      --tx: 30px;
+      --ty: -60px;
+      --r: -120deg;
+    }
+    .confetti-pop .send-btn.animate .confetti:nth-child(3) {
+      background: #ffe66d;
+      animation-delay: 0.1s;
+      --tx: -50px;
+      --ty: -20px;
+      --r: 90deg;
+    }
+    .confetti-pop .send-btn.animate .confetti:nth-child(4) {
+      background: var(--accent-1);
+      animation-delay: 0.05s;
+      --tx: 50px;
+      --ty: -30px;
+      --r: -90deg;
+    }
+    .confetti-pop .send-btn.animate .confetti:nth-child(5) {
+      background: var(--accent-2);
+      animation-delay: 0.1s;
+      --tx: -20px;
+      --ty: -70px;
+      --r: 200deg;
+    }
+    .confetti-pop .send-btn.animate .confetti:nth-child(6) {
+      background: #ff8a5b;
+      animation-delay: 0.02s;
+      --tx: 40px;
+      --ty: -45px;
+      --r: -150deg;
+    }
+
+    @keyframes confettiBurst {
+      0% {
+        opacity: 1;
+        transform: translate(0, 0) rotate(0deg) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(var(--tx), var(--ty)) rotate(var(--r)) scale(0.5);
+      }
+    }
+
+    .confetti-pop .message-bubble.animate {
+      animation: messageBounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes messageBounce {
+      0%, 100% { transform: scale(1); }
+      40% { transform: scale(1.15); }
+      60% { transform: scale(0.95); }
+    }
+
+    .confetti-pop .send-btn.animate {
+      animation: buttonJump 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes buttonJump {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 30px 0;
+      color: var(--text-muted);
+      font-size: 11px;
+      letter-spacing: 1px;
+    }
+
+    footer span {
+      color: var(--accent-1);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Send Animations</h1>
+      <p class="subtitle">Choose your vibe</p>
+    </header>
+
+    <!-- Animation 1: Fly Away -->
+    <div class="animation-card fly-away">
+      <div class="card-header">
+        <span class="card-number">01</span>
+        <h2 class="card-title">Fly Away</h2>
+      </div>
+      <div class="chat-preview">
+        <div class="message-bubble" id="msg1">Hello there!</div>
+      </div>
+      <div class="input-area">
+        <div class="input-field">Type a message...</div>
+        <button class="send-btn" id="send1" onclick="triggerAnimation(1)">
+          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
+      <button class="try-btn" onclick="triggerAnimation(1)" style="margin-top: 16px;">Try Animation</button>
+    </div>
+
+    <!-- Animation 2: Pulse & Shrink -->
+    <div class="animation-card pulse-shrink">
+      <div class="card-header">
+        <span class="card-number">02</span>
+        <h2 class="card-title">Pulse & Shrink</h2>
+      </div>
+      <div class="chat-preview">
+        <div class="message-bubble" id="msg2">Sounds good!</div>
+      </div>
+      <div class="input-area">
+        <div class="input-field">Type a message...</div>
+        <button class="send-btn" id="send2" onclick="triggerAnimation(2)">
+          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
+      <button class="try-btn" onclick="triggerAnimation(2)" style="margin-top: 16px;">Try Animation</button>
+    </div>
+
+    <!-- Animation 3: Ripple Burst -->
+    <div class="animation-card ripple-burst">
+      <div class="card-header">
+        <span class="card-number">03</span>
+        <h2 class="card-title">Ripple Burst</h2>
+      </div>
+      <div class="chat-preview">
+        <div class="message-bubble" id="msg3">See you soon!</div>
+      </div>
+      <div class="input-area">
+        <div class="input-field">Type a message...</div>
+        <button class="send-btn" id="send3" onclick="triggerAnimation(3)">
+          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          <div class="ripple ripple-1"></div>
+          <div class="ripple ripple-2"></div>
+          <div class="ripple ripple-3"></div>
+        </button>
+      </div>
+      <button class="try-btn" onclick="triggerAnimation(3)" style="margin-top: 16px;">Try Animation</button>
+    </div>
+
+    <!-- Animation 4: Rocket Launch -->
+    <div class="animation-card rocket-launch">
+      <div class="card-header">
+        <span class="card-number">04</span>
+        <h2 class="card-title">Rocket Launch</h2>
+      </div>
+      <div class="chat-preview">
+        <div class="message-bubble" id="msg4">Blast off! 🚀</div>
+      </div>
+      <div class="input-area">
+        <div class="input-field">Type a message...</div>
+        <button class="send-btn" id="send4" onclick="triggerAnimation(4)">
+          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
+      <button class="try-btn" onclick="triggerAnimation(4)" style="margin-top: 16px;">Try Animation</button>
+    </div>
+
+    <!-- Animation 5: Morph & Slide -->
+    <div class="animation-card morph-slide">
+      <div class="card-header">
+        <span class="card-number">05</span>
+        <h2 class="card-title">Morph & Slide</h2>
+      </div>
+      <div class="chat-preview">
+        <div class="message-bubble" id="msg5">Smooth moves</div>
+      </div>
+      <div class="input-area">
+        <div class="input-field">Type a message...</div>
+        <button class="send-btn" id="send5" onclick="triggerAnimation(5)">
+          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
+      <button class="try-btn" onclick="triggerAnimation(5)" style="margin-top: 16px;">Try Animation</button>
+    </div>
+
+    <!-- Animation 6: Confetti Pop -->
+    <div class="animation-card confetti-pop">
+      <div class="card-header">
+        <span class="card-number">06</span>
+        <h2 class="card-title">Confetti Pop</h2>
+      </div>
+      <div class="chat-preview">
+        <div class="message-bubble" id="msg6">Party time!</div>
+      </div>
+      <div class="input-area">
+        <div class="input-field">Type a message...</div>
+        <button class="send-btn" id="send6" onclick="triggerAnimation(6)">
+          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          <div class="confetti-container">
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+          </div>
+        </button>
+      </div>
+      <button class="try-btn" onclick="triggerAnimation(6)" style="margin-top: 16px;">Try Animation</button>
+    </div>
+
+    <footer>
+      Built for <span>Poolside</span>
+    </footer>
+  </div>
+
+  <script>
+    function triggerAnimation(num) {
+      const msg = document.getElementById('msg' + num);
+      const btn = document.getElementById('send' + num);
+
+      // Reset animations
+      msg.classList.remove('animate');
+      btn.classList.remove('animate');
+
+      // Force reflow
+      void msg.offsetWidth;
+      void btn.offsetWidth;
+
+      // Trigger animations
+      msg.classList.add('animate');
+      btn.classList.add('animate');
+
+      // Reset after animation completes
+      setTimeout(() => {
+        msg.classList.remove('animate');
+        btn.classList.remove('animate');
+      }, 1200);
+    }
+  </script>
+</body>
+</html>

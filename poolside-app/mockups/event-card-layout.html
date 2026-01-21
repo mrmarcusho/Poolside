@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Card Layout</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #0f0f1a;
+      min-height: 100vh;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .event-card {
+      width: 360px;
+      background: linear-gradient(145deg, #252538, #1a1a2e);
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    /* Header: Title + Chat button */
+    .card-header {
+      padding: 16px 16px 12px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .event-title {
+      color: #fff;
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.3;
+      flex: 1;
+    }
+
+    .chat-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.08);
+      border: 1.5px solid rgba(255,255,255,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .chat-btn:hover {
+      background: rgba(255,255,255,0.12);
+      border-color: #a78bfa;
+      box-shadow: 0 0 12px rgba(167,139,250,0.3);
+    }
+
+    .chat-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: #fff;
+      fill: none;
+    }
+
+    /* Event Image placeholder */
+    .event-image {
+      height: 180px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+    }
+
+    /* Event details */
+    .event-details {
+      padding: 14px 16px;
+      color: rgba(255,255,255,0.6);
+      font-size: 13px;
+    }
+
+    .event-details span {
+      margin-right: 12px;
+    }
+
+    /* Footer: Attendance left, RSVP right */
+    .card-footer {
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .attendance {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      padding: 6px 12px 6px 6px;
+      border-radius: 12px;
+      transition: background 0.2s;
+    }
+
+    .attendance:hover {
+      background: rgba(255,255,255,0.08);
+    }
+
+    .avatars {
+      display: flex;
+    }
+
+    .avatar {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid #1a1a2e;
+      margin-left: -8px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+    }
+
+    .avatar:first-child { margin-left: 0; }
+    .avatar.more {
+      background: rgba(255,255,255,0.15);
+      font-size: 9px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .count {
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .count span {
+      color: rgba(255,255,255,0.5);
+      font-weight: 400;
+    }
+
+    .rsvp-btn {
+      padding: 11px 22px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(90deg, #c084fc, #e9d5ff, #f5f3ff, #ddd6fe, #93c5fd);
+      color: #1a1a2e;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .rsvp-btn:hover {
+      transform: scale(1.03);
+      box-shadow: 0 4px 20px rgba(192,132,252,0.4);
+    }
+
+    .rsvp-btn.going {
+      background: rgba(74, 222, 128, 0.2);
+      border: 1.5px solid rgba(74, 222, 128, 0.5);
+      color: #4ade80;
+    }
+  </style>
+</head>
+<body>
+  <div class="event-card">
+    <!-- Header: Title + Chat -->
+    <div class="card-header">
+      <div class="event-title">Beach Volleyball Tournament 🏐</div>
+      <div class="chat-btn">
+        <svg viewBox="0 0 24 24" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Image -->
+    <div class="event-image">🏖️</div>
+
+    <!-- Details -->
+    <div class="event-details">
+      <span>📍 Carmichael Quad</span>
+      <span>🕐 Today, 3:00 PM</span>
+    </div>
+
+    <!-- Footer: Attendance + RSVP -->
+    <div class="card-footer">
+      <div class="attendance">
+        <div class="avatars">
+          <div class="avatar">😎</div>
+          <div class="avatar">🎉</div>
+          <div class="avatar">✨</div>
+          <div class="avatar more">+5</div>
+        </div>
+        <div class="count">8 <span>/ 20</span></div>
+      </div>
+      <button class="rsvp-btn">RSVP</button>
+    </div>
+  </div>
+</body>
+</html>

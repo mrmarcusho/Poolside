@@ -54,8 +54,38 @@ export const mockEvent = {
     avatar: null,
   },
   rsvpCount: { going: 15, interested: 8 },
+  spots: null as number | null, // null = unlimited capacity
+  isFull: false,
   myRsvp: null,
   createdAt: '2024-06-01T00:00:00.000Z',
+};
+
+// Mock events for capacity testing
+export const mockEventWithCapacity = {
+  ...mockEvent,
+  id: 'event-capacity-1',
+  title: 'Limited Capacity Event',
+  spots: 20,
+  rsvpCount: { going: 15, interested: 5 },
+  isFull: false,
+};
+
+export const mockFullEvent = {
+  ...mockEvent,
+  id: 'event-full-1',
+  title: 'Full Event',
+  spots: 20,
+  rsvpCount: { going: 20, interested: 10 },
+  isFull: true,
+};
+
+export const mockAlmostFullEvent = {
+  ...mockEvent,
+  id: 'event-almost-full-1',
+  title: 'Almost Full Event',
+  spots: 20,
+  rsvpCount: { going: 19, interested: 5 },
+  isFull: false,
 };
 
 export const mockEvents = [

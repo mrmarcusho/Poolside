@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Screen - Poolside</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #ffe8dc 0%, #ffd9c8 33%, #ffcdb8 66%, #ffc4a8 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .phone-frame {
+      width: 390px;
+      height: 844px;
+      background: linear-gradient(180deg, #ffe8dc 0%, #ffd9c8 33%, #ffcdb8 66%, #ffc4a8 100%);
+      border-radius: 50px;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      position: relative;
+      border: 12px solid #1a1a1a;
+    }
+
+    .notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 160px;
+      height: 34px;
+      background: #1a1a1a;
+      border-radius: 0 0 20px 20px;
+      z-index: 10;
+    }
+
+    .screen-content {
+      padding: 60px 28px 40px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Back button */
+    .back-button {
+      align-self: flex-start;
+      padding: 8px;
+      margin-bottom: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.5);
+      cursor: pointer;
+    }
+
+    /* Mascot Section */
+    .mascot-section {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .mascot {
+      font-size: 60px;
+      animation: wave 1s ease-in-out infinite;
+    }
+
+    @keyframes wave {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(15deg); }
+      75% { transform: rotate(-15deg); }
+    }
+
+    /* Title Section */
+    .title-section {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .title {
+      font-family: 'Syne', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: #1a1a1a;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .highlight {
+      color: #ff6b4a;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: rgba(0, 0, 0, 0.5);
+      line-height: 1.5;
+    }
+
+    /* Glass Card */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Input Fields */
+    .input-group {
+      margin-bottom: 16px;
+    }
+
+    .input-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.5);
+      margin-bottom: 8px;
+      margin-left: 4px;
+      display: block;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 16px;
+      font-size: 16px;
+      color: #1a1a1a;
+      background: rgba(255, 255, 255, 0.95);
+      border: 2px solid transparent;
+      border-radius: 16px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-field:focus {
+      border-color: rgba(255, 107, 74, 0.3);
+    }
+
+    .input-field::placeholder {
+      color: rgba(0, 0, 0, 0.35);
+    }
+
+    /* Buttons */
+    .btn-primary {
+      width: 100%;
+      padding: 18px 24px;
+      border: none;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      color: white;
+      background: linear-gradient(135deg, #ff6b4a 0%, #8b5cf6 100%);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 8px 24px rgba(255, 107, 74, 0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-top: 8px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(255, 107, 74, 0.4);
+    }
+
+    .btn-arrow {
+      font-size: 18px;
+    }
+
+    /* Forgot password */
+    .forgot-password {
+      text-align: center;
+      margin-top: 16px;
+    }
+
+    .forgot-password-link {
+      font-size: 14px;
+      color: #ff6b4a;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .forgot-password-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Spacer */
+    .spacer {
+      flex: 1;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.35);
+      line-height: 1.5;
+    }
+
+    .footer-link {
+      color: rgba(0, 0, 0, 0.5);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="notch"></div>
+
+    <div class="screen-content">
+      <!-- Back button -->
+      <div class="back-button">← Back</div>
+
+      <!-- Mascot -->
+      <div class="mascot-section">
+        <div class="mascot">👋</div>
+      </div>
+
+      <!-- Title -->
+      <div class="title-section">
+        <h1 class="title">Welcome<br><span class="highlight">back!</span></h1>
+        <p class="subtitle">Sign in to continue to your campus</p>
+      </div>
+
+      <!-- Glass Card with Login Form -->
+      <div class="glass-card">
+        <div class="input-group">
+          <label class="input-label">Email</label>
+          <input type="email" class="input-field" placeholder="you@tufts.edu">
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Password</label>
+          <input type="password" class="input-field" placeholder="Enter your password">
+        </div>
+
+        <button class="btn-primary">
+          <span>Sign In</span>
+          <span class="btn-arrow">→</span>
+        </button>
+
+        <div class="forgot-password">
+          <a class="forgot-password-link">Forgot password?</a>
+        </div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <!-- Footer -->
+      <p class="footer">
+        By continuing, you agree to our<br>
+        <span class="footer-link">Terms</span> & <span class="footer-link">Privacy Policy</span>
+      </p>
+    </div>
+  </div>
+</body>
+</html>

@@ -72,3 +72,24 @@ export class AuthResponseDto {
   @ApiProperty()
   refreshToken: string;
 }
+
+// Magic Link DTOs
+export class SendMagicLinkDto {
+  @ApiProperty({ example: 'marcus.ho@tufts.edu' })
+  @IsEmail()
+  email: string;
+}
+
+export class VerifyMagicLinkDto {
+  @ApiProperty({ example: 'abc123def456...' })
+  @IsString()
+  token: string;
+}
+
+export class MagicLinkSentResponseDto {
+  @ApiProperty({ example: 'Magic link sent!' })
+  message: string;
+
+  @ApiProperty({ example: '2025-01-15T12:15:00.000Z' })
+  expiresAt: Date;
+}

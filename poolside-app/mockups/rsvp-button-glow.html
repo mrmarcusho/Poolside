@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RSVP Button - Glow Style</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #0a0a12;
+      min-height: 100vh;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 50px;
+    }
+
+    .section {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .label {
+      color: rgba(255,255,255,0.4);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .footer-mock {
+      background: rgba(26, 26, 46, 0.9);
+      padding: 14px 16px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid rgba(255,255,255,0.08);
+      width: 360px;
+    }
+
+    .attendance {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatars {
+      display: flex;
+    }
+
+    .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.8);
+      margin-left: -8px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .avatar:first-child { margin-left: 0; }
+
+    .count {
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .count span {
+      color: rgba(255,255,255,0.5);
+      font-weight: 400;
+    }
+
+    /* ============================================
+       RSVP Button - Exact Match Style
+       Thin bright blue outline + purple & red blobs
+       ============================================ */
+
+    .rsvp-btn {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 50px;
+      background: rgba(15, 15, 25, 0.95);
+      border: 1px solid rgba(100, 180, 255, 0.6);
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      box-shadow:
+        0 0 8px rgba(100, 180, 255, 0.15),
+        inset 0 0 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .rsvp-btn:hover {
+      border-color: rgba(100, 180, 255, 0.8);
+      box-shadow:
+        0 0 12px rgba(100, 180, 255, 0.25),
+        inset 0 0 20px rgba(0, 0, 0, 0.5);
+      transform: scale(1.02);
+    }
+
+    /* Purple blob - left side */
+    .rsvp-btn::before {
+      content: '';
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 50px;
+      height: 40px;
+      background: radial-gradient(ellipse at center,
+        rgba(139, 92, 246, 0.7) 0%,
+        rgba(139, 92, 246, 0.3) 40%,
+        transparent 70%
+      );
+      filter: blur(10px);
+      pointer-events: none;
+    }
+
+    /* Red/pink blob - right side */
+    .rsvp-btn::after {
+      content: '';
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 50px;
+      height: 40px;
+      background: radial-gradient(ellipse at center,
+        rgba(236, 72, 153, 0.6) 0%,
+        rgba(236, 72, 153, 0.25) 40%,
+        transparent 70%
+      );
+      filter: blur(10px);
+      pointer-events: none;
+    }
+
+    .rsvp-btn .icon {
+      font-size: 16px;
+      color: #fff;
+      position: relative;
+      z-index: 1;
+    }
+
+    .rsvp-btn .text {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ============================================
+       Split Buttons
+       ============================================ */
+
+    .split-container {
+      display: flex;
+      gap: 8px;
+    }
+
+    .split-btn {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px 18px;
+      border-radius: 50px;
+      background: rgba(15, 15, 25, 0.95);
+      border: 1px solid rgba(100, 180, 255, 0.5);
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.2s ease;
+      box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .split-btn:hover {
+      transform: scale(1.03);
+    }
+
+    /* Going button - green blob */
+    .split-btn.going::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 60px;
+      height: 40px;
+      background: radial-gradient(ellipse at center,
+        rgba(74, 222, 128, 0.6) 0%,
+        rgba(34, 197, 94, 0.3) 40%,
+        transparent 70%
+      );
+      filter: blur(12px);
+      pointer-events: none;
+    }
+
+    .split-btn.going {
+      border-color: rgba(139, 92, 246, 0.5);
+    }
+
+    .split-btn.going:hover {
+      border-color: rgba(139, 92, 246, 0.7);
+      box-shadow:
+        0 0 10px rgba(139, 92, 246, 0.2),
+        inset 0 0 15px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Interested button - amber blob */
+    .split-btn.interested::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 60px;
+      height: 40px;
+      background: radial-gradient(ellipse at center,
+        rgba(251, 191, 36, 0.6) 0%,
+        rgba(245, 158, 11, 0.3) 40%,
+        transparent 70%
+      );
+      filter: blur(12px);
+      pointer-events: none;
+    }
+
+    .split-btn.interested {
+      border-color: rgba(139, 92, 246, 0.5);
+    }
+
+    .split-btn.interested:hover {
+      border-color: rgba(139, 92, 246, 0.7);
+      box-shadow:
+        0 0 10px rgba(139, 92, 246, 0.2),
+        inset 0 0 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .split-btn .text {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Cancel button */
+    .cancel-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50px;
+      background: rgba(15, 15, 25, 0.95);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cancel-btn::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 30px;
+      height: 30px;
+      background: radial-gradient(ellipse at center,
+        rgba(239, 68, 68, 0.5) 0%,
+        transparent 70%
+      );
+      filter: blur(8px);
+      pointer-events: none;
+    }
+
+    .cancel-btn:hover {
+      border-color: rgba(239, 68, 68, 0.7);
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
+    }
+
+    .cancel-btn span {
+      color: #ef4444;
+      font-size: 16px;
+      font-weight: 600;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ============================================
+       Selected States
+       ============================================ */
+
+    .rsvp-btn.selected-going {
+      border-color: rgba(139, 92, 246, 0.6);
+    }
+
+    /* Green blob - left side */
+    .rsvp-btn.selected-going::before {
+      left: 10px;
+      background: radial-gradient(ellipse at center,
+        rgba(74, 222, 128, 0.7) 0%,
+        rgba(34, 197, 94, 0.3) 40%,
+        transparent 70%
+      );
+    }
+
+    /* Pink blob - right side */
+    .rsvp-btn.selected-going::after {
+      right: 10px;
+      background: radial-gradient(ellipse at center,
+        rgba(236, 72, 153, 0.6) 0%,
+        rgba(236, 72, 153, 0.25) 40%,
+        transparent 70%
+      );
+    }
+
+    .rsvp-btn.selected-going .text {
+      color: #fff;
+    }
+
+    .rsvp-btn.selected-interested {
+      border-color: rgba(139, 92, 246, 0.6);
+    }
+
+    /* Amber/yellow blob - left side */
+    .rsvp-btn.selected-interested::before {
+      left: 10px;
+      background: radial-gradient(ellipse at center,
+        rgba(251, 191, 36, 0.7) 0%,
+        rgba(245, 158, 11, 0.3) 40%,
+        transparent 70%
+      );
+    }
+
+    /* Pink blob - right side */
+    .rsvp-btn.selected-interested::after {
+      right: 10px;
+      background: radial-gradient(ellipse at center,
+        rgba(236, 72, 153, 0.6) 0%,
+        rgba(236, 72, 153, 0.25) 40%,
+        transparent 70%
+      );
+    }
+
+    .rsvp-btn.selected-interested .text {
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <!-- State 1: Default RSVP -->
+  <div class="section">
+    <div class="label">State 1: Default RSVP Button (purple + pink blobs, blue outline)</div>
+    <div class="footer-mock">
+      <div class="attendance">
+        <div class="avatars">
+          <div class="avatar">😎</div>
+          <div class="avatar">🎉</div>
+          <div class="avatar">✨</div>
+        </div>
+        <div class="count">3 <span>going</span></div>
+      </div>
+      <div class="rsvp-btn">
+        <span class="icon">+</span>
+        <span class="text">RSVP</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- State 2: Split - Going & Interested -->
+  <div class="section">
+    <div class="label">State 2: Split Buttons (on tap)</div>
+    <div class="footer-mock">
+      <div class="attendance">
+        <div class="avatars">
+          <div class="avatar">😎</div>
+          <div class="avatar">🎉</div>
+          <div class="avatar">✨</div>
+        </div>
+        <div class="count">3 <span>going</span></div>
+      </div>
+      <div class="split-container">
+        <div class="split-btn going">
+          <span class="text">Going</span>
+        </div>
+        <div class="split-btn interested">
+          <span class="text">Interested</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- State 3: Split with Cancel -->
+  <div class="section">
+    <div class="label">State 3: Split with Cancel (when changing selection)</div>
+    <div class="footer-mock">
+      <div class="attendance">
+        <div class="avatars">
+          <div class="avatar">😎</div>
+          <div class="avatar">🎉</div>
+          <div class="avatar">✨</div>
+        </div>
+        <div class="count">3 <span>going</span></div>
+      </div>
+      <div class="split-container">
+        <div class="split-btn going">
+          <span class="text">Going</span>
+        </div>
+        <div class="split-btn interested">
+          <span class="text">Interested</span>
+        </div>
+        <div class="cancel-btn">
+          <span>✕</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- State 4: Selected - Going -->
+  <div class="section">
+    <div class="label">State 4: Selected "Going" (green blobs, green outline)</div>
+    <div class="footer-mock">
+      <div class="attendance">
+        <div class="avatars">
+          <div class="avatar">😎</div>
+          <div class="avatar">🎉</div>
+          <div class="avatar">✨</div>
+        </div>
+        <div class="count">4 <span>going</span></div>
+      </div>
+      <div class="rsvp-btn selected-going">
+        <span class="text">✓ Going</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- State 5: Selected - Interested -->
+  <div class="section">
+    <div class="label">State 5: Selected "Interested" (amber blobs, amber outline)</div>
+    <div class="footer-mock">
+      <div class="attendance">
+        <div class="avatars">
+          <div class="avatar">😎</div>
+          <div class="avatar">🎉</div>
+          <div class="avatar">✨</div>
+        </div>
+        <div class="count">3 <span>going</span></div>
+      </div>
+      <div class="rsvp-btn selected-interested">
+        <span class="text">★ Interested</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Large standalone view -->
+  <div class="section" style="margin-top: 40px;">
+    <div class="label">Large Detail View</div>
+    <div style="display: flex; gap: 30px; flex-wrap: wrap; align-items: center;">
+      <div class="rsvp-btn" style="transform: scale(1.4); transform-origin: left;">
+        <span class="icon">+</span>
+        <span class="text">RSVP</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

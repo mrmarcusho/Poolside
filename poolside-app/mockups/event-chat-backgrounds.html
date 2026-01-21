@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Chat Background Variations</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #1a1a2e;
+      min-height: 100vh;
+      padding: 40px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    h1 {
+      color: #fff;
+      text-align: center;
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+
+    .subtitle {
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 32px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .variation {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .phone {
+      width: 200px;
+      height: 420px;
+      border-radius: 32px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      border: 3px solid rgba(255,255,255,0.1);
+    }
+
+    .label {
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 16px;
+      text-align: center;
+    }
+
+    .description {
+      color: rgba(255,255,255,0.4);
+      font-size: 11px;
+      margin-top: 6px;
+      text-align: center;
+      max-width: 180px;
+    }
+
+    /* Chat UI Overlay */
+    .chat-ui {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      padding: 12px 16px;
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .back-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 14px;
+    }
+
+    .event-img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+
+    .event-name {
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .event-label {
+      color: rgba(255,255,255,0.5);
+      font-size: 10px;
+    }
+
+    .messages {
+      flex: 1;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .message {
+      max-width: 75%;
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .message.received {
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+
+    .message.sent {
+      background: rgba(102, 126, 234, 0.85);
+      color: #fff;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+
+    .input-area {
+      padding: 12px;
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .input-field {
+      flex: 1;
+      height: 36px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 0 14px;
+      color: rgba(255,255,255,0.4);
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+    }
+
+    .send-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 18px;
+      background: rgba(102, 126, 234, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 14px;
+    }
+
+    /* Background Variations */
+
+    /* 1. Original - Vibrant blue/purple with peach */
+    .bg-original {
+      background:
+        radial-gradient(ellipse 80% 60% at 30% 20%, rgba(180, 130, 255, 0.8) 0%, transparent 50%),
+        radial-gradient(ellipse 70% 50% at 70% 80%, rgba(100, 140, 255, 0.7) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 10% 60%, rgba(255, 160, 120, 0.6) 0%, transparent 40%),
+        radial-gradient(ellipse 50% 50% at 80% 30%, rgba(120, 160, 255, 0.5) 0%, transparent 40%),
+        linear-gradient(180deg, #6b7fd4 0%, #8b7fc4 50%, #7b8fd4 100%);
+    }
+
+    /* 2. Muted/Softer - Less saturated */
+    .bg-muted {
+      background:
+        radial-gradient(ellipse 80% 60% at 30% 20%, rgba(160, 140, 200, 0.6) 0%, transparent 50%),
+        radial-gradient(ellipse 70% 50% at 70% 80%, rgba(120, 140, 200, 0.5) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 10% 60%, rgba(200, 160, 140, 0.4) 0%, transparent 40%),
+        radial-gradient(ellipse 50% 50% at 80% 30%, rgba(140, 160, 200, 0.4) 0%, transparent 40%),
+        linear-gradient(180deg, #7a8099 0%, #8a7f99 50%, #7a8599 100%);
+    }
+
+    /* 3. Darker/Moody - Deeper tones */
+    .bg-dark {
+      background:
+        radial-gradient(ellipse 80% 60% at 30% 20%, rgba(120, 80, 180, 0.7) 0%, transparent 50%),
+        radial-gradient(ellipse 70% 50% at 70% 80%, rgba(60, 100, 200, 0.6) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 10% 60%, rgba(180, 100, 80, 0.5) 0%, transparent 40%),
+        radial-gradient(ellipse 50% 50% at 80% 30%, rgba(80, 120, 200, 0.4) 0%, transparent 40%),
+        linear-gradient(180deg, #2a2f4d 0%, #3a2f4d 50%, #2a3f5d 100%);
+    }
+
+    /* 4. Warm Shift - More orange/coral */
+    .bg-warm {
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 30%, rgba(255, 140, 100, 0.7) 0%, transparent 50%),
+        radial-gradient(ellipse 70% 50% at 80% 70%, rgba(180, 120, 220, 0.6) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 50% 90%, rgba(255, 180, 140, 0.5) 0%, transparent 40%),
+        radial-gradient(ellipse 50% 50% at 70% 20%, rgba(220, 160, 200, 0.4) 0%, transparent 40%),
+        linear-gradient(180deg, #9b7fa4 0%, #a08090 50%, #907f9a 100%);
+    }
+
+    /* 5. Cool Shift - More blue/teal */
+    .bg-cool {
+      background:
+        radial-gradient(ellipse 80% 60% at 30% 20%, rgba(100, 180, 255, 0.7) 0%, transparent 50%),
+        radial-gradient(ellipse 70% 50% at 70% 80%, rgba(80, 140, 220, 0.6) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 10% 70%, rgba(120, 200, 220, 0.5) 0%, transparent 40%),
+        radial-gradient(ellipse 50% 50% at 90% 40%, rgba(160, 140, 255, 0.4) 0%, transparent 40%),
+        linear-gradient(180deg, #5b7faa 0%, #6b8fba 50%, #5b8faa 100%);
+    }
+
+    /* 6. Ultra Vibrant - Maximum saturation */
+    .bg-vibrant {
+      background:
+        radial-gradient(ellipse 80% 60% at 30% 20%, rgba(200, 100, 255, 0.9) 0%, transparent 50%),
+        radial-gradient(ellipse 70% 50% at 70% 80%, rgba(80, 140, 255, 0.8) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 10% 60%, rgba(255, 120, 80, 0.7) 0%, transparent 40%),
+        radial-gradient(ellipse 50% 50% at 80% 30%, rgba(100, 200, 255, 0.6) 0%, transparent 40%),
+        linear-gradient(180deg, #7060e0 0%, #a060c0 50%, #6080e0 100%);
+    }
+
+    /* 7. Centered Blobs - Blobs more in center */
+    .bg-centered {
+      background:
+        radial-gradient(ellipse 70% 50% at 50% 30%, rgba(180, 130, 255, 0.8) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 40% 60%, rgba(100, 160, 255, 0.7) 0%, transparent 50%),
+        radial-gradient(ellipse 50% 40% at 60% 70%, rgba(255, 160, 140, 0.6) 0%, transparent 40%),
+        radial-gradient(ellipse 40% 30% at 50% 50%, rgba(140, 180, 255, 0.5) 0%, transparent 40%),
+        linear-gradient(180deg, #6b7fd4 0%, #8b7fc4 50%, #7b8fd4 100%);
+    }
+
+    /* 8. Corner Blobs - Blobs pushed to corners */
+    .bg-corners {
+      background:
+        radial-gradient(ellipse 60% 50% at 0% 0%, rgba(180, 130, 255, 0.8) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 50% at 100% 100%, rgba(100, 160, 255, 0.7) 0%, transparent 50%),
+        radial-gradient(ellipse 50% 40% at 100% 0%, rgba(255, 160, 140, 0.5) 0%, transparent 40%),
+        radial-gradient(ellipse 50% 40% at 0% 100%, rgba(140, 200, 255, 0.5) 0%, transparent 40%),
+        linear-gradient(180deg, #5a6fc4 0%, #7a6fb4 50%, #6a7fc4 100%);
+    }
+
+    /* 9. Sunset Vibes - Pink/orange/purple */
+    .bg-sunset {
+      background:
+        radial-gradient(ellipse 80% 60% at 30% 10%, rgba(255, 120, 180, 0.7) 0%, transparent 50%),
+        radial-gradient(ellipse 70% 50% at 70% 90%, rgba(140, 80, 200, 0.6) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 80% 30%, rgba(255, 180, 100, 0.6) 0%, transparent 40%),
+        radial-gradient(ellipse 50% 50% at 20% 70%, rgba(200, 100, 180, 0.5) 0%, transparent 40%),
+        linear-gradient(180deg, #9b6090 0%, #a07080 50%, #8060a0 100%);
+    }
+
+    /* 10. Ocean Depths - Deep blue/teal/purple */
+    .bg-ocean {
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 20%, rgba(80, 160, 220, 0.7) 0%, transparent 50%),
+        radial-gradient(ellipse 70% 50% at 80% 80%, rgba(100, 80, 180, 0.6) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 60% 40%, rgba(60, 180, 200, 0.5) 0%, transparent 40%),
+        radial-gradient(ellipse 50% 50% at 30% 70%, rgba(120, 100, 200, 0.4) 0%, transparent 40%),
+        linear-gradient(180deg, #3a5070 0%, #4a4080 50%, #3a6080 100%);
+    }
+
+    /* 11. Minimal - Subtle, almost solid */
+    .bg-minimal {
+      background:
+        radial-gradient(ellipse 100% 80% at 50% 30%, rgba(140, 130, 180, 0.4) 0%, transparent 60%),
+        radial-gradient(ellipse 80% 60% at 50% 80%, rgba(120, 150, 200, 0.3) 0%, transparent 50%),
+        linear-gradient(180deg, #6a7090 0%, #7a7090 50%, #6a7590 100%);
+    }
+
+    /* 12. Neon Glow - Electric colors */
+    .bg-neon {
+      background:
+        radial-gradient(ellipse 70% 50% at 25% 25%, rgba(255, 0, 200, 0.6) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 50% at 75% 75%, rgba(0, 200, 255, 0.6) 0%, transparent 50%),
+        radial-gradient(ellipse 50% 40% at 70% 20%, rgba(255, 200, 0, 0.4) 0%, transparent 40%),
+        radial-gradient(ellipse 50% 40% at 30% 80%, rgba(100, 255, 200, 0.3) 0%, transparent 40%),
+        linear-gradient(180deg, #2a2050 0%, #302060 50%, #252a60 100%);
+    }
+
+    .section-title {
+      color: rgba(255,255,255,0.6);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 40px 0 24px 0;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Event Chat Background Variations</h1>
+  <p class="subtitle">Comparing different vibrancy levels, blob placements, and color shades</p>
+
+  <p class="section-title">Vibrancy Variations</p>
+  <div class="grid">
+    <!-- Original -->
+    <div class="variation">
+      <div class="phone">
+        <div class="bg-original"></div>
+        <div class="chat-ui">
+          <div class="chat-header">
+            <div class="back-btn">&lt;</div>
+            <div class="event-img"></div>
+            <div>
+              <div class="event-name">Pool Party</div>
+              <div class="event-label">Event Chat</div>
+            </div>
+          </div>
+          <div class="messages">
+            <div class="message received">Who's bringing the speaker?</div>
+            <div class="message sent">I got it covered!</div>
+          </div>
+          <div class="input-area">
+            <div class="input-row">
+              <div class="input-field">Message...</div>
+              <div class="send-btn">^</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">Original</div>
+      <div class="description">Vibrant blue/purple with peach accents</div>
+    </div>
+
+    <!-- Muted -->
+    <div class="variation">
+      <div class="phone">
+        <div class="bg-muted" style="position:absolute;inset:0;"></div>
+        <div class="chat-ui">
+          <div class="chat-header">
+            <div class="back-btn">&lt;</div>
+            <div class="event-img"></div>
+            <div>
+              <div class="event-name">Pool Party</div>
+              <div class="event-label">Event Chat</div>
+            </div>
+          </div>
+          <div class="messages">
+            <div class="message received">Who's bringing the speaker?</div>
+            <div class="message sent">I got it covered!</div>
+          </div>
+          <div class="input-area">
+            <div class="input-row">
+              <div class="input-field">Message...</div>
+              <div class="send-btn">^</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">Muted</div>
+      <div class="description">Softer, less saturated tones</div>
+    </div>
+
+    <!-- Dark -->
+    <div class="variation">
+      <div class="phone">
+        <div class="bg-dark" style="position:absolute;inset:0;"></div>
+        <div class="chat-ui">
+          <div class="chat-header">
+            <div class="back-btn">&lt;</div>
+            <div class="event-img"></div>
+            <div>
+              <div class="event-name">Pool Party</div>
+              <div class="event-label">Event Chat</div>
+            </div>
+          </div>
+          <div class="messages">
+            <div class="message received">Who's bringing the speaker?</div>
+            <div class="message sent">I got it covered!</div>
+          </div>
+          <div class="input-area">
+            <div class="input-row">
+              <div class="input-field">Message...</div>
+              <div class="send-btn">^</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">Dark / Moody</div>
+      <div class="description">Deeper, richer tones</div>
+    </div>
+
+    <!-- Ultra Vibrant -->
+    <div class="variation">
+      <div class="phone">
+        <div class="bg-vibrant" style="position:absolute;inset:0;"></div>
+        <div class="chat-ui">
+          <div class="chat-header">
+            <div class="back-btn">&lt;</div>
+            <div class="event-img"></div>
+            <div>
+              <div class="event-name">Pool Party</div>
+              <div class="event-label">Event Chat</div>
+            </div>
+          </div>
+          <div class="messages">
+            <div class="message received">Who's bringing the speaker?</div>
+            <div class="message sent">I got it covered!</div>
+          </div>
+          <div class="input-area">
+            <div class="input-row">
+              <div class="input-field">Message...</div>
+              <div class="send-btn">^</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">Ultra Vibrant</div>
+      <div class="description">Maximum saturation, bold colors</div>
+    </div>
+  </div>
+
+  <p class="section-title">Color Shift Variations</p>
+  <div class="grid">
+    <!-- Warm -->
+    <div class="variation">
+      <div class="phone">
+        <div class="bg-warm" style="position:absolute;inset:0;"></div>
+        <div class="chat-ui">
+          <div class="chat-header">
+            <div class="back-btn">&lt;</div>
+            <div class="event-img"></div>
+            <div>
+              <div class="event-name">Pool Party</div>
+              <div class="event-label">Event Chat</div>
+            </div>
+          </div>
+          <div class="messages">
+            <div class="message received">Who's bringing the speaker?</div>
+            <div class="message sent">I got it covered!</div>
+          </div>
+          <div class="input-area">
+            <div class="input-row">
+              <div class="input-field">Message...</div>
+              <div class="send-btn">^</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">Warm Shift</div>
+      <div class="description">More orange/coral tones</div>
+    </div>
+
+    <!-- Cool -->
+    <div class="variation">
+      <div class="phone">
+        <div class="bg-cool" style="position:absolute;inset:0;"></div>
+        <div class="chat-ui">
+          <div class="chat-header">
+            <div class="back-btn">&lt;</div>
+            <div class="event-img"></div>
+            <div>
+              <div class="event-name">Pool Party</div>
+              <div class="event-label">Event Chat</div>
+            </div>
+          </div>
+          <div class="messages">
+            <div class="message received">Who's bringing the speaker?</div>
+            <div class="message sent">I got it covered!</div>
+          </div>
+          <div class="input-area">
+            <div class="input-row">
+              <div class="input-field">Message...</div>
+              <div class="send-btn">^</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">Cool Shift</div>
+      <div class="description">More blue/teal tones</div>
+    </div>
+
+    <!-- Sunset -->
+    <div class="variation">
+      <div class="phone">
+        <div class="bg-sunset" style="position:absolute;inset:0;"></div>
+        <div class="chat-ui">
+          <div class="chat-header">
+            <div class="back-btn">&lt;</div>
+            <div class="event-img"></div>
+            <div>
+              <div class="event-name">Pool Party</div>
+              <div class="event-label">Event Chat</div>
+            </div>
+          </div>
+          <div class="messages">
+            <div class="message received">Who's bringing the speaker?</div>
+            <div class="message sent">I got it covered!</div>
+          </div>
+          <div class="input-area">
+            <div class="input-row">
+              <div class="input-field">Message...</div>
+              <div class="send-btn">^</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">Sunset Vibes</div>
+      <div class="description">Pink/orange/purple blend</div>
+    </div>
+
+    <!-- Ocean -->
+    <div class="variation">
+      <div class="phone">
+        <div class="bg-ocean" style="position:absolute;inset:0;"></div>
+        <div class="chat-ui">
+          <div class="chat-header">
+            <div class="back-btn">&lt;</div>
+            <div class="event-img"></div>
+            <div>
+              <div class="event-name">Pool Party</div>
+              <div class="event-label">Event Chat</div>
+            </div>
+          </div>
+          <div class="messages">
+            <div class="message received">Who's bringing the speaker?</div>
+            <div class="message sent">I got it covered!</div>
+          </div>
+          <div class="input-area">
+            <div class="input-row">
+              <div class="input-field">Message...</div>
+              <div class="send-btn">^</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">Ocean Depths</div>
+      <div class="description">Deep blue/teal/purple</div>
+    </div>
+  </div>
+
+  <p class="section-title">Blob Placement Variations</p>
+  <div class="grid">
+    <!-- Centered -->
+    <div class="variation">
+      <div class="phone">
+        <div class="bg-centered" style="position:absolute;inset:0;"></div>
+        <div class="chat-ui">
+          <div class="chat-header">
+            <div class="back-btn">&lt;</div>
+            <div class="event-img"></div>
+            <div>
+              <div class="event-name">Pool Party</div>
+              <div class="event-label">Event Chat</div>
+            </div>
+          </div>
+          <div class="messages">
+            <div class="message received">Who's bringing the speaker?</div>
+            <div class="message sent">I got it covered!</div>
+          </div>
+          <div class="input-area">
+            <div class="input-row">
+              <div class="input-field">Message...</div>
+              <div class="send-btn">^</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">Centered Blobs</div>
+      <div class="description">Color focus in the middle</div>
+    </div>
+
+    <!-- Corners -->
+    <div class="variation">
+      <div class="phone">
+        <div class="bg-corners" style="position:absolute;inset:0;"></div>
+        <div class="chat-ui">
+          <div class="chat-header">
+            <div class="back-btn">&lt;</div>
+            <div class="event-img"></div>
+            <div>
+              <div class="event-name">Pool Party</div>
+              <div class="event-label">Event Chat</div>
+            </div>
+          </div>
+          <div class="messages">
+            <div class="message received">Who's bringing the speaker?</div>
+            <div class="message sent">I got it covered!</div>
+          </div>
+          <div class="input-area">
+            <div class="input-row">
+              <div class="input-field">Message...</div>
+              <div class="send-btn">^</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">Corner Blobs</div>
+      <div class="description">Colors pushed to corners</div>
+    </div>
+
+    <!-- Minimal -->
+    <div class="variation">
+      <div class="phone">
+        <div class="bg-minimal" style="position:absolute;inset:0;"></div>
+        <div class="chat-ui">
+          <div class="chat-header">
+            <div class="back-btn">&lt;</div>
+            <div class="event-img"></div>
+            <div>
+              <div class="event-name">Pool Party</div>
+              <div class="event-label">Event Chat</div>
+            </div>
+          </div>
+          <div class="messages">
+            <div class="message received">Who's bringing the speaker?</div>
+            <div class="message sent">I got it covered!</div>
+          </div>
+          <div class="input-area">
+            <div class="input-row">
+              <div class="input-field">Message...</div>
+              <div class="send-btn">^</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">Minimal</div>
+      <div class="description">Subtle, almost solid feel</div>
+    </div>
+
+    <!-- Neon -->
+    <div class="variation">
+      <div class="phone">
+        <div class="bg-neon" style="position:absolute;inset:0;"></div>
+        <div class="chat-ui">
+          <div class="chat-header">
+            <div class="back-btn">&lt;</div>
+            <div class="event-img"></div>
+            <div>
+              <div class="event-name">Pool Party</div>
+              <div class="event-label">Event Chat</div>
+            </div>
+          </div>
+          <div class="messages">
+            <div class="message received">Who's bringing the speaker?</div>
+            <div class="message sent">I got it covered!</div>
+          </div>
+          <div class="input-area">
+            <div class="input-row">
+              <div class="input-field">Message...</div>
+              <div class="send-btn">^</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">Neon Glow</div>
+      <div class="description">Electric, cyberpunk feel</div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Location Picker with Details</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0a0a12;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+    }
+
+    .phone-frame {
+      width: 390px;
+      height: 844px;
+      background: linear-gradient(165deg,
+        #1a1428 0%,
+        #0f0a1a 25%,
+        #0a0a12 50%,
+        #0d1420 75%,
+        #0a1018 100%
+      );
+      border-radius: 50px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 0 0 12px #1a1a2e,
+        0 25px 80px rgba(0, 0, 0, 0.6);
+    }
+
+    .phone-frame::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background:
+        radial-gradient(ellipse at 30% 20%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 80%, rgba(96, 165, 250, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .screen {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 60px 24px 100px;
+    }
+
+    .notch {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 34px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 100;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .back-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .back-btn svg {
+      width: 20px;
+      height: 20px;
+      color: #fff;
+    }
+
+    .progress-dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .dot.completed { background: rgba(255, 255, 255, 0.6); }
+    .dot.active { background: #fff; }
+
+    .header-spacer { width: 44px; }
+
+    .step-text {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 8px;
+      margin-top: 16px;
+    }
+
+    .main-heading {
+      font-family: 'Syne', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.25;
+      margin-bottom: 24px;
+    }
+
+    .accent { color: #60a5fa; }
+
+    /* Custom location input at top */
+    .custom-location-top {
+      margin-bottom: 16px;
+    }
+
+    .custom-location-button {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .custom-location-button:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .custom-location-icon { font-size: 18px; }
+
+    .custom-location-placeholder {
+      flex: 1;
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .divider-text {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.4);
+      padding: 0 16px;
+    }
+
+    /* Locations container */
+    .locations-container {
+      flex: 1;
+      overflow-y: auto;
+      margin: 0 -24px;
+      padding: 0 24px;
+    }
+
+    .locations-container::-webkit-scrollbar { display: none; }
+
+    /* Category */
+    .category { margin-bottom: 20px; }
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .category-icon { font-size: 16px; }
+
+    .category-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 0.5px;
+    }
+
+    .category-count {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.06);
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-left: auto;
+    }
+
+    /* Location chips */
+    .location-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .location-chip {
+      padding: 12px 16px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .location-chip:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .location-chip.selected {
+      background: rgba(96, 165, 250, 0.2);
+      border-color: rgba(96, 165, 250, 0.5);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(96, 165, 250, 0.2);
+    }
+
+    .chip-emoji { font-size: 15px; }
+
+    /* Selected location display with details */
+    .selected-location-container {
+      margin-top: auto;
+      padding-top: 16px;
+    }
+
+    .selected-location-card {
+      background: linear-gradient(135deg, rgba(96, 165, 250, 0.15), rgba(139, 92, 246, 0.1));
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      border-radius: 16px;
+      padding: 16px;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .selected-location-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .selected-location-icon { font-size: 24px; }
+
+    .selected-location-info { flex: 1; }
+
+    .selected-location-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .selected-location-name {
+      font-size: 17px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .selected-location-clear {
+      width: 32px;
+      height: 32px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .selected-location-clear:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+
+    /* Details input section */
+    .details-section {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .details-input-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .details-plus-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 12px;
+      background: rgba(139, 92, 246, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #a78bfa;
+      flex-shrink: 0;
+    }
+
+    .details-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      font-size: 14px;
+      color: #fff;
+      outline: none;
+    }
+
+    .details-input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* When details are entered */
+    .details-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(139, 92, 246, 0.2);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 20px;
+      padding: 6px 12px;
+      margin-top: 10px;
+    }
+
+    .details-badge-text {
+      font-size: 13px;
+      color: #c4b5fd;
+    }
+
+    .details-badge-clear {
+      width: 18px;
+      height: 18px;
+      border-radius: 9px;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+
+    /* Preview of how it looks on event card */
+    .preview-section {
+      margin-top: 12px;
+      padding: 10px 12px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+    }
+
+    .preview-label {
+      font-size: 9px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.3);
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .preview-text {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .preview-text .detail {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Bottom button */
+    .bottom-section {
+      position: absolute;
+      bottom: 40px;
+      left: 24px;
+      right: 24px;
+    }
+
+    .next-btn {
+      width: 100%;
+      padding: 20px;
+      border-radius: 20px;
+      border: 2px solid #fff;
+      background: linear-gradient(90deg, #c084fc, #e9d5ff, #f5f3ff, #ddd6fe, #93c5fd, #60a5fa);
+      font-size: 17px;
+      font-weight: 600;
+      color: #1a1a2e;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    }
+
+    .next-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* State variations for demo */
+    .state-tabs {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 1000;
+    }
+
+    .state-tab {
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .state-tab:hover, .state-tab.active {
+      background: rgba(96, 165, 250, 0.3);
+      border-color: rgba(96, 165, 250, 0.5);
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <!-- State switcher for demo -->
+  <div class="state-tabs">
+    <button class="state-tab active" onclick="showState('none')">No Selection</button>
+    <button class="state-tab" onclick="showState('selected')">Location Selected</button>
+    <button class="state-tab" onclick="showState('with-details')">With Details</button>
+  </div>
+
+  <div class="phone-frame">
+    <div class="notch"></div>
+    <div class="screen">
+      <!-- Header -->
+      <div class="header">
+        <div class="back-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </div>
+        <div class="progress-dots">
+          <div class="dot completed"></div>
+          <div class="dot completed"></div>
+          <div class="dot active"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+        <div class="header-spacer"></div>
+      </div>
+
+      <div class="step-text">Step 3 of 5</div>
+      <h1 class="main-heading">Where is it<br><span class="accent">happening</span>?</h1>
+
+      <!-- Custom location input -->
+      <div class="custom-location-top">
+        <div class="custom-location-button">
+          <span class="custom-location-icon">📍</span>
+          <span class="custom-location-placeholder">Enter custom location...</span>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="divider">
+        <div class="divider-line"></div>
+        <span class="divider-text">or pick a spot</span>
+        <div class="divider-line"></div>
+      </div>
+
+      <!-- Locations -->
+      <div class="locations-container">
+        <!-- Residence Halls -->
+        <div class="category">
+          <div class="category-header">
+            <span class="category-icon">🏘️</span>
+            <span class="category-name">RESIDENCE HALLS</span>
+            <span class="category-count">6</span>
+          </div>
+          <div class="location-chips">
+            <div class="location-chip" data-location="Miller Hall" data-emoji="🏡" onclick="selectLocation(this)">
+              <span class="chip-emoji">🏡</span> Miller
+            </div>
+            <div class="location-chip" data-location="Carmichael Hall" data-emoji="🏢" onclick="selectLocation(this)">
+              <span class="chip-emoji">🏢</span> Carmichael
+            </div>
+            <div class="location-chip" data-location="Houston Hall" data-emoji="🏠" onclick="selectLocation(this)">
+              <span class="chip-emoji">🏠</span> Houston
+            </div>
+            <div class="location-chip" data-location="Tilton Hall" data-emoji="🏘️" onclick="selectLocation(this)">
+              <span class="chip-emoji">🏘️</span> Tilton
+            </div>
+            <div class="location-chip" data-location="Bush Hall" data-emoji="🏗️" onclick="selectLocation(this)">
+              <span class="chip-emoji">🏗️</span> Bush
+            </div>
+          </div>
+        </div>
+
+        <!-- Academic -->
+        <div class="category">
+          <div class="category-header">
+            <span class="category-icon">📚</span>
+            <span class="category-name">ACADEMIC</span>
+            <span class="category-count">8</span>
+          </div>
+          <div class="location-chips">
+            <div class="location-chip" data-location="Tisch Library" data-emoji="📖" onclick="selectLocation(this)">
+              <span class="chip-emoji">📖</span> Tisch Library
+            </div>
+            <div class="location-chip" data-location="SEC" data-emoji="🔬" onclick="selectLocation(this)">
+              <span class="chip-emoji">🔬</span> SEC
+            </div>
+            <div class="location-chip" data-location="Ballou Hall" data-emoji="🏛️" onclick="selectLocation(this)">
+              <span class="chip-emoji">🏛️</span> Ballou
+            </div>
+          </div>
+        </div>
+
+        <!-- Outdoor -->
+        <div class="category">
+          <div class="category-header">
+            <span class="category-icon">🌳</span>
+            <span class="category-name">OUTDOOR</span>
+            <span class="category-count">5</span>
+          </div>
+          <div class="location-chips">
+            <div class="location-chip" data-location="Residential Quad" data-emoji="🌿" onclick="selectLocation(this)">
+              <span class="chip-emoji">🌿</span> Res Quad
+            </div>
+            <div class="location-chip" data-location="Academic Quad" data-emoji="🏫" onclick="selectLocation(this)">
+              <span class="chip-emoji">🏫</span> Academic Quad
+            </div>
+            <div class="location-chip" data-location="President's Lawn" data-emoji="🌺" onclick="selectLocation(this)">
+              <span class="chip-emoji">🌺</span> Prez Lawn
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selected location display (hidden by default) -->
+      <div class="selected-location-container hidden" id="selectedContainer">
+        <div class="selected-location-card">
+          <div class="selected-location-header">
+            <span class="selected-location-icon" id="selectedIcon">🏡</span>
+            <div class="selected-location-info">
+              <div class="selected-location-label">SELECTED LOCATION</div>
+              <div class="selected-location-name" id="selectedName">Miller Hall</div>
+            </div>
+            <button class="selected-location-clear" onclick="clearSelection()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 6 6 18M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Details input section -->
+          <div class="details-section">
+            <div class="details-input-container" id="detailsInputContainer">
+              <span class="details-plus-icon">+</span>
+              <input
+                type="text"
+                class="details-input"
+                placeholder="Add room number or specific spot..."
+                id="detailsInput"
+                oninput="updateDetails(this.value)"
+              />
+            </div>
+
+            <!-- Details badge (shown when details are entered) -->
+            <div class="details-badge hidden" id="detailsBadge">
+              <span class="details-badge-text" id="detailsBadgeText">Room 302</span>
+              <button class="details-badge-clear" onclick="clearDetails()">×</button>
+            </div>
+          </div>
+
+          <!-- Preview of how it will look -->
+          <div class="preview-section">
+            <div class="preview-label">PREVIEW ON EVENT CARD</div>
+            <div class="preview-text">
+              <span id="previewLocation">Miller Hall</span><span id="previewDetail" class="detail"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Next button -->
+      <div class="bottom-section">
+        <button class="next-btn" id="nextBtn" disabled>Next</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let selectedLocation = null;
+    let selectedEmoji = null;
+    let locationDetails = '';
+
+    function selectLocation(chip) {
+      // Deselect all
+      document.querySelectorAll('.location-chip').forEach(c => c.classList.remove('selected'));
+
+      // Select this one
+      chip.classList.add('selected');
+
+      selectedLocation = chip.dataset.location;
+      selectedEmoji = chip.dataset.emoji;
+
+      // Update selected display
+      document.getElementById('selectedIcon').textContent = selectedEmoji;
+      document.getElementById('selectedName').textContent = selectedLocation;
+      document.getElementById('previewLocation').textContent = selectedLocation;
+      document.getElementById('selectedContainer').classList.remove('hidden');
+      document.getElementById('nextBtn').disabled = false;
+
+      // Reset details
+      locationDetails = '';
+      document.getElementById('detailsInput').value = '';
+      document.getElementById('previewDetail').textContent = '';
+      document.getElementById('detailsBadge').classList.add('hidden');
+      document.getElementById('detailsInputContainer').classList.remove('hidden');
+    }
+
+    function clearSelection() {
+      document.querySelectorAll('.location-chip').forEach(c => c.classList.remove('selected'));
+      document.getElementById('selectedContainer').classList.add('hidden');
+      document.getElementById('nextBtn').disabled = true;
+      selectedLocation = null;
+      selectedEmoji = null;
+      locationDetails = '';
+    }
+
+    function updateDetails(value) {
+      locationDetails = value;
+      if (value.trim()) {
+        document.getElementById('previewDetail').textContent = ' · ' + value;
+      } else {
+        document.getElementById('previewDetail').textContent = '';
+      }
+    }
+
+    function clearDetails() {
+      locationDetails = '';
+      document.getElementById('detailsInput').value = '';
+      document.getElementById('previewDetail').textContent = '';
+      document.getElementById('detailsBadge').classList.add('hidden');
+      document.getElementById('detailsInputContainer').classList.remove('hidden');
+    }
+
+    // Demo state switching
+    function showState(state) {
+      document.querySelectorAll('.state-tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+
+      if (state === 'none') {
+        clearSelection();
+      } else if (state === 'selected') {
+        const millerChip = document.querySelector('[data-location="Miller Hall"]');
+        selectLocation(millerChip);
+      } else if (state === 'with-details') {
+        const millerChip = document.querySelector('[data-location="Miller Hall"]');
+        selectLocation(millerChip);
+        document.getElementById('detailsInput').value = 'Room 302';
+        updateDetails('Room 302');
+      }
+    }
+  </script>
+</body>
+</html>

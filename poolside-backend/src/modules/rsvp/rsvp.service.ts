@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RsvpStatusEnum } from './dto/rsvp.dto';
 
@@ -7,13 +7,38 @@ export class RsvpService {
   constructor(private prisma: PrismaService) {}
 
   async createRsvp(eventId: string, userId: string, status: RsvpStatusEnum) {
-    // Check if event exists
+    // Check if event exists and get current RSVP count
     const event = await this.prisma.event.findUnique({
       where: { id: eventId },
+      include: {
+        _count: {
+          select: {
+            rsvps: {
+              where: { status: 'GOING' },
+            },
+          },
+        },
+      },
     });
 
     if (!event) {
       throw new NotFoundException('Event not found');
+    }
+
+    // Check if event is full (only for GOING status)
+    if (status === RsvpStatusEnum.GOING && event.spots !== null) {
+      const currentGoing = event._count.rsvps;
+
+      // Check if user already has a GOING RSVP (they're updating, not taking a new spot)
+      const existingRsvp = await this.prisma.rsvp.findUnique({
+        where: { userId_eventId: { userId, eventId } },
+      });
+      const isAlreadyGoing = existingRsvp?.status === 'GOING';
+
+      // Only reject if they're trying to take a NEW spot and event is full
+      if (!isAlreadyGoing && currentGoing >= event.spots) {
+        throw new BadRequestException('Event is full');
+      }
     }
 
     // Upsert RSVP
@@ -34,10 +59,15 @@ export class RsvpService {
     // Get updated counts
     const counts = await this.getRsvpCounts(eventId);
 
+    // Check if event is now full
+    const isFull = event.spots !== null && counts.going >= event.spots;
+
     return {
       eventId,
       status: rsvp.status.toLowerCase(),
       rsvpCount: counts,
+      isFull,
+      spots: event.spots,
     };
   }
 
@@ -59,10 +89,15 @@ export class RsvpService {
     // Get updated counts
     const counts = await this.getRsvpCounts(eventId);
 
+    // Check if event is now full
+    const isFull = event.spots !== null && counts.going >= event.spots;
+
     return {
       eventId,
       status: null,
       rsvpCount: counts,
+      isFull,
+      spots: event.spots,
     };
   }
 

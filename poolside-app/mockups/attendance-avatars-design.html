@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Row with Avatars</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: white;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.5);
+            font-size: 14px;
+            margin-bottom: 40px;
+        }
+
+        .section {
+            max-width: 380px;
+            margin: 0 auto 40px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 16px;
+        }
+
+        /* Card Preview */
+        .card-preview {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 20px;
+            padding: 16px;
+            backdrop-filter: blur(20px);
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: rgba(255,255,255,0.75);
+        }
+
+        .meta-icon {
+            font-size: 14px;
+        }
+
+        /* ============ ATTENDANCE ROW DESIGNS ============ */
+
+        /* Option 1: Avatars on left, count + progress on right */
+        .attendance-row-v1 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+        }
+
+        .avatar-stack {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 14px;
+            border: 2px solid #1a1a2e;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar:not(:first-child) {
+            margin-left: -10px;
+        }
+
+        .attendance-info {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .count-highlight {
+            color: #2dd4bf;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .count-divider {
+            color: rgba(255,255,255,0.3);
+            font-size: 13px;
+        }
+
+        .count-total {
+            color: rgba(255,255,255,0.5);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .going-label {
+            color: rgba(255,255,255,0.5);
+            font-size: 13px;
+            margin-left: 2px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            margin-left: 8px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 2px;
+            background: #22c55e;
+        }
+
+        /* Option 2: Compact - avatars inline with text */
+        .attendance-row-v2 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+        }
+
+        .avatar-stack-sm {
+            display: flex;
+        }
+
+        .avatar-sm {
+            width: 22px;
+            height: 22px;
+            border-radius: 11px;
+            border: 2px solid #1a1a2e;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            overflow: hidden;
+        }
+
+        .avatar-sm img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-sm:not(:first-child) {
+            margin-left: -8px;
+        }
+
+        /* Option 3: Avatars below count */
+        .attendance-row-v3 {
+            padding: 8px 0;
+        }
+
+        .attendance-top {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .attendance-bottom {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Option 4: Full width with avatars and progress */
+        .attendance-row-v4 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+        }
+
+        .avatar-stack-lg {
+            display: flex;
+        }
+
+        .avatar-lg {
+            width: 32px;
+            height: 32px;
+            border-radius: 16px;
+            border: 2px solid #1a1a2e;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            overflow: hidden;
+        }
+
+        .avatar-lg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-lg:not(:first-child) {
+            margin-left: -12px;
+        }
+
+        .attendance-details-v4 {
+            flex: 1;
+        }
+
+        .count-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 4px;
+        }
+
+        .progress-bar-v4 {
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        /* Option 5: Avatars on right side */
+        .attendance-row-v5 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+        }
+
+        .attendance-left {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .progress-container {
+            flex: 1;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        /* Sample profile images */
+        .profile-1 { background: linear-gradient(135deg, #f472b6, #ec4899); }
+        .profile-2 { background: linear-gradient(135deg, #60a5fa, #3b82f6); }
+        .profile-3 { background: linear-gradient(135deg, #4ade80, #22c55e); }
+    </style>
+</head>
+<body>
+    <h1>Attendance Row with Avatars</h1>
+    <p class="subtitle">Showing profile pictures of people going</p>
+
+    <!-- Option 1 -->
+    <div class="section">
+        <div class="section-title">Option 1: Avatars Left, Count + Progress Right</div>
+        <div class="card-preview">
+            <div class="meta-item">
+                <span class="meta-icon">📅</span>
+                <span>Today at 7:30 PM</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-icon">📍</span>
+                <span>The courts</span>
+            </div>
+            <div class="attendance-row-v1">
+                <div class="avatar-stack">
+                    <div class="avatar profile-1">
+                        <img src="https://i.pravatar.cc/100?img=1" alt="">
+                    </div>
+                    <div class="avatar profile-2">
+                        <img src="https://i.pravatar.cc/100?img=2" alt="">
+                    </div>
+                    <div class="avatar profile-3">
+                        <img src="https://i.pravatar.cc/100?img=3" alt="">
+                    </div>
+                </div>
+                <div class="attendance-info">
+                    <span class="count-highlight">7</span>
+                    <span class="count-divider">/</span>
+                    <span class="count-total">10</span>
+                    <span class="going-label">going</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 70%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Option 2 -->
+    <div class="section">
+        <div class="section-title">Option 2: Compact Inline</div>
+        <div class="card-preview">
+            <div class="meta-item">
+                <span class="meta-icon">📅</span>
+                <span>Today at 7:30 PM</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-icon">📍</span>
+                <span>The courts</span>
+            </div>
+            <div class="attendance-row-v2">
+                <span class="meta-icon">👥</span>
+                <div class="avatar-stack-sm">
+                    <div class="avatar-sm profile-1">
+                        <img src="https://i.pravatar.cc/100?img=1" alt="">
+                    </div>
+                    <div class="avatar-sm profile-2">
+                        <img src="https://i.pravatar.cc/100?img=2" alt="">
+                    </div>
+                    <div class="avatar-sm profile-3">
+                        <img src="https://i.pravatar.cc/100?img=3" alt="">
+                    </div>
+                </div>
+                <span class="count-highlight">7</span>
+                <span class="count-divider">/</span>
+                <span class="count-total">10</span>
+                <span class="going-label">going</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 70%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Option 3 -->
+    <div class="section">
+        <div class="section-title">Option 3: Two Rows (Count on top, Avatars + Progress below)</div>
+        <div class="card-preview">
+            <div class="meta-item">
+                <span class="meta-icon">📅</span>
+                <span>Today at 7:30 PM</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-icon">📍</span>
+                <span>The courts</span>
+            </div>
+            <div class="attendance-row-v3">
+                <div class="attendance-top">
+                    <span class="meta-icon">👥</span>
+                    <span class="count-highlight">7</span>
+                    <span class="count-divider">/</span>
+                    <span class="count-total">10</span>
+                    <span class="going-label">going</span>
+                </div>
+                <div class="attendance-bottom">
+                    <div class="avatar-stack">
+                        <div class="avatar profile-1">
+                            <img src="https://i.pravatar.cc/100?img=1" alt="">
+                        </div>
+                        <div class="avatar profile-2">
+                            <img src="https://i.pravatar.cc/100?img=2" alt="">
+                        </div>
+                        <div class="avatar profile-3">
+                            <img src="https://i.pravatar.cc/100?img=3" alt="">
+                        </div>
+                    </div>
+                    <div class="progress-bar" style="flex: 1;">
+                        <div class="progress-fill" style="width: 70%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Option 4 -->
+    <div class="section">
+        <div class="section-title">Option 4: Larger Avatars with Progress Below Count</div>
+        <div class="card-preview">
+            <div class="meta-item">
+                <span class="meta-icon">📅</span>
+                <span>Today at 7:30 PM</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-icon">📍</span>
+                <span>The courts</span>
+            </div>
+            <div class="attendance-row-v4">
+                <div class="avatar-stack-lg">
+                    <div class="avatar-lg profile-1">
+                        <img src="https://i.pravatar.cc/100?img=1" alt="">
+                    </div>
+                    <div class="avatar-lg profile-2">
+                        <img src="https://i.pravatar.cc/100?img=2" alt="">
+                    </div>
+                    <div class="avatar-lg profile-3">
+                        <img src="https://i.pravatar.cc/100?img=3" alt="">
+                    </div>
+                </div>
+                <div class="attendance-details-v4">
+                    <div class="count-row">
+                        <span class="count-highlight">7</span>
+                        <span class="count-divider">/</span>
+                        <span class="count-total">10</span>
+                        <span class="going-label">going</span>
+                    </div>
+                    <div class="progress-bar-v4">
+                        <div class="progress-fill" style="width: 70%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Option 5 -->
+    <div class="section">
+        <div class="section-title">Option 5: Avatars on Right</div>
+        <div class="card-preview">
+            <div class="meta-item">
+                <span class="meta-icon">📅</span>
+                <span>Today at 7:30 PM</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-icon">📍</span>
+                <span>The courts</span>
+            </div>
+            <div class="attendance-row-v5">
+                <div class="attendance-left">
+                    <span class="meta-icon">👥</span>
+                    <span class="count-highlight">7</span>
+                    <span class="count-divider">/</span>
+                    <span class="count-total">10</span>
+                    <span class="going-label">going</span>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-fill" style="width: 70%;"></div>
+                </div>
+                <div class="avatar-stack">
+                    <div class="avatar profile-1">
+                        <img src="https://i.pravatar.cc/100?img=1" alt="">
+                    </div>
+                    <div class="avatar profile-2">
+                        <img src="https://i.pravatar.cc/100?img=2" alt="">
+                    </div>
+                    <div class="avatar profile-3">
+                        <img src="https://i.pravatar.cc/100?img=3" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- With fewer attendees -->
+    <div class="section">
+        <div class="section-title">With Only 1 Attendee</div>
+        <div class="card-preview">
+            <div class="meta-item">
+                <span class="meta-icon">📅</span>
+                <span>Tomorrow at 4:00 PM</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-icon">📍</span>
+                <span>Campus Field</span>
+            </div>
+            <div class="attendance-row-v1">
+                <div class="avatar-stack">
+                    <div class="avatar profile-1">
+                        <img src="https://i.pravatar.cc/100?img=5" alt="">
+                    </div>
+                </div>
+                <div class="attendance-info">
+                    <span class="count-highlight">1</span>
+                    <span class="count-divider">/</span>
+                    <span class="count-total">10</span>
+                    <span class="going-label">going</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 10%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Almost full -->
+    <div class="section">
+        <div class="section-title">Almost Full (9/10)</div>
+        <div class="card-preview">
+            <div class="meta-item">
+                <span class="meta-icon">📅</span>
+                <span>Friday at 8:00 PM</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-icon">📍</span>
+                <span>Rooftop Pool</span>
+            </div>
+            <div class="attendance-row-v1">
+                <div class="avatar-stack">
+                    <div class="avatar profile-1">
+                        <img src="https://i.pravatar.cc/100?img=10" alt="">
+                    </div>
+                    <div class="avatar profile-2">
+                        <img src="https://i.pravatar.cc/100?img=11" alt="">
+                    </div>
+                    <div class="avatar profile-3">
+                        <img src="https://i.pravatar.cc/100?img=12" alt="">
+                    </div>
+                </div>
+                <div class="attendance-info">
+                    <span class="count-highlight" style="color: #ef4444;">9</span>
+                    <span class="count-divider">/</span>
+                    <span class="count-total">10</span>
+                    <span class="going-label">going</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 90%; background: #ef4444;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

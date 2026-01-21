@@ -21,6 +21,12 @@ export interface Event {
   maybes: User[];
   theme: EventTheme;
   rsvpCount: number;
+  spots?: number; // Max capacity, undefined means unlimited
+  displayDuration: number; // Duration in minutes to show event on feed
+  status?: 'DRAFT' | 'PUBLISHED';
+  isFull?: boolean; // True when spots limit is reached
+  waitlistEnabled?: boolean; // Allow users to join waitlist when full
+  hideDetailsWhenFull?: boolean; // Hide location & time from non-attendees when full
 }
 
 export interface EventTheme {

@@ -30,7 +30,7 @@ import { BlurView } from 'expo-blur';
 import ViewShot from 'react-native-view-shot';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const TOTAL_SLIDES = 5;
+const TOTAL_SLIDES = 6;
 
 const MONTHS = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -57,6 +57,15 @@ const LOCATION_SUGGESTIONS = [
   { emoji: '🎰', name: 'Casino' },
   { emoji: '🎭', name: 'Theater' },
   { emoji: '💆', name: 'Spa Deck' },
+];
+
+const DURATION_OPTIONS = [
+  '30 min',
+  '1 hour',
+  '1.5 hours',
+  '2 hours',
+  '2.5 hours',
+  '3 hours',
 ];
 
 const COVER_COLORS = [
@@ -113,9 +122,23 @@ export const CreateEventScreen: React.FC = () => {
 
   // Form state - Slide 2: Time
   const [isNow, setIsNow] = useState(false);
-  const [selectedMonth, setSelectedMonth] = useState(0); // January
-  const [selectedDay, setSelectedDay] = useState(7);
-  const [selectedTime, setSelectedTime] = useState('8:00 PM');
+  // Start date/time
+  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  // End date/time (optional)
+  const [endMonth, setEndMonth] = useState<number | null>(null);
+  const [endDay, setEndDay] = useState<number | null>(null);
+  const [endTime, setEndTime] = useState<string | null>(null);
+  // Duration selection
+  const [selectedDuration, setSelectedDuration] = useState<string>('3 hours');
+  // Date/time picker modal state
+  const [showDateTimePicker, setShowDateTimePicker] = useState(false);
+  const [editingDateType, setEditingDateType] = useState<'start' | 'end'>('start');
+  const [editingPickerType, setEditingPickerType] = useState<'date' | 'time'>('date');
+  // Calendar view state
+  const [viewMonth, setViewMonth] = useState(new Date().getMonth());
+  const [viewYear, setViewYear] = useState(new Date().getFullYear());
 
   // Form state - Slide 3: Location
   const [location, setLocation] = useState('');
@@ -243,9 +266,18 @@ export const CreateEventScreen: React.FC = () => {
 
     // Build date time
     let dateTime: Date;
+    let endDateTime: Date | undefined;
+
     if (isNow) {
       dateTime = new Date();
     } else {
+      // Validate date and time are selected
+      if (selectedMonth === null || selectedDay === null || selectedTime === null) {
+        Alert.alert('Missing Date/Time', 'Please select a start date and time for your event.');
+        goToSlide(1);
+        return;
+      }
+
       const now = new Date();
       dateTime = new Date(now.getFullYear(), selectedMonth, selectedDay);
       const [time, period] = selectedTime.split(' ');
@@ -259,6 +291,23 @@ export const CreateEventScreen: React.FC = () => {
         Alert.alert('Invalid Date', 'Please select a date and time in the future.');
         goToSlide(1);
         return;
+      }
+
+      // Build end date time if provided
+      if (endMonth !== null && endDay !== null && endTime !== null) {
+        endDateTime = new Date(now.getFullYear(), endMonth, endDay);
+        const [endTimeStr, endPeriod] = endTime.split(' ');
+        const [endHours, endMinutes] = endTimeStr.split(':').map(Number);
+        let endHour24 = endHours;
+        if (endPeriod === 'PM' && endHours !== 12) endHour24 += 12;
+        if (endPeriod === 'AM' && endHours === 12) endHour24 = 0;
+        endDateTime.setHours(endHour24, endMinutes, 0, 0);
+
+        if (endDateTime.getTime() <= dateTime.getTime()) {
+          Alert.alert('Invalid End Time', 'End time must be after start time.');
+          goToSlide(1);
+          return;
+        }
       }
     }
 
@@ -308,6 +357,7 @@ export const CreateEventScreen: React.FC = () => {
       setSelectedMonth(0);
       setSelectedDay(7);
       setSelectedTime('8:00 PM');
+      setSelectedDuration('3 hours');
       setLocation('');
       setCoverText('');
       setCoverColor('#f8f8f8');
@@ -335,21 +385,15 @@ export const CreateEventScreen: React.FC = () => {
 
   const getTimeDisplayText = () => {
     if (isNow) return 'Starting right now ⚡';
+    if (selectedMonth === null || selectedDay === null || selectedTime === null) {
+      return 'Select date and time';
+    }
     return `${MONTHS[selectedMonth]} ${selectedDay} at ${selectedTime}`;
   };
 
   const renderProgressBar = () => {
-    const progress = ((currentSlide + 1) / TOTAL_SLIDES) * 100;
     return (
       <View style={styles.progressContainer}>
-        <View style={styles.progressBar}>
-          <Animated.View
-            style={[
-              styles.progressFill,
-              { width: `${progress}%` },
-            ]}
-          />
-        </View>
         <View style={styles.progressDots}>
           {Array.from({ length: TOTAL_SLIDES }).map((_, i) => (
             <View
@@ -368,100 +412,321 @@ export const CreateEventScreen: React.FC = () => {
 
   // Slide 1: Title
   const renderTitleSlide = () => (
-    <View style={styles.slideContent}>
-      <View style={styles.slideIcon}>
-        <Text style={styles.slideIconEmoji}>✨</Text>
+    <View style={styles.titleSlideContent}>
+      <Text style={styles.stepIndicator}>Step 1 of 6</Text>
+      <View style={styles.titleHeading}>
+        <Text style={styles.titleHeadingText}>What's your</Text>
+        <Text style={styles.titleHeadingText}>
+          event <Text style={styles.titleHeadingPink}>called</Text>?
+        </Text>
       </View>
-      <Text style={styles.slideQuestion}>What's happening?</Text>
-      <Text style={styles.slideHint}>Give your event a catchy name</Text>
-      <TextInput
-        style={styles.titleInput}
-        value={title}
-        onChangeText={setTitle}
-        placeholder="Pool party at sunset..."
-        placeholderTextColor="rgba(255, 255, 255, 0.35)"
-        maxLength={50}
-      />
-      <Text style={styles.charCount}>{title.length}/50</Text>
+      <View style={styles.titleInputBox}>
+        <TextInput
+          style={styles.titleInputText}
+          value={title}
+          onChangeText={setTitle}
+          placeholder="Pool party at sunset..."
+          placeholderTextColor="rgba(255, 255, 255, 0.35)"
+          maxLength={50}
+          multiline={false}
+        />
+      </View>
+      <Text style={styles.charCountCentered}>{title.length}/50</Text>
     </View>
   );
 
   // Slide 2: Time
-  const renderTimeSlide = () => (
-    <View style={styles.slideContent}>
-      <View style={styles.slideHeaderCompact}>
-        <View style={styles.slideIconSmall}>
-          <Text style={styles.slideIconEmojiSmall}>🕐</Text>
+  const renderTimeSlide = () => {
+    const getShortMonth = (monthIndex: number) => {
+      const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return shortMonths[monthIndex];
+    };
+
+    const getFullMonth = (monthIndex: number) => MONTHS[monthIndex];
+
+    const hasStartDate = selectedMonth !== null && selectedDay !== null;
+    const hasStartTime = selectedTime !== null;
+    const today = new Date();
+
+    const openPicker = () => {
+      if (isNow) return;
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      if (selectedMonth === null) {
+        setSelectedMonth(today.getMonth());
+        setSelectedDay(today.getDate());
+      }
+      if (selectedTime === null) {
+        setSelectedTime('7:30 PM');
+      }
+      setViewMonth(selectedMonth ?? today.getMonth());
+      setShowDateTimePicker(true);
+    };
+
+    const openPickerEnd = () => {
+      if (isNow) return;
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      if (endMonth === null) {
+        setEndMonth(selectedMonth ?? today.getMonth());
+        setEndDay(selectedDay ?? today.getDate());
+      }
+      if (endTime === null) {
+        setEndTime('9:30 PM');
+      }
+      setViewMonth(endMonth ?? selectedMonth ?? today.getMonth());
+      setShowDateTimePicker(true);
+    };
+
+    const closePicker = () => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      setShowDateTimePicker(false);
+    };
+
+    const handleSelectNow = () => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      setIsNow(!isNow);
+    };
+
+    const prevMonth = () => {
+      if (viewMonth === 0) {
+        setViewMonth(11);
+        setViewYear(viewYear - 1);
+      } else {
+        setViewMonth(viewMonth - 1);
+      }
+    };
+
+    const nextMonth = () => {
+      if (viewMonth === 11) {
+        setViewMonth(0);
+        setViewYear(viewYear + 1);
+      } else {
+        setViewMonth(viewMonth + 1);
+      }
+    };
+
+    // Generate calendar days
+    const getCalendarDays = () => {
+      const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+      const daysInMonth = DAYS_IN_MONTH[viewMonth];
+      const daysInPrevMonth = viewMonth === 0 ? DAYS_IN_MONTH[11] : DAYS_IN_MONTH[viewMonth - 1];
+
+      const days: { day: number; isCurrentMonth: boolean; isToday: boolean; isSelected: boolean }[] = [];
+
+      // Previous month days
+      for (let i = firstDay - 1; i >= 0; i--) {
+        days.push({ day: daysInPrevMonth - i, isCurrentMonth: false, isToday: false, isSelected: false });
+      }
+
+      // Current month days
+      for (let i = 1; i <= daysInMonth; i++) {
+        const isToday = i === today.getDate() && viewMonth === today.getMonth() && viewYear === today.getFullYear();
+        const isSelected = i === currentSelectedDay && viewMonth === currentSelectedMonth;
+        days.push({ day: i, isCurrentMonth: true, isToday, isSelected });
+      }
+
+      // Next month days
+      const remaining = 42 - days.length;
+      for (let i = 1; i <= remaining; i++) {
+        days.push({ day: i, isCurrentMonth: false, isToday: false, isSelected: false });
+      }
+
+      return days;
+    };
+
+    const selectDay = (day: number) => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      if (editingDateType === 'start') {
+        setSelectedMonth(viewMonth);
+        setSelectedDay(day);
+      } else {
+        setEndMonth(viewMonth);
+        setEndDay(day);
+      }
+    };
+
+    const currentSelectedDay = editingDateType === 'start' ? selectedDay : endDay;
+    const currentSelectedMonth = editingDateType === 'start' ? selectedMonth : endMonth;
+    const currentSelectedTime = editingDateType === 'start' ? (selectedTime ?? '7:30 PM') : (endTime ?? '9:30 PM');
+
+    // Time options for picker (15 min intervals)
+    const timeSlots = ['7:00pm', '7:15pm', '7:30pm', '7:45pm', '8:00pm', '8:15pm', '8:30pm'];
+
+    return (
+      <View style={styles.timeSlideContent}>
+        <Text style={styles.stepIndicator}>Step 2 of 6</Text>
+        <View style={styles.titleHeading}>
+          <Text style={styles.titleHeadingText}>When is your</Text>
+          <Text style={styles.titleHeadingText}>
+            event <Text style={styles.titleHeadingPurple}>happening</Text>?
+          </Text>
         </View>
-        <View style={styles.slideHeaderText}>
-          <Text style={styles.slideQuestionSmall}>When?</Text>
-          <Text style={styles.slideHintSmall}>Pick the perfect time</Text>
+
+        {/* Starting right now option */}
+        <TouchableOpacity
+          style={[styles.startingNowOption, isNow && styles.startingNowOptionSelected]}
+          onPress={handleSelectNow}
+          activeOpacity={0.7}
+        >
+          {isNow && (
+            <LinearGradient
+              colors={['#E8D5FF', '#B794F6']}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 0.5 }}
+              style={StyleSheet.absoluteFillObject}
+            />
+          )}
+          <View style={[styles.radioCircle, isNow && styles.radioCircleSelected]} />
+          <Text style={[styles.startingNowText, isNow && styles.startingNowTextSelected]}>Starting right now</Text>
+        </TouchableOpacity>
+
+        {/* Start / End date buttons */}
+        <View style={styles.chooseBtnContainer}>
+          <TouchableOpacity
+            style={[styles.chooseBtn, isNow && styles.chooseBtnDisabled]}
+            onPress={() => { setEditingDateType('start'); openPicker(); }}
+            activeOpacity={0.7}
+            disabled={isNow}
+          >
+            <Text style={styles.chooseBtnLabel}>STARTS</Text>
+            <Text style={styles.chooseBtnText}>
+              {hasStartDate && hasStartTime ? `${getShortMonth(selectedMonth!)} ${selectedDay}, ${selectedTime}` : 'Set start'}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.chooseBtn, isNow && styles.chooseBtnDisabled]}
+            onPress={() => { setEditingDateType('end'); openPickerEnd(); }}
+            activeOpacity={0.7}
+            disabled={isNow}
+          >
+            <Text style={styles.chooseBtnLabel}>ENDS</Text>
+            <Text style={styles.chooseBtnText}>
+              {endMonth !== null && endDay !== null && endTime ? `${getShortMonth(endMonth)} ${endDay}, ${endTime}` : 'Set end'}
+            </Text>
+          </TouchableOpacity>
         </View>
+
+        {/* Show event for - Duration */}
+        <Text style={styles.showEventForLabel}>Show event for</Text>
+        <View style={styles.durationChipsContainer}>
+          {DURATION_OPTIONS.map((duration) => (
+            <TouchableOpacity
+              key={duration}
+              style={[
+                styles.durationChip,
+                selectedDuration === duration && styles.durationChipSelected,
+              ]}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setSelectedDuration(duration);
+              }}
+              activeOpacity={0.7}
+            >
+              <Text
+                style={[
+                  styles.durationChipText,
+                  selectedDuration === duration && styles.durationChipTextSelected,
+                ]}
+              >
+                {duration}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Calendar Date/Time Picker Modal */}
+        <Modal
+          visible={showDateTimePicker}
+          transparent
+          animationType="slide"
+          onRequestClose={closePicker}
+        >
+          <View style={styles.calendarPickerOverlay}>
+            <View style={styles.calendarPickerContainer}>
+              {/* Header with title */}
+              <Text style={styles.calendarTitle}>
+                {editingDateType === 'start' ? 'When does it start?' : 'When does it end?'}
+              </Text>
+
+              {/* Month Header */}
+              <View style={styles.calendarHeader}>
+                <TouchableOpacity onPress={prevMonth} style={styles.calendarNavBtn}>
+                  <Text style={styles.calendarNavText}>‹</Text>
+                </TouchableOpacity>
+                <Text style={styles.calendarMonthTitle}>
+                  {getFullMonth(viewMonth)} {viewYear}
+                </Text>
+                <TouchableOpacity onPress={nextMonth} style={styles.calendarNavBtn}>
+                  <Text style={styles.calendarNavText}>›</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Day Headers */}
+              <View style={styles.calendarDayHeaders}>
+                {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map((d) => (
+                  <Text key={d} style={styles.calendarDayHeader}>{d}</Text>
+                ))}
+              </View>
+
+              {/* Calendar Grid */}
+              <View style={styles.calendarGrid}>
+                {getCalendarDays().map((item, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={[
+                      styles.calendarDay,
+                      item.isSelected && styles.calendarDaySelected,
+                      item.isToday && !item.isSelected && styles.calendarDayToday,
+                    ]}
+                    onPress={() => item.isCurrentMonth && selectDay(item.day)}
+                    disabled={!item.isCurrentMonth}
+                  >
+                    <Text
+                      style={[
+                        styles.calendarDayText,
+                        !item.isCurrentMonth && styles.calendarDayTextDim,
+                        item.isToday && styles.calendarDayTextToday,
+                        item.isSelected && styles.calendarDayTextSelected,
+                      ]}
+                    >
+                      {item.day}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {/* Time Picker */}
+              <View style={styles.timePickerSection}>
+                <CurvedPickerWheel
+                  items={TIME_OPTIONS}
+                  selectedIndex={TIME_OPTIONS.indexOf(currentSelectedTime)}
+                  onSelect={(index) => {
+                    if (editingDateType === 'start') {
+                      setSelectedTime(TIME_OPTIONS[index]);
+                    } else {
+                      setEndTime(TIME_OPTIONS[index]);
+                    }
+                  }}
+                  label=""
+                  width={SCREEN_WIDTH - 80}
+                />
+              </View>
+
+              {/* Footer */}
+              <View style={styles.calendarFooter}>
+                <View style={styles.timezoneInfo}>
+                  <Text style={styles.timezoneIcon}>🌐</Text>
+                  <Text style={styles.timezoneText}>Eastern Time (ET)</Text>
+                </View>
+                <TouchableOpacity style={styles.calendarDoneBtn} onPress={closePicker}>
+                  <Text style={styles.calendarDoneText}>Done</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </View>
-
-      {/* Now Toggle */}
-      <TouchableOpacity
-        style={[styles.nowToggle, isNow && styles.nowToggleActive]}
-        onPress={handleToggleNow}
-        activeOpacity={0.8}
-      >
-        <View style={styles.nowToggleLeft}>
-          <Text style={styles.nowIcon}>⚡</Text>
-          <Text style={styles.nowLabel}>Starting Now</Text>
-        </View>
-        <View style={[styles.nowSwitch, isNow && styles.nowSwitchActive]}>
-          <Animated.View
-            style={[
-              styles.nowSwitchKnob,
-              {
-                transform: [{
-                  translateX: toggleAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0, 22],
-                  }),
-                }],
-              },
-            ]}
-          />
-        </View>
-      </TouchableOpacity>
-
-      {/* DateTime Picker */}
-      <Animated.View style={[styles.datetimePicker, { opacity: pickerOpacityAnim }]} pointerEvents={isNow ? 'none' : 'auto'}>
-        <View style={styles.pickerRow}>
-          <CurvedPickerWheel
-            items={MONTHS}
-            selectedIndex={selectedMonth}
-            onSelect={(index) => {
-              setSelectedMonth(index);
-              if (selectedDay > DAYS_IN_MONTH[index]) {
-                setSelectedDay(DAYS_IN_MONTH[index]);
-              }
-            }}
-            label="MONTH"
-            width={115}
-          />
-          <CurvedPickerWheel
-            items={Array.from({ length: DAYS_IN_MONTH[selectedMonth] }, (_, i) => String(i + 1))}
-            selectedIndex={selectedDay - 1}
-            onSelect={(index) => setSelectedDay(index + 1)}
-            label="DAY"
-            width={70}
-          />
-          <CurvedPickerWheel
-            items={TIME_OPTIONS}
-            selectedIndex={TIME_OPTIONS.indexOf(selectedTime)}
-            onSelect={(index) => setSelectedTime(TIME_OPTIONS[index])}
-            label="TIME"
-            width={100}
-          />
-        </View>
-      </Animated.View>
-
-      {/* Selected time display */}
-      <Text style={styles.selectedTimeText}>{getTimeDisplayText()}</Text>
-    </View>
-  );
+    );
+  };
 
   // Slide 3: Location
   const renderLocationSlide = () => (
@@ -917,8 +1182,7 @@ export const CreateEventScreen: React.FC = () => {
             <View style={[styles.bottomActions, { paddingBottom: insets.bottom + 90 }]}>
               <TouchableOpacity
                 style={[
-                  styles.nextBtn,
-                  currentSlide === TOTAL_SLIDES - 1 && styles.nextBtnCreate,
+                  styles.nextBtnWrapper,
                   isCreating && styles.nextBtnDisabled,
                 ]}
                 onPress={() => {
@@ -926,14 +1190,22 @@ export const CreateEventScreen: React.FC = () => {
                   nextSlide();
                 }}
                 disabled={isCreating}
+                activeOpacity={0.85}
               >
-                {isCreating ? (
-                  <ActivityIndicator size="small" color="#0a0a12" />
-                ) : (
-                  <Text style={[styles.nextBtnText, currentSlide === TOTAL_SLIDES - 1 && styles.nextBtnTextCreate]}>
-                    {currentSlide === TOTAL_SLIDES - 1 ? 'Create Event 🎉' : 'Next'}
-                  </Text>
-                )}
+                <LinearGradient
+                  colors={currentSlide === TOTAL_SLIDES - 1 ? ['#fb7185', '#fb7185'] : ['#7C3AED', '#93C5FD']}
+                  start={{ x: 0, y: 0.5 }}
+                  end={{ x: 1, y: 0.5 }}
+                  style={styles.nextBtnGradient}
+                >
+                  {isCreating ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                  ) : (
+                    <Text style={styles.nextBtnText}>
+                      {currentSlide === TOTAL_SLIDES - 1 ? 'Create Event 🎉' : 'Next'}
+                    </Text>
+                  )}
+                </LinearGradient>
               </TouchableOpacity>
             </View>
         </View>
@@ -1073,20 +1345,19 @@ const styles = StyleSheet.create({
   progressDots: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 8,
-    marginTop: 16,
+    gap: 12,
   },
   progressDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
   },
   progressDotActive: {
-    backgroundColor: '#2dd4bf',
+    backgroundColor: '#fff',
   },
   progressDotCompleted: {
-    backgroundColor: '#2dd4bf',
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
   },
   // Slides
   slidesContainer: {
@@ -1105,7 +1376,182 @@ const styles = StyleSheet.create({
   slideContent: {
     flex: 1,
   },
-  // Slide 1: Title
+  // Slide 1: Title - New Design
+  titleSlideContent: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingBottom: 100,
+  },
+  stepIndicator: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.5)',
+    marginBottom: 8,
+  },
+  titleHeading: {
+    marginBottom: 48,
+  },
+  titleHeadingText: {
+    fontSize: 36,
+    fontFamily: 'ClashDisplay-Semibold',
+    color: '#fff',
+    letterSpacing: -0.5,
+    lineHeight: 44,
+  },
+  titleHeadingPink: {
+    color: '#D76B9D',
+  },
+  titleHeadingPurple: {
+    color: '#9C7BF4',
+  },
+  titleInputBox: {
+    backgroundColor: 'rgba(30, 30, 45, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 20,
+    paddingHorizontal: 24,
+    paddingVertical: 0,
+    height: 130,
+    justifyContent: 'center',
+  },
+  titleInputText: {
+    fontSize: 20,
+    fontWeight: '400',
+    color: '#fff',
+  },
+  charCountCentered: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.35)',
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  // Slide 2: Time - New Design
+  timeSlideContent: {
+    flex: 1,
+    paddingTop: 0,
+  },
+  startingNowOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(30, 30, 45, 0.6)',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 24,
+    paddingHorizontal: 20,
+    paddingVertical: 18,
+    marginBottom: 32,
+    overflow: 'hidden',
+  },
+  startingNowOptionSelected: {
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+  },
+  radioCircle: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    marginRight: 14,
+    backgroundColor: 'transparent',
+  },
+  radioCircleSelected: {
+    borderWidth: 0,
+    backgroundColor: '#1a1a2e',
+  },
+  startingNowText: {
+    fontSize: 17,
+    color: 'rgba(255, 255, 255, 0.5)',
+    fontWeight: '400',
+  },
+  startingNowTextSelected: {
+    color: '#1a1a2e',
+  },
+  selectLabelsContainer: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  selectLabel: {
+    fontSize: 28,
+    fontFamily: 'Outfit_400Regular',
+    color: 'rgba(255, 255, 255, 0.25)',
+    marginBottom: 6,
+  },
+  selectLabelActive: {
+    color: 'rgba(255, 255, 255, 0.35)',
+  },
+  selectLabelTime: {
+    fontSize: 16,
+    fontFamily: 'SpaceMono_400Regular',
+    color: '#9C7BF4',
+    letterSpacing: 4,
+  },
+  selectLabelTimeActive: {
+    color: '#9C7BF4',
+  },
+  chooseBtnContainer: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 32,
+  },
+  chooseBtn: {
+    flex: 1,
+    backgroundColor: 'rgba(30, 30, 45, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 20,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  chooseBtnLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.4)',
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+  chooseBtnDisabled: {
+    opacity: 0.4,
+  },
+  chooseBtnText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  chooseBtnTextSelected: {
+    color: '#fff',
+  },
+  showEventForLabel: {
+    fontSize: 15,
+    color: 'rgba(255, 255, 255, 0.5)',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  durationChipsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  durationChip: {
+    backgroundColor: 'rgba(30, 30, 45, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderRadius: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+  },
+  durationChipSelected: {
+    backgroundColor: 'rgba(156, 123, 244, 0.3)',
+    borderColor: '#9C7BF4',
+  },
+  durationChipText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: 'rgba(255, 255, 255, 0.7)',
+  },
+  durationChipTextSelected: {
+    color: '#fff',
+  },
+  // Legacy title styles (kept for backwards compatibility)
   slideIcon: {
     width: 80,
     height: 80,
@@ -1568,6 +2014,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 20,
   },
+  nextBtnWrapper: {
+    borderRadius: 28,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  nextBtnGradient: {
+    paddingVertical: 18,
+    paddingHorizontal: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  nextBtnDisabled: {
+    opacity: 0.6,
+  },
+  nextBtnText: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  // Legacy button styles (kept for backwards compatibility)
   nextBtn: {
     backgroundColor: '#2dd4bf',
     borderRadius: 20,
@@ -1576,14 +2043,6 @@ const styles = StyleSheet.create({
   },
   nextBtnCreate: {
     backgroundColor: '#fb7185',
-  },
-  nextBtnDisabled: {
-    opacity: 0.6,
-  },
-  nextBtnText: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#0a0a12',
   },
   nextBtnTextCreate: {
     color: '#fff',
@@ -1667,5 +2126,207 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: '#0a0a12',
+  },
+  // Dual Pills - Start & End Date/Time
+  dualPillsContainer: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  datePill: {
+    flex: 1,
+    backgroundColor: 'rgba(60, 60, 80, 0.4)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+  },
+  datePillLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.5)',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 6,
+  },
+  datePillValue: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#fff',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  datePillPlaceholder: {
+    fontSize: 15,
+    fontWeight: '400',
+    color: 'rgba(255, 255, 255, 0.35)',
+  },
+  // Date & Time Picker Modal
+  dateTimePickerOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  dateTimePickerContainer: {
+    width: '100%',
+    maxWidth: 380,
+    borderRadius: 24,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(30, 30, 50, 0.95)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  dateTimePickerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  dateTimePickerClear: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.6)',
+  },
+  dateTimePickerTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  dateTimePickerContent: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 20,
+    paddingHorizontal: 12,
+    gap: 8,
+  },
+  dateTimePickerDoneBtn: {
+    marginHorizontal: 16,
+    marginBottom: 20,
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  dateTimePickerDoneText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#000',
+  },
+  // Calendar Picker
+  calendarPickerOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  calendarPickerContainer: {
+    backgroundColor: '#1a1a2e',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingTop: 20,
+    paddingBottom: 40,
+    paddingHorizontal: 20,
+  },
+  calendarHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  calendarMonthTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#4ADE80',
+  },
+  calendarNavBtn: {
+    padding: 10,
+  },
+  calendarNavText: {
+    fontSize: 24,
+    color: '#4ADE80',
+  },
+  calendarDayHeaders: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 10,
+  },
+  calendarDayHeader: {
+    width: 40,
+    textAlign: 'center',
+    fontSize: 12,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.5)',
+  },
+  calendarGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+  },
+  calendarDay: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 4,
+    borderRadius: 20,
+  },
+  calendarDaySelected: {
+    backgroundColor: '#4ADE80',
+  },
+  calendarDayToday: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  calendarDayText: {
+    fontSize: 16,
+    color: '#fff',
+  },
+  calendarDayTextDim: {
+    color: 'rgba(255, 255, 255, 0.25)',
+  },
+  calendarDayTextToday: {
+    color: '#4ADE80',
+  },
+  calendarDayTextSelected: {
+    color: '#1a1a2e',
+    fontWeight: '600',
+  },
+  timePickerSection: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  calendarFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 20,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  timezoneInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  timezoneIcon: {
+    fontSize: 20,
+  },
+  timezoneText: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.7)',
+  },
+  calendarDoneBtn: {
+    backgroundColor: '#fff',
+    paddingVertical: 14,
+    paddingHorizontal: 40,
+    borderRadius: 12,
+  },
+  calendarDoneText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#000',
   },
 });

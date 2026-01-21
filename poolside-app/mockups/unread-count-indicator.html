@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=375, initial-scale=1.0">
+  <title>Event Chat - Unread Count Indicator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #16213e 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: white;
+    }
+
+    .phone-frame {
+      width: 375px;
+      margin: 0 auto;
+      background: linear-gradient(180deg, #0a0a0f 0%, #12121a 100%);
+      border-radius: 40px;
+      padding: 20px;
+      min-height: 800px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .header {
+      padding: 20px 0;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+
+    .comparison {
+      margin-bottom: 30px;
+    }
+
+    .comparison-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.4);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      padding-left: 4px;
+    }
+
+    /* Chat Card Styles */
+    .chat-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px;
+      margin-bottom: 10px;
+      border-radius: 18px;
+      background: rgba(20, 20, 35, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .chat-card.has-unread {
+      background: rgba(30, 25, 50, 0.7);
+      border-color: rgba(102, 126, 234, 0.2);
+    }
+
+    .chat-image {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .chat-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .chat-header {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .chat-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chat-badge {
+      background: rgba(102, 126, 234, 0.15);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #667eea;
+      flex-shrink: 0;
+    }
+
+    /* Message Preview - Normal (Read) */
+    .chat-preview {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.5);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Message Preview - Shiny (Unread) */
+    .chat-preview.unread {
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 500;
+      /* Subtle gradient shimmer effect */
+      background: linear-gradient(90deg,
+        rgba(255, 255, 255, 0.9) 0%,
+        rgba(180, 190, 255, 1) 50%,
+        rgba(255, 255, 255, 0.9) 100%
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .chat-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .chat-time {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .chat-time.unread {
+      color: #667eea;
+      font-weight: 600;
+    }
+
+    /* OLD: Purple Dot */
+    .unread-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 4px;
+      background: #667eea;
+      box-shadow: 0 0 8px rgba(102, 126, 234, 0.6);
+    }
+
+    /* NEW: Unread Count Badge */
+    .unread-count {
+      min-width: 20px;
+      height: 20px;
+      padding: 0 6px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+    }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      margin: 30px 0;
+    }
+
+    /* Legend */
+    .legend {
+      margin-top: 20px;
+      padding: 16px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .legend-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .legend-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .arrow {
+      color: #667eea;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="header">
+      <h1>Event Chats</h1>
+    </div>
+
+    <!-- BEFORE: Current Design -->
+    <div class="comparison">
+      <div class="comparison-label">Before (Current)</div>
+
+      <!-- Event with messages - shows dot -->
+      <div class="chat-card">
+        <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=100" class="chat-image">
+        <div class="chat-content">
+          <div class="chat-header">
+            <span class="chat-title">Pool Party at Sigma Chi</span>
+            <span class="chat-badge">TODAY</span>
+          </div>
+          <div class="chat-preview">Sarah: Who's bringing the speaker?</div>
+        </div>
+        <div class="chat-meta">
+          <span class="chat-time">2m ago</span>
+          <div class="unread-dot"></div>
+        </div>
+      </div>
+
+      <!-- Another event with dot -->
+      <div class="chat-card">
+        <img src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=100" class="chat-image">
+        <div class="chat-content">
+          <div class="chat-header">
+            <span class="chat-title">Study Session @ Library</span>
+            <span class="chat-badge">TOMORROW</span>
+          </div>
+          <div class="chat-preview">Mike: I'll be there at 3</div>
+        </div>
+        <div class="chat-meta">
+          <span class="chat-time">1h ago</span>
+          <div class="unread-dot"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- AFTER: New Design -->
+    <div class="comparison">
+      <div class="comparison-label">After (Proposed)</div>
+
+      <!-- Event with 3 unread messages -->
+      <div class="chat-card has-unread">
+        <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=100" class="chat-image">
+        <div class="chat-content">
+          <div class="chat-header">
+            <span class="chat-title">Pool Party at Sigma Chi</span>
+            <span class="chat-badge">TODAY</span>
+          </div>
+          <div class="chat-preview unread">Sarah: Who's bringing the speaker?</div>
+        </div>
+        <div class="chat-meta">
+          <span class="chat-time unread">2m ago</span>
+          <div class="unread-count">3</div>
+        </div>
+      </div>
+
+      <!-- Event with 12 unread messages -->
+      <div class="chat-card has-unread">
+        <img src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=100" class="chat-image">
+        <div class="chat-content">
+          <div class="chat-header">
+            <span class="chat-title">Study Session @ Library</span>
+            <span class="chat-badge">TOMORROW</span>
+          </div>
+          <div class="chat-preview unread">Mike: I'll be there at 3</div>
+        </div>
+        <div class="chat-meta">
+          <span class="chat-time unread">1h ago</span>
+          <div class="unread-count">12</div>
+        </div>
+      </div>
+
+      <!-- Event with no unread (all read) -->
+      <div class="chat-card">
+        <img src="https://images.unsplash.com/photo-1496337589254-7e19d01cec44?w=100" class="chat-image">
+        <div class="chat-content">
+          <div class="chat-header">
+            <span class="chat-title">Game Night</span>
+            <span class="chat-badge">JAN 15</span>
+          </div>
+          <div class="chat-preview">You: Sounds good!</div>
+        </div>
+        <div class="chat-meta">
+          <span class="chat-time">Yesterday</span>
+          <!-- No badge when all read -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+      <div class="legend-title">Changes</div>
+      <div class="legend-item">
+        <div class="unread-dot"></div>
+        <span class="arrow">→</span>
+        <div class="unread-count">3</div>
+        <span>Purple dot becomes unread count</span>
+      </div>
+      <div class="legend-item">
+        <span style="color: rgba(255,255,255,0.5);">Muted text</span>
+        <span class="arrow">→</span>
+        <span class="chat-preview unread" style="display: inline;">Shiny text</span>
+        <span>Unread preview stands out</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

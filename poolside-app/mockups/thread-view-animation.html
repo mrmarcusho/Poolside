@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thread View Animation - Poolside</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+      min-height: 100vh;
+      color: white;
+      overflow: hidden;
+    }
+
+    .phone-frame {
+      width: 390px;
+      height: 844px;
+      margin: 20px auto;
+      background: linear-gradient(180deg, #0d0d1a 0%, #1a1a2e 30%, #0f0f1a 100%);
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Chat messages behind */
+    .chat-messages {
+      padding: 100px 16px 100px;
+      height: 100%;
+      overflow-y: auto;
+    }
+
+    .message {
+      margin-bottom: 8px;
+      max-width: 75%;
+    }
+
+    .message.sent {
+      margin-left: auto;
+    }
+
+    .message-bubble {
+      padding: 12px 16px;
+      border-radius: 20px;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .message.sent .message-bubble {
+      background: rgba(102, 126, 234, 0.85);
+      border-bottom-right-radius: 6px;
+    }
+
+    .message.received .message-bubble {
+      background: rgba(255, 255, 255, 0.08);
+      border-bottom-left-radius: 6px;
+    }
+
+    .message-sender {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 4px;
+      margin-left: 4px;
+    }
+
+    .reply-indicator {
+      font-size: 12px;
+      color: rgba(102, 126, 234, 1);
+      margin-top: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .reply-indicator:hover {
+      text-decoration: underline;
+    }
+
+    /* Thread overlay */
+    .thread-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease-out;
+    }
+
+    .thread-overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .thread-content {
+      width: 100%;
+      transform: scale(0.9) translateY(20px);
+      opacity: 0;
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  opacity 0.25s ease-out;
+    }
+
+    .thread-overlay.visible .thread-content {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+
+    /* Thread messages */
+    .thread-message {
+      display: flex;
+      gap: 12px;
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+
+    .thread-overlay.visible .thread-message {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .thread-overlay.visible .thread-message:nth-child(1) {
+      transition: opacity 0.3s ease-out 0.15s, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s;
+    }
+
+    .thread-overlay.visible .thread-message:nth-child(2) {
+      transition: opacity 0.3s ease-out 0.25s, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.25s;
+    }
+
+    .thread-overlay.visible .thread-message:nth-child(3) {
+      transition: opacity 0.3s ease-out 0.35s, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.35s;
+    }
+
+    .thread-overlay.visible .thread-message:nth-child(4) {
+      transition: opacity 0.3s ease-out 0.45s, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.45s;
+    }
+
+    .avatar-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 40px;
+    }
+
+    .thread-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 18px;
+      background: rgba(102, 126, 234, 0.3);
+      border: 2px solid rgba(102, 126, 234, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .connector-line {
+      width: 2px;
+      flex: 1;
+      background: rgba(102, 126, 234, 0.4);
+      margin: 4px 0;
+      min-height: 20px;
+      transform: scaleY(0);
+      transform-origin: top;
+    }
+
+    .thread-overlay.visible .connector-line {
+      transform: scaleY(1);
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s;
+    }
+
+    .thread-overlay.visible .thread-message:nth-child(2) .connector-line {
+      transition-delay: 0.4s;
+    }
+
+    .thread-overlay.visible .thread-message:nth-child(3) .connector-line {
+      transition-delay: 0.5s;
+    }
+
+    .message-content {
+      flex: 1;
+      padding-bottom: 8px;
+    }
+
+    .thread-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .thread-name {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .thread-time {
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .thread-bubble {
+      padding: 10px 14px;
+      border-radius: 18px;
+      font-size: 15px;
+      line-height: 1.4;
+      display: inline-block;
+    }
+
+    .thread-bubble.original {
+      background: rgba(102, 126, 234, 0.4);
+      border: 1px solid rgba(102, 126, 234, 0.5);
+    }
+
+    .thread-bubble.reply {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    /* Controls */
+    .controls {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      z-index: 100;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border-radius: 12px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.15);
+    }
+
+    /* Animation options */
+    .animation-options {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      background: rgba(0,0,0,0.5);
+      padding: 8px;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+    }
+
+    .option-btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: none;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      background: transparent;
+      color: rgba(255,255,255,0.6);
+      transition: all 0.2s ease;
+    }
+
+    .option-btn.active {
+      background: rgba(102, 126, 234, 0.3);
+      color: white;
+    }
+
+    .option-btn:hover {
+      color: white;
+    }
+
+    /* Animation variant: Scale from message */
+    .thread-overlay.scale-from-message .thread-content {
+      transform: scale(0.5) translateY(100px);
+    }
+
+    .thread-overlay.scale-from-message.visible .thread-content {
+      transform: scale(1) translateY(0);
+    }
+
+    /* Animation variant: Slide up */
+    .thread-overlay.slide-up .thread-content {
+      transform: translateY(100%);
+    }
+
+    .thread-overlay.slide-up.visible .thread-content {
+      transform: translateY(0);
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Animation variant: Fade blur */
+    .thread-overlay.fade-blur {
+      backdrop-filter: blur(0px);
+      -webkit-backdrop-filter: blur(0px);
+    }
+
+    .thread-overlay.fade-blur.visible {
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      transition: opacity 0.3s ease-out, backdrop-filter 0.4s ease-out;
+    }
+
+    .thread-overlay.fade-blur .thread-content {
+      transform: scale(0.95);
+    }
+
+    .thread-overlay.fade-blur.visible .thread-content {
+      transform: scale(1);
+    }
+
+    .hint {
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+    }
+  </style>
+</head>
+<body>
+  <div class="animation-options">
+    <button class="option-btn active" data-animation="default">Spring Scale</button>
+    <button class="option-btn" data-animation="scale-from-message">Scale Up</button>
+    <button class="option-btn" data-animation="slide-up">Slide Up</button>
+    <button class="option-btn" data-animation="fade-blur">Fade Blur</button>
+  </div>
+
+  <div class="phone-frame">
+    <!-- Background chat messages -->
+    <div class="chat-messages">
+      <div class="message received">
+        <div class="message-sender">Dennis</div>
+        <div class="message-bubble">Hey everyone, who's coming to the party tonight?</div>
+      </div>
+
+      <div class="message sent">
+        <div class="message-bubble">I'll be there!</div>
+      </div>
+
+      <div class="message received">
+        <div class="message-sender">Dennis</div>
+        <div class="message-bubble">The emoji not working</div>
+        <div class="reply-indicator" onclick="openThread()">
+          3 replies <span>›</span>
+        </div>
+      </div>
+
+      <div class="message sent">
+        <div class="message-bubble">What time does it start?</div>
+      </div>
+
+      <div class="message received">
+        <div class="message-sender">Sarah</div>
+        <div class="message-bubble">Around 8pm I think</div>
+      </div>
+
+      <div class="message sent">
+        <div class="message-bubble">Perfect, see you all there!</div>
+      </div>
+    </div>
+
+    <!-- Thread overlay -->
+    <div class="thread-overlay" id="threadOverlay" onclick="closeThread(event)">
+      <div class="thread-content" onclick="event.stopPropagation()">
+        <!-- Original message -->
+        <div class="thread-message">
+          <div class="avatar-column">
+            <div class="thread-avatar">🏊</div>
+            <div class="connector-line"></div>
+          </div>
+          <div class="message-content">
+            <div class="thread-header">
+              <span class="thread-name">Dennis</span>
+              <span class="thread-time">10:38 PM</span>
+            </div>
+            <div class="thread-bubble original">The emoji not working</div>
+          </div>
+        </div>
+
+        <!-- Reply 1 -->
+        <div class="thread-message">
+          <div class="avatar-column">
+            <div class="thread-avatar">👤</div>
+            <div class="connector-line"></div>
+          </div>
+          <div class="message-content">
+            <div class="thread-header">
+              <span class="thread-name">Marcus Ho</span>
+              <span class="thread-time">10:42 PM</span>
+            </div>
+            <div class="thread-bubble reply">Which emoji?</div>
+          </div>
+        </div>
+
+        <!-- Reply 2 -->
+        <div class="thread-message">
+          <div class="avatar-column">
+            <div class="thread-avatar">🏊</div>
+            <div class="connector-line"></div>
+          </div>
+          <div class="message-content">
+            <div class="thread-header">
+              <span class="thread-name">Dennis</span>
+              <span class="thread-time">10:43 PM</span>
+            </div>
+            <div class="thread-bubble reply">The fire one 🔥</div>
+          </div>
+        </div>
+
+        <!-- Reply 3 -->
+        <div class="thread-message">
+          <div class="avatar-column">
+            <div class="thread-avatar">👤</div>
+          </div>
+          <div class="message-content">
+            <div class="thread-header">
+              <span class="thread-name">Marcus Ho</span>
+              <span class="thread-time">10:45 PM</span>
+            </div>
+            <div class="thread-bubble reply">Looks fine to me!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="hint">Click "3 replies" or use buttons below</p>
+
+  <div class="controls">
+    <button class="btn btn-primary" onclick="openThread()">Open Thread</button>
+    <button class="btn btn-secondary" onclick="closeThreadDirect()">Close Thread</button>
+  </div>
+
+  <script>
+    const overlay = document.getElementById('threadOverlay');
+    let currentAnimation = 'default';
+
+    function openThread() {
+      // Reset animation classes
+      overlay.classList.remove('scale-from-message', 'slide-up', 'fade-blur');
+      if (currentAnimation !== 'default') {
+        overlay.classList.add(currentAnimation);
+      }
+      overlay.classList.add('visible');
+    }
+
+    function closeThread(event) {
+      if (event.target === overlay) {
+        overlay.classList.remove('visible');
+      }
+    }
+
+    function closeThreadDirect() {
+      overlay.classList.remove('visible');
+    }
+
+    // Animation option buttons
+    document.querySelectorAll('.option-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentAnimation = btn.dataset.animation;
+
+        // If overlay is open, update the animation
+        if (overlay.classList.contains('visible')) {
+          overlay.classList.remove('visible', 'scale-from-message', 'slide-up', 'fade-blur');
+          setTimeout(() => {
+            if (currentAnimation !== 'default') {
+              overlay.classList.add(currentAnimation);
+            }
+            overlay.classList.add('visible');
+          }, 50);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

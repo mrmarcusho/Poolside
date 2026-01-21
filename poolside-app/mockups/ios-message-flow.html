@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=375, initial-scale=1.0">
+  <title>iOS-Style Message Flow - Poolside</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #0a0a0f;
+      color: #fff;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .phone-frame {
+      width: 375px;
+      height: 100vh;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      background: #0a0a0f;
+      position: relative;
+    }
+
+    /* Header */
+    .chat-header {
+      padding: 12px 16px;
+      padding-top: 50px;
+      background: rgba(10, 10, 15, 0.95);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 10;
+    }
+
+    .back-button {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #667eea;
+      font-size: 20px;
+    }
+
+    .chat-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .chat-info {
+      flex: 1;
+    }
+
+    .chat-name {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .chat-status {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Messages Area */
+    .messages-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 8px;
+      position: relative;
+    }
+
+    .message-row {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .message-row.received {
+      justify-content: flex-start;
+    }
+
+    .message-bubble {
+      max-width: 75%;
+      padding: 12px 16px;
+      border-radius: 20px;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .message-bubble.sent {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
+      border-bottom-right-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .message-bubble.received {
+      background: rgba(255, 255, 255, 0.1);
+      border-bottom-left-radius: 6px;
+    }
+
+    /* Placeholder for where the message will land */
+    .message-placeholder {
+      height: 0;
+      overflow: hidden;
+      transition: height 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+
+    .message-placeholder.expanding {
+      height: auto;
+    }
+
+    /* Flying message bubble - positioned absolutely */
+    .flying-message {
+      position: fixed;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
+      border-bottom-right-radius: 6px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 12px 16px;
+      font-size: 15px;
+      line-height: 1.4;
+      z-index: 1000;
+      pointer-events: none;
+      transform: scale(0.85);
+      transform-origin: bottom right;
+      opacity: 0.9;
+    }
+
+    .flying-message.flying {
+      animation: smoothSlideUp 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes smoothSlideUp {
+      0% {
+        transform: scale(0.85) translateY(0);
+        opacity: 0.9;
+      }
+      100% {
+        transform: scale(1) translateY(var(--fly-y));
+        opacity: 1;
+        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.35);
+      }
+    }
+
+    /* Input Area */
+    .input-container {
+      padding: 12px 16px;
+      padding-bottom: 34px;
+      background: rgba(10, 10, 15, 0.95);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      z-index: 10;
+    }
+
+    .input-wrapper {
+      flex: 1;
+      position: relative;
+    }
+
+    .message-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 12px 16px;
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      outline: none;
+      resize: none;
+      min-height: 44px;
+      max-height: 100px;
+    }
+
+    .message-input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .message-input:focus {
+      border-color: rgba(102, 126, 234, 0.5);
+    }
+
+    .send-button {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+      flex-shrink: 0;
+    }
+
+    .send-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .send-button:active {
+      transform: scale(0.95);
+    }
+
+    /* Instructions */
+    .instructions {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(102, 126, 234, 0.2);
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.7);
+      text-align: center;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(102, 126, 234, 0.3);
+      z-index: 100;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .instructions.visible {
+      opacity: 1;
+    }
+
+    /* Timestamp */
+    .timestamp {
+      text-align: center;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.3);
+      margin: 16px 0 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="chat-header">
+      <div class="back-button">‹</div>
+      <div class="chat-avatar">🎉</div>
+      <div class="chat-info">
+        <div class="chat-name">Dorm Party Chat</div>
+        <div class="chat-status">12 members</div>
+      </div>
+    </div>
+
+    <div class="messages-container" id="messagesContainer">
+      <div class="timestamp">Today 7:32 PM</div>
+
+      <div class="message-row received">
+        <div class="message-bubble received">Hey everyone! Who's coming tonight?</div>
+      </div>
+
+      <div class="message-row received">
+        <div class="message-bubble received">I'll be there around 8!</div>
+      </div>
+
+      <div class="message-row">
+        <div class="message-bubble sent">Same here 🙌</div>
+      </div>
+
+      <div class="message-row received">
+        <div class="message-bubble received">Should I bring anything?</div>
+      </div>
+    </div>
+
+    <div class="input-container" id="inputContainer">
+      <div class="input-wrapper" id="inputWrapper">
+        <input
+          type="text"
+          class="message-input"
+          id="messageInput"
+          placeholder="Type a message..."
+          autocomplete="off"
+        />
+      </div>
+      <button class="send-button" id="sendButton">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="instructions" id="instructions">Type a message and press send to see the animation</div>
+
+  <script>
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    const messagesContainer = document.getElementById('messagesContainer');
+    const inputWrapper = document.getElementById('inputWrapper');
+    const instructions = document.getElementById('instructions');
+
+    // Show instructions initially
+    setTimeout(() => {
+      instructions.classList.add('visible');
+      setTimeout(() => {
+        instructions.classList.remove('visible');
+      }, 3000);
+    }, 500);
+
+    // Pre-filled messages to cycle through
+    const sampleMessages = [
+      "I'll bring snacks! 🍕",
+      "Can't wait!",
+      "See you all soon",
+      "This is gonna be fun 🎊",
+      "On my way!",
+      "Save me a spot!"
+    ];
+    let messageIndex = 0;
+
+    function sendMessage() {
+      const text = messageInput.value.trim() || sampleMessages[messageIndex++ % sampleMessages.length];
+      if (!text) return;
+
+      // Get send button position (where message starts small)
+      const sendBtn = document.getElementById('sendButton');
+      const btnRect = sendBtn.getBoundingClientRect();
+
+      // Create placeholder in messages first (invisible, will hold space)
+      const messageRow = document.createElement('div');
+      messageRow.className = 'message-row';
+
+      const messageBubble = document.createElement('div');
+      messageBubble.className = 'message-bubble sent';
+      messageBubble.textContent = text;
+      messageBubble.style.visibility = 'hidden';
+
+      messageRow.appendChild(messageBubble);
+      messagesContainer.appendChild(messageRow);
+
+      // Scroll to bottom to show where message will land
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+      // Clear input immediately
+      messageInput.value = '';
+
+      // Get the target position after DOM update
+      requestAnimationFrame(() => {
+        const targetRect = messageBubble.getBoundingClientRect();
+
+        // Calculate the flight distance
+        const startY = btnRect.top - 20;
+        const endY = targetRect.top;
+        const flyDistance = endY - startY;
+
+        // Create the flying message at the send button (starts small)
+        const flyingMsg = document.createElement('div');
+        flyingMsg.className = 'flying-message';
+        flyingMsg.textContent = text;
+
+        // Set CSS variable for the flight distance
+        flyingMsg.style.setProperty('--fly-y', flyDistance + 'px');
+
+        // Position at start (near send button)
+        flyingMsg.style.right = (window.innerWidth - btnRect.right + 5) + 'px';
+        flyingMsg.style.top = startY + 'px';
+        flyingMsg.style.left = 'auto';
+        document.body.appendChild(flyingMsg);
+
+        // Trigger the smooth slide-up animation
+        requestAnimationFrame(() => {
+          flyingMsg.classList.add('flying');
+        });
+
+        // After animation completes, show the real message and remove flying one
+        setTimeout(() => {
+          messageBubble.style.visibility = 'visible';
+          flyingMsg.remove();
+        }, 280);
+      });
+    }
+
+    sendButton.addEventListener('click', sendMessage);
+
+    messageInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // Focus input on load
+    messageInput.focus();
+  </script>
+</body>
+</html>

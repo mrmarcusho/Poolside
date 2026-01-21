@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Discover - Relatable Events (App Style)</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --coral: #ff6b4a;
+      --violet: #8b5cf6;
+      --cyan: #22d3ee;
+      --teal: #2dd4bf;
+      --green: #22c55e;
+      --amber: #f59e0b;
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.6);
+      --card-bg: rgba(255, 255, 255, 0.06);
+      --card-border: rgba(255, 255, 255, 0.12);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #0a0a0f;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .phone-frame {
+      width: 390px;
+      height: 844px;
+      margin: 20px auto;
+      background: linear-gradient(180deg,
+        #0f0f18 0%,
+        #12121a 50%,
+        #0a0a12 100%
+      );
+      border-radius: 50px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.5);
+    }
+
+    /* Gradient orbs in background */
+    .bg-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.4;
+    }
+
+    .bg-orb-1 {
+      width: 300px;
+      height: 300px;
+      background: var(--violet);
+      top: -100px;
+      right: -100px;
+    }
+
+    .bg-orb-2 {
+      width: 250px;
+      height: 250px;
+      background: var(--coral);
+      bottom: 100px;
+      left: -80px;
+    }
+
+    /* Progress dots */
+    .progress-dots {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 10;
+    }
+
+    .progress-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .progress-dot.active {
+      background: var(--coral);
+      transform: scale(1.4);
+      box-shadow: 0 0 12px rgba(255, 107, 74, 0.6);
+    }
+
+    /* Badge */
+    .live-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: rgba(255, 107, 74, 0.15);
+      border: 1px solid rgba(255, 107, 74, 0.3);
+      border-radius: 100px;
+      width: fit-content;
+      margin: 70px auto 0;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--coral);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .live-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--coral);
+    }
+
+    /* Header text */
+    .header-section {
+      text-align: center;
+      padding: 24px 24px 0;
+    }
+
+    .main-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+
+    .main-title .highlight {
+      color: var(--coral);
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      max-width: 280px;
+      margin: 0 auto;
+    }
+
+    /* Event cards container */
+    .events-container {
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Dark frosted glass event card - matching app style */
+    .event-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      border-radius: 20px;
+      border: 1px solid var(--card-border);
+      overflow: hidden;
+    }
+
+    /* Host header */
+    .host-header {
+      display: flex;
+      align-items: center;
+      padding: 12px 14px;
+      gap: 10px;
+    }
+
+    .host-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--violet), var(--coral));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .host-info {
+      flex: 1;
+    }
+
+    .host-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .host-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .time-badge {
+      font-size: 11px;
+      font-weight: 700;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 100px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .time-badge.soon { background: var(--coral); }
+    .time-badge.today { background: var(--green); }
+    .time-badge.tomorrow { background: var(--violet); }
+
+    /* Event image placeholder */
+    .event-image {
+      width: 100%;
+      height: 100px;
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(255, 107, 74, 0.2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .event-emoji-large {
+      font-size: 48px;
+    }
+
+    /* Event content */
+    .event-content {
+      padding: 14px;
+    }
+
+    .event-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      letter-spacing: -0.3px;
+    }
+
+    .event-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .meta-icon {
+      font-size: 14px;
+    }
+
+    .event-description {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    /* Event footer */
+    .event-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .attendees-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .avatar-stack {
+      display: flex;
+    }
+
+    .avatar {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid #0f0f18;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      margin-left: -8px;
+    }
+
+    .avatar:first-child { margin-left: 0; }
+    .avatar.v1 { background: linear-gradient(135deg, #667eea, #764ba2); }
+    .avatar.v2 { background: linear-gradient(135deg, #f093fb, #f5576c); }
+    .avatar.v3 { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+
+    .attendee-text {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .attendee-count {
+      color: var(--teal);
+      font-weight: 700;
+    }
+
+    .rsvp-btn {
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      border: none;
+      border-radius: 16px;
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Needs people badge */
+    .needs-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--amber);
+      background: rgba(245, 158, 11, 0.15);
+      padding: 4px 10px;
+      border-radius: 100px;
+      margin-top: 8px;
+    }
+
+    /* Scroll indicator */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .scroll-text {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    .scroll-arrow {
+      width: 18px;
+      height: 18px;
+      border-right: 2px solid var(--text-secondary);
+      border-bottom: 2px solid var(--text-secondary);
+      transform: rotate(45deg);
+      animation: bounce 1.5s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: rotate(45deg) translateY(0); }
+      50% { transform: rotate(45deg) translateY(5px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <!-- Background orbs -->
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+
+    <!-- Progress dots -->
+    <div class="progress-dots">
+      <div class="progress-dot"></div>
+      <div class="progress-dot active"></div>
+      <div class="progress-dot"></div>
+    </div>
+
+    <!-- Live badge -->
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      <span class="live-text">Live at Tufts</span>
+    </div>
+
+    <!-- Header -->
+    <div class="header-section">
+      <h1 class="main-title">
+        Discover <span class="highlight">events</span><br>happening now
+      </h1>
+      <p class="subtitle">
+        See what your classmates are up to right now
+      </p>
+    </div>
+
+    <!-- Event cards - App style -->
+    <div class="events-container">
+
+      <!-- Soccer Card -->
+      <div class="event-card">
+        <div class="host-header">
+          <div class="host-avatar">😎</div>
+          <div class="host-info">
+            <div class="host-name">Jake M.</div>
+            <div class="host-label">Host</div>
+          </div>
+          <span class="time-badge soon">In 30 min</span>
+        </div>
+        <div class="event-image">
+          <span class="event-emoji-large">⚽️</span>
+        </div>
+        <div class="event-content">
+          <div class="event-title">Pickup Soccer</div>
+          <div class="event-meta">
+            <div class="meta-item">
+              <span class="meta-icon">📍</span>
+              <span>Fletcher Field</span>
+            </div>
+          </div>
+          <div class="event-description">Need a few more for 5v5. All skill levels welcome!</div>
+        </div>
+        <div class="event-footer">
+          <div class="attendees-group">
+            <div class="avatar-stack">
+              <div class="avatar v1">🙂</div>
+              <div class="avatar v2">😊</div>
+              <div class="avatar v3">🤓</div>
+            </div>
+            <span class="attendee-text"><span class="attendee-count">8</span> going</span>
+          </div>
+          <button class="rsvp-btn">RSVP</button>
+        </div>
+      </div>
+
+      <!-- Poker Card -->
+      <div class="event-card">
+        <div class="host-header">
+          <div class="host-avatar">🃏</div>
+          <div class="host-info">
+            <div class="host-name">Sarah K.</div>
+            <div class="host-label">Host</div>
+          </div>
+          <span class="time-badge today">Tonight 8pm</span>
+        </div>
+        <div class="event-content">
+          <div class="event-title">Poker Night @ Miller</div>
+          <div class="event-meta">
+            <div class="meta-item">
+              <span class="meta-icon">📍</span>
+              <span>Miller Hall 204</span>
+            </div>
+          </div>
+          <div class="event-description">Texas hold'em, $5 buy-in. Snacks provided 🍕</div>
+          <div class="needs-badge">🙋 Need 3 more players</div>
+        </div>
+        <div class="event-footer">
+          <div class="attendees-group">
+            <div class="avatar-stack">
+              <div class="avatar v2">😏</div>
+              <div class="avatar v1">🙃</div>
+            </div>
+            <span class="attendee-text"><span class="attendee-count">4</span> going</span>
+          </div>
+          <button class="rsvp-btn">RSVP</button>
+        </div>
+      </div>
+
+      <!-- Cheese Club Card -->
+      <div class="event-card">
+        <div class="host-header">
+          <div class="host-avatar">🧀</div>
+          <div class="host-info">
+            <div class="host-name">Cheese Club</div>
+            <div class="host-label">Club</div>
+          </div>
+          <span class="time-badge tomorrow">Tomorrow 3pm</span>
+        </div>
+        <div class="event-content">
+          <div class="event-title">Weekly Cheese Tasting</div>
+          <div class="event-meta">
+            <div class="meta-item">
+              <span class="meta-icon">📍</span>
+              <span>Campus Center 203</span>
+            </div>
+          </div>
+          <div class="event-description">This week: French cheeses! Brie, Camembert & more 🇫🇷</div>
+        </div>
+        <div class="event-footer">
+          <div class="attendees-group">
+            <div class="avatar-stack">
+              <div class="avatar v3">😋</div>
+              <div class="avatar v1">🧐</div>
+              <div class="avatar v2">🤤</div>
+            </div>
+            <span class="attendee-text"><span class="attendee-count">23</span> going</span>
+          </div>
+          <button class="rsvp-btn">RSVP</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="scroll-indicator">
+      <span class="scroll-text">Scroll</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </div>
+</body>
+</html>

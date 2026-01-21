@@ -10,3 +10,5 @@ export { EditProfileScreen } from './EditProfileScreen';
 export { CustomSplashScreen } from './SplashScreen';
 export { LoginScreen } from './LoginScreen';
 export { RegisterScreen } from './RegisterScreen';
+export { WelcomeScreen } from './WelcomeScreen';
+export { AuthScreen } from './AuthScreen';

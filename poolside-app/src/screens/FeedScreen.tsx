@@ -12,7 +12,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import Animated, {
   useSharedValue,
   useAnimatedScrollHandler,
@@ -24,11 +24,19 @@ import Animated, {
   withSpring,
   SharedValue,
 } from 'react-native-reanimated';
-import { EventCard, EventDetailModal } from '../components';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
+import { Ionicons } from '@expo/vector-icons';
+import { EventCard, EventDetailModal, EventFilterModal } from '../components';
 import { mockEvents } from '../data/mockEvents';
 import { Event } from '../types';
 import { useEvents } from '../hooks';
 import { mapApiEventsToEvents } from '../utils';
+import {
+  EventFilterState,
+  DEFAULT_FILTER_STATE,
+  countActiveFilters,
+} from '../data/eventFilters';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -165,12 +173,29 @@ const AnimatedEventCard: React.FC<AnimatedEventCardProps> = ({
   );
 };
 
+// Helper function to determine if an event is happening now
+// Matches the logic in EventCard.tsx for consistency
+const isHappeningNow = (event: Event): boolean => {
+  const now = Date.now();
+  const eventTime = new Date(event.dateTime).getTime();
+  const timeDiff = now - eventTime;
+  const durationMs = event.displayDuration * 60 * 1000; // Convert minutes to ms
+  // Event started and within displayDuration OR starts within next 5 minutes
+  return (timeDiff >= 0 && timeDiff <= durationMs) || (timeDiff < 0 && timeDiff >= -5 * 60 * 1000);
+};
+
 export const FeedScreen: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [isInitialMount, setIsInitialMount] = useState(true);
+  const [showHappeningNow, setShowHappeningNow] = useState(false);
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [filters, setFilters] = useState<EventFilterState>(DEFAULT_FILTER_STATE);
   const insets = useSafeAreaInsets();
+
+  // Count active filters for badge
+  const activeFilterCount = countActiveFilters(filters);
 
   // Mark initial mount as complete after first render
   useEffect(() => {
@@ -229,6 +254,11 @@ export const FeedScreen: React.FC = () => {
         ? [] // API returned no events
         : mockEvents; // Still loading, show mock as placeholder
 
+  // Filter events based on "Happening Now" toggle
+  const filteredEvents = showHappeningNow
+    ? events.filter(isHappeningNow)
+    : events;
+
   const handleEventPress = (event: Event) => {
     setSelectedEvent(event);
     setModalVisible(true);
@@ -245,8 +275,19 @@ export const FeedScreen: React.FC = () => {
     setRefreshing(false);
   }, [refresh]);
 
-  // Get navigation for tab press detection
+  // Get navigation and route for tab press detection and params
   const navigation = useNavigation();
+  const route = useRoute();
+
+  // Refresh when navigating here after creating a new event
+  useEffect(() => {
+    const params = route.params as { refresh?: boolean } | undefined;
+    if (params?.refresh) {
+      refresh();
+      // Clear the param so it doesn't refresh again on subsequent focuses
+      navigation.setParams({ refresh: undefined } as any);
+    }
+  }, [route.params, refresh, navigation]);
 
   // Refresh when user taps the Feed tab while already on it
   useEffect(() => {
@@ -259,12 +300,17 @@ export const FeedScreen: React.FC = () => {
   }, [navigation, handleRefresh]);
 
   // Play stagger animation when switching to this tab
+  // Also refresh events to catch any missed socket updates
   useFocusEffect(
     useCallback(() => {
       // Trigger stagger animation by incrementing shared value
       // Direct mutation - no React state, no re-render, no delay
       animationTrigger.value = animationTrigger.value + 1;
-    }, [])
+
+      // Refresh events to ensure we have latest isFull status
+      // This catches any missed socket updates
+      refresh();
+    }, [refresh])
   );
 
   return (
@@ -276,15 +322,9 @@ export const FeedScreen: React.FC = () => {
       <SafeAreaView style={styles.container} edges={['top']}>
         <StatusBar barStyle="light-content" />
 
-        {/* Header with logo */}
-        <View style={styles.header}>
-          <View style={styles.logoContainer}>
-            <Image
-              source={require('../../assets/poolside-logo.png')}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </View>
+        {/* Header Row 1: Title and Icons */}
+        <View style={styles.headerRow}>
+          <Text style={styles.pageTitle}>The Feed</Text>
           <View style={styles.headerIcons}>
             <TouchableOpacity>
               <Text style={styles.headerIcon}>🔔</Text>
@@ -295,9 +335,59 @@ export const FeedScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* Page Title */}
-        <View style={styles.titleContainer}>
-          <Text style={styles.pageTitle}>Cruise Feed</Text>
+        {/* Header Row 2: Filter Controls */}
+        <View style={styles.filterRow}>
+          {/* NOW Button */}
+          <TouchableOpacity
+            style={[
+              styles.happeningNowToggle,
+              showHappeningNow && styles.happeningNowToggleActive,
+            ]}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              setShowHappeningNow(!showHappeningNow);
+            }}
+            activeOpacity={0.85}
+          >
+            {showHappeningNow ? (
+              <LinearGradient
+                colors={['#c084fc', '#e9d5ff', '#f5f3ff', '#ddd6fe', '#c084fc']}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
+                style={styles.happeningNowGradient}
+              >
+                <Text style={styles.happeningNowTextActive}>NOW</Text>
+              </LinearGradient>
+            ) : (
+              <View style={styles.happeningNowGradient}>
+                <Text style={styles.happeningNowText}>NOW</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+
+          {/* Filter Button */}
+          <TouchableOpacity
+            style={[
+              styles.filterButton,
+              activeFilterCount > 0 && styles.filterButtonActive,
+            ]}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              setFilterModalVisible(true);
+            }}
+            activeOpacity={0.7}
+          >
+            <Ionicons
+              name="options-outline"
+              size={20}
+              color="#fff"
+            />
+            {activeFilterCount > 0 && (
+              <View style={styles.filterBadge}>
+                <Text style={styles.filterBadgeText}>{activeFilterCount}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
         </View>
 
         {/* Events Feed with snap scroll */}
@@ -314,6 +404,20 @@ export const FeedScreen: React.FC = () => {
               <Text style={styles.emptyStateText}>
                 Be the first to create an event for this cruise!
               </Text>
+            </View>
+          ) : filteredEvents.length === 0 && showHappeningNow ? (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyStateEmoji}>⏰</Text>
+              <Text style={styles.emptyStateTitle}>Nothing Happening Now</Text>
+              <Text style={styles.emptyStateText}>
+                Check back later or browse all upcoming events
+              </Text>
+              <TouchableOpacity
+                style={styles.showAllButton}
+                onPress={() => setShowHappeningNow(false)}
+              >
+                <Text style={styles.showAllButtonText}>Show All Events</Text>
+              </TouchableOpacity>
             </View>
           ) : (
             <Animated.ScrollView
@@ -334,7 +438,7 @@ export const FeedScreen: React.FC = () => {
                 />
               }
             >
-              {events.map((event, index) => (
+              {filteredEvents.map((event, index) => (
                 <AnimatedEventCard
                   key={event.id}
                   event={event}
@@ -359,6 +463,18 @@ export const FeedScreen: React.FC = () => {
           visible={modalVisible}
           onClose={handleCloseModal}
         />
+
+        {/* Event Filter Modal */}
+        <EventFilterModal
+          visible={filterModalVisible}
+          onClose={() => setFilterModalVisible(false)}
+          filters={filters}
+          onApply={(newFilters) => {
+            setFilters(newFilters);
+            // Update happeningNow state from filters
+            setShowHappeningNow(newFilters.happeningNow);
+          }}
+        />
       </SafeAreaView>
     </ImageBackground>
   );
@@ -371,41 +487,79 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
+  headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingLeft: 5,
-    paddingRight: 20,
-    paddingTop: 4,
-    paddingBottom: 1,
-  },
-  logoContainer: {
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
-    marginLeft: -40,
-  },
-  logo: {
-    height: 70,
-    width: 210,
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
   headerIcons: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: 16,
   },
   headerIcon: {
     fontSize: 20,
     opacity: 0.8,
   },
-  titleContainer: {
+  filterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 20,
-    paddingBottom: 6,
-    marginTop: -10,
+    paddingTop: 10,
+    paddingBottom: 12,
+    gap: 10,
   },
   pageTitle: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: '#fff',
+    letterSpacing: -1,
+    shadowColor: '#ffffff',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 15,
+  },
+  filterControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  happeningNowToggle: {
+    borderRadius: 50,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
+    backgroundColor: 'rgba(30, 30, 35, 0.9)',
+  },
+  happeningNowToggleActive: {
+    borderColor: '#fff',
+    backgroundColor: 'transparent',
+    shadowColor: '#fff',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  happeningNowGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+  },
+  happeningNowText: {
     fontFamily: 'Satoshi-Bold',
-    fontSize: 28,
+    fontSize: 14,
     color: '#ffffff',
+    letterSpacing: 0.5,
+  },
+  happeningNowTextActive: {
+    fontFamily: 'Satoshi-Bold',
+    fontSize: 14,
+    color: '#1a1a2e',
+    letterSpacing: 0.5,
   },
   feedContainer: {
     flex: 1,
@@ -456,5 +610,56 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'rgba(255,255,255,0.6)',
     textAlign: 'center',
+  },
+  showAllButton: {
+    marginTop: 20,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    backgroundColor: '#667eea',
+    borderRadius: 24,
+  },
+  showAllButtonText: {
+    fontFamily: 'Satoshi-Bold',
+    fontSize: 14,
+    color: '#ffffff',
+  },
+  filterButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: 'rgba(30, 30, 40, 0.9)',
+    borderWidth: 2,
+    borderColor: '#a78bfa',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    shadowColor: '#a78bfa',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  filterButtonActive: {
+    borderColor: '#c084fc',
+    shadowColor: '#c084fc',
+    shadowOpacity: 0.6,
+    shadowRadius: 16,
+  },
+  filterBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: '#f472b6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  filterBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#fff',
   },
 });

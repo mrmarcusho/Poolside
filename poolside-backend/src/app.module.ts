@@ -9,6 +9,7 @@ import { EventsModule } from './modules/events/events.module';
 import { RsvpModule } from './modules/rsvp/rsvp.module';
 import { FriendsModule } from './modules/friends/friends.module';
 import { MessagesModule } from './modules/messages/messages.module';
+import { EventChatModule } from './modules/event-chat/event-chat.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
 
@@ -28,6 +29,7 @@ import { UploadsModule } from './modules/uploads/uploads.module';
     RsvpModule,
     FriendsModule,
     MessagesModule,
+    EventChatModule,
     NotificationsModule,
     UploadsModule,
   ],

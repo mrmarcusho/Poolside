@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tufts Location Picker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0a0a12;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+    }
+
+    .phone-frame {
+      width: 390px;
+      height: 844px;
+      background: linear-gradient(165deg,
+        #1a1428 0%,
+        #0f0a1a 25%,
+        #0a0a12 50%,
+        #0d1420 75%,
+        #0a1018 100%
+      );
+      border-radius: 50px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 0 0 12px #1a1a2e,
+        0 25px 80px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Gradient overlay for depth */
+    .phone-frame::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background:
+        radial-gradient(ellipse at 30% 20%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 80%, rgba(96, 165, 250, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .screen {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 60px 24px 40px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .back-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .back-btn svg {
+      width: 20px;
+      height: 20px;
+      color: #fff;
+    }
+
+    .progress-dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .dot.completed {
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    .dot.active {
+      background: #fff;
+    }
+
+    .header-spacer {
+      width: 44px;
+    }
+
+    /* Step indicator */
+    .step-text {
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 8px;
+      margin-top: 16px;
+    }
+
+    /* Main heading */
+    .main-heading {
+      font-family: 'Syne', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.25;
+      margin-bottom: 28px;
+    }
+
+    .accent {
+      color: #60a5fa;
+    }
+
+    /* Search input */
+    .search-container {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .search-input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 16px 20px 16px 52px;
+      font-size: 16px;
+      color: #fff;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-input::placeholder {
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    .search-input:focus {
+      border-color: rgba(96, 165, 250, 0.5);
+      background: rgba(0, 0, 0, 0.35);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Locations container */
+    .locations-container {
+      flex: 1;
+      overflow-y: auto;
+      margin: 0 -24px;
+      padding: 0 24px;
+      mask-image: linear-gradient(to bottom, transparent, black 8px, black calc(100% - 40px), transparent);
+      -webkit-mask-image: linear-gradient(to bottom, transparent, black 8px, black calc(100% - 40px), transparent);
+    }
+
+    .locations-container::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Category section */
+    .category {
+      margin-bottom: 20px;
+    }
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      cursor: pointer;
+    }
+
+    .category-icon {
+      font-size: 16px;
+    }
+
+    .category-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .category-count {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.06);
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-left: auto;
+    }
+
+    /* Location chips */
+    .location-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .location-chip {
+      padding: 12px 16px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .location-chip:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .location-chip.selected {
+      background: rgba(96, 165, 250, 0.2);
+      border-color: rgba(96, 165, 250, 0.5);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(96, 165, 250, 0.2);
+    }
+
+    .location-chip .emoji {
+      font-size: 15px;
+    }
+
+    /* Custom location section */
+    .custom-location-section {
+      margin-top: 8px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .custom-toggle {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .custom-toggle:hover {
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .custom-toggle.active {
+      background: rgba(139, 92, 246, 0.15);
+      border-color: rgba(139, 92, 246, 0.4);
+    }
+
+    .custom-toggle-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: rgba(139, 92, 246, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .custom-toggle-text {
+      flex: 1;
+    }
+
+    .custom-toggle-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+
+    .custom-toggle-subtitle {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .custom-toggle-arrow {
+      color: rgba(255, 255, 255, 0.4);
+      transition: transform 0.2s;
+    }
+
+    .custom-toggle.active .custom-toggle-arrow {
+      transform: rotate(90deg);
+    }
+
+    /* Custom input (appears when toggle is active) */
+    .custom-input-container {
+      margin-top: 12px;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .custom-input-container.visible {
+      max-height: 80px;
+      opacity: 1;
+    }
+
+    .custom-input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 14px;
+      padding: 16px 20px;
+      font-size: 16px;
+      color: #fff;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .custom-input::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .custom-input:focus {
+      border-color: rgba(139, 92, 246, 0.6);
+    }
+
+    /* Selected location display */
+    .selected-display {
+      margin-top: 16px;
+      padding: 14px 18px;
+      background: linear-gradient(135deg, rgba(96, 165, 250, 0.15), rgba(139, 92, 246, 0.1));
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      border-radius: 14px;
+      display: none;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .selected-display.visible {
+      display: flex;
+    }
+
+    .selected-display-icon {
+      font-size: 20px;
+    }
+
+    .selected-display-text {
+      flex: 1;
+    }
+
+    .selected-display-label {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .selected-display-name {
+      font-size: 15px;
+      font-weight: 500;
+      color: #fff;
+    }
+
+    .selected-display-clear {
+      width: 28px;
+      height: 28px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .selected-display-clear:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+
+    /* Bottom button */
+    .bottom-section {
+      padding-top: 20px;
+    }
+
+    .next-btn {
+      width: 100%;
+      padding: 20px;
+      border-radius: 20px;
+      border: 2px solid #fff;
+      background: linear-gradient(90deg, #c084fc, #e9d5ff, #f5f3ff, #ddd6fe, #93c5fd, #60a5fa);
+      font-size: 17px;
+      font-weight: 600;
+      color: #1a1a2e;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    }
+
+    .next-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+    }
+
+    .next-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .location-chip {
+      animation: fadeInUp 0.3s ease backwards;
+    }
+
+    .category:nth-child(1) .location-chip { animation-delay: 0.05s; }
+    .category:nth-child(2) .location-chip { animation-delay: 0.1s; }
+    .category:nth-child(3) .location-chip { animation-delay: 0.15s; }
+    .category:nth-child(4) .location-chip { animation-delay: 0.2s; }
+    .category:nth-child(5) .location-chip { animation-delay: 0.25s; }
+
+    /* Dynamic notch */
+    .notch {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 34px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 100;
+    }
+
+    /* No results */
+    .no-results {
+      text-align: center;
+      padding: 40px 20px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .no-results-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .no-results-text {
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .no-results-hint {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.3);
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="notch"></div>
+    <div class="screen">
+      <!-- Header -->
+      <div class="header">
+        <div class="back-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </div>
+        <div class="progress-dots">
+          <div class="dot completed"></div>
+          <div class="dot completed"></div>
+          <div class="dot active"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+        <div class="header-spacer"></div>
+      </div>
+
+      <!-- Step indicator -->
+      <div class="step-text">Step 3 of 5</div>
+
+      <!-- Main heading -->
+      <h1 class="main-heading">
+        Where is it<br><span class="accent">happening</span>?
+      </h1>
+
+      <!-- Search input -->
+      <div class="search-container">
+        <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input type="text" class="search-input" placeholder="Search Tufts locations..." id="searchInput">
+      </div>
+
+      <!-- Locations container -->
+      <div class="locations-container" id="locationsContainer">
+        <!-- Dining -->
+        <div class="category" data-category="dining">
+          <div class="category-header">
+            <span class="category-icon">🍽️</span>
+            <span class="category-name">Dining</span>
+            <span class="category-count">5</span>
+          </div>
+          <div class="location-chips">
+            <div class="location-chip" data-location="Dewick-MacPhie">
+              <span class="emoji">🍴</span> Dewick-MacPhie
+            </div>
+            <div class="location-chip" data-location="Carmichael Dining">
+              <span class="emoji">🥗</span> Carmichael
+            </div>
+            <div class="location-chip" data-location="Hodgdon Food-on-the-Run">
+              <span class="emoji">🥪</span> Hodgdon
+            </div>
+            <div class="location-chip" data-location="Hotung Cafe">
+              <span class="emoji">☕</span> Hotung
+            </div>
+            <div class="location-chip" data-location="The Sink">
+              <span class="emoji">🧋</span> The Sink
+            </div>
+          </div>
+        </div>
+
+        <!-- Academic -->
+        <div class="category" data-category="academic">
+          <div class="category-header">
+            <span class="category-icon">📚</span>
+            <span class="category-name">Academic</span>
+            <span class="category-count">8</span>
+          </div>
+          <div class="location-chips">
+            <div class="location-chip" data-location="Tisch Library">
+              <span class="emoji">📖</span> Tisch Library
+            </div>
+            <div class="location-chip" data-location="SEC">
+              <span class="emoji">🔬</span> SEC
+            </div>
+            <div class="location-chip" data-location="Ballou Hall">
+              <span class="emoji">🏛️</span> Ballou Hall
+            </div>
+            <div class="location-chip" data-location="Barnum Hall">
+              <span class="emoji">🧬</span> Barnum Hall
+            </div>
+            <div class="location-chip" data-location="Eaton Hall">
+              <span class="emoji">🏢</span> Eaton Hall
+            </div>
+            <div class="location-chip" data-location="CLIC">
+              <span class="emoji">💡</span> CLIC
+            </div>
+            <div class="location-chip" data-location="Bromfield-Pearson">
+              <span class="emoji">📐</span> Bromfield-Pearson
+            </div>
+            <div class="location-chip" data-location="Anderson Hall">
+              <span class="emoji">🎓</span> Anderson Hall
+            </div>
+          </div>
+        </div>
+
+        <!-- Student Life -->
+        <div class="category" data-category="student-life">
+          <div class="category-header">
+            <span class="category-icon">🎉</span>
+            <span class="category-name">Student Life</span>
+            <span class="category-count">4</span>
+          </div>
+          <div class="location-chips">
+            <div class="location-chip" data-location="Campus Center">
+              <span class="emoji">🏠</span> Campus Center
+            </div>
+            <div class="location-chip" data-location="Tisch Fitness">
+              <span class="emoji">💪</span> Tisch Fitness
+            </div>
+            <div class="location-chip" data-location="Cousens Gym">
+              <span class="emoji">🏀</span> Cousens Gym
+            </div>
+            <div class="location-chip" data-location="Gantcher Center">
+              <span class="emoji">🏊</span> Gantcher
+            </div>
+          </div>
+        </div>
+
+        <!-- Outdoor -->
+        <div class="category" data-category="outdoor">
+          <div class="category-header">
+            <span class="category-icon">🌳</span>
+            <span class="category-name">Outdoor</span>
+            <span class="category-count">5</span>
+          </div>
+          <div class="location-chips">
+            <div class="location-chip" data-location="Residential Quad">
+              <span class="emoji">🌿</span> Res Quad
+            </div>
+            <div class="location-chip" data-location="Academic Quad">
+              <span class="emoji">🏫</span> Academic Quad
+            </div>
+            <div class="location-chip" data-location="President's Lawn">
+              <span class="emoji">🌺</span> Prez Lawn
+            </div>
+            <div class="location-chip" data-location="Memorial Steps">
+              <span class="emoji">🪜</span> Memorial Steps
+            </div>
+            <div class="location-chip" data-location="Fletcher Quad">
+              <span class="emoji">🌲</span> Fletcher Quad
+            </div>
+          </div>
+        </div>
+
+        <!-- Arts -->
+        <div class="category" data-category="arts">
+          <div class="category-header">
+            <span class="category-icon">🎭</span>
+            <span class="category-name">Arts & Performance</span>
+            <span class="category-count">4</span>
+          </div>
+          <div class="location-chips">
+            <div class="location-chip" data-location="Granoff Music Center">
+              <span class="emoji">🎵</span> Granoff
+            </div>
+            <div class="location-chip" data-location="Aidekman Arts Center">
+              <span class="emoji">🎨</span> Aidekman
+            </div>
+            <div class="location-chip" data-location="Cohen Auditorium">
+              <span class="emoji">🎤</span> Cohen
+            </div>
+            <div class="location-chip" data-location="Balch Arena Theater">
+              <span class="emoji">🎬</span> Balch Arena
+            </div>
+          </div>
+        </div>
+
+        <!-- Residence -->
+        <div class="category" data-category="residence">
+          <div class="category-header">
+            <span class="category-icon">🏘️</span>
+            <span class="category-name">Residence Halls</span>
+            <span class="category-count">6</span>
+          </div>
+          <div class="location-chips">
+            <div class="location-chip" data-location="Carmichael Hall">
+              <span class="emoji">🏢</span> Carmichael
+            </div>
+            <div class="location-chip" data-location="Houston Hall">
+              <span class="emoji">🏠</span> Houston
+            </div>
+            <div class="location-chip" data-location="Miller Hall">
+              <span class="emoji">🏡</span> Miller
+            </div>
+            <div class="location-chip" data-location="Tilton Hall">
+              <span class="emoji">🏘️</span> Tilton
+            </div>
+            <div class="location-chip" data-location="Bush Hall">
+              <span class="emoji">🏗️</span> Bush
+            </div>
+            <div class="location-chip" data-location="Haskell Hall">
+              <span class="emoji">🏚️</span> Haskell
+            </div>
+          </div>
+        </div>
+
+        <!-- No results message (hidden by default) -->
+        <div class="no-results" id="noResults" style="display: none;">
+          <div class="no-results-icon">🔍</div>
+          <div class="no-results-text">No locations found</div>
+          <div class="no-results-hint">Try a different search or use custom location</div>
+        </div>
+
+        <!-- Custom location section -->
+        <div class="custom-location-section">
+          <div class="custom-toggle" id="customToggle">
+            <div class="custom-toggle-icon">📍</div>
+            <div class="custom-toggle-text">
+              <div class="custom-toggle-title">Use custom location</div>
+              <div class="custom-toggle-subtitle">Enter a specific spot not listed above</div>
+            </div>
+            <svg class="custom-toggle-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m9 18 6-6-6-6"/>
+            </svg>
+          </div>
+          <div class="custom-input-container" id="customInputContainer">
+            <input type="text" class="custom-input" placeholder="e.g., Room 302 Tisch Library" id="customInput">
+          </div>
+        </div>
+      </div>
+
+      <!-- Selected location display -->
+      <div class="selected-display" id="selectedDisplay">
+        <span class="selected-display-icon" id="selectedIcon">📍</span>
+        <div class="selected-display-text">
+          <div class="selected-display-label">Selected location</div>
+          <div class="selected-display-name" id="selectedName">-</div>
+        </div>
+        <button class="selected-display-clear" id="clearSelection">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6 6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Bottom button -->
+      <div class="bottom-section">
+        <button class="next-btn" id="nextBtn" disabled>Next</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State
+    let selectedLocation = null;
+    let isCustomMode = false;
+
+    // Elements
+    const searchInput = document.getElementById('searchInput');
+    const locationsContainer = document.getElementById('locationsContainer');
+    const customToggle = document.getElementById('customToggle');
+    const customInputContainer = document.getElementById('customInputContainer');
+    const customInput = document.getElementById('customInput');
+    const selectedDisplay = document.getElementById('selectedDisplay');
+    const selectedIcon = document.getElementById('selectedIcon');
+    const selectedName = document.getElementById('selectedName');
+    const clearSelection = document.getElementById('clearSelection');
+    const nextBtn = document.getElementById('nextBtn');
+    const noResults = document.getElementById('noResults');
+    const chips = document.querySelectorAll('.location-chip');
+    const categories = document.querySelectorAll('.category');
+
+    // Search functionality
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      let hasVisibleResults = false;
+
+      categories.forEach(category => {
+        const categoryChips = category.querySelectorAll('.location-chip');
+        let categoryHasResults = false;
+
+        categoryChips.forEach(chip => {
+          const location = chip.dataset.location.toLowerCase();
+          const matches = location.includes(query);
+          chip.style.display = matches ? 'flex' : 'none';
+          if (matches) {
+            categoryHasResults = true;
+            hasVisibleResults = true;
+          }
+        });
+
+        category.style.display = categoryHasResults ? 'block' : 'none';
+      });
+
+      noResults.style.display = hasVisibleResults ? 'none' : 'block';
+    });
+
+    // Chip selection
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        // Deselect all chips
+        chips.forEach(c => c.classList.remove('selected'));
+
+        // Select this chip
+        chip.classList.add('selected');
+
+        // Update state
+        selectedLocation = chip.dataset.location;
+        isCustomMode = false;
+
+        // Reset custom mode
+        customToggle.classList.remove('active');
+        customInputContainer.classList.remove('visible');
+        customInput.value = '';
+
+        // Update display
+        updateSelectedDisplay(chip.querySelector('.emoji').textContent, selectedLocation);
+      });
+    });
+
+    // Custom location toggle
+    customToggle.addEventListener('click', () => {
+      isCustomMode = !isCustomMode;
+      customToggle.classList.toggle('active', isCustomMode);
+      customInputContainer.classList.toggle('visible', isCustomMode);
+
+      if (isCustomMode) {
+        // Deselect all chips
+        chips.forEach(c => c.classList.remove('selected'));
+        customInput.focus();
+
+        // If there's already custom text, use it
+        if (customInput.value.trim()) {
+          selectedLocation = customInput.value.trim();
+          updateSelectedDisplay('📍', selectedLocation);
+        } else {
+          clearLocationSelection();
+        }
+      } else {
+        if (!selectedLocation) {
+          clearLocationSelection();
+        }
+      }
+    });
+
+    // Custom input handling
+    customInput.addEventListener('input', (e) => {
+      const value = e.target.value.trim();
+      if (value) {
+        selectedLocation = value;
+        updateSelectedDisplay('📍', value);
+      } else {
+        clearLocationSelection();
+      }
+    });
+
+    // Clear selection
+    clearSelection.addEventListener('click', () => {
+      clearLocationSelection();
+      chips.forEach(c => c.classList.remove('selected'));
+      customInput.value = '';
+      if (isCustomMode) {
+        customToggle.click();
+      }
+    });
+
+    function updateSelectedDisplay(icon, name) {
+      selectedIcon.textContent = icon;
+      selectedName.textContent = name;
+      selectedDisplay.classList.add('visible');
+      nextBtn.disabled = false;
+    }
+
+    function clearLocationSelection() {
+      selectedLocation = null;
+      selectedDisplay.classList.remove('visible');
+      nextBtn.disabled = true;
+    }
+
+    // Next button
+    nextBtn.addEventListener('click', () => {
+      if (selectedLocation) {
+        alert(`Selected location: ${selectedLocation}`);
+      }
+    });
+  </script>
+</body>
+</html>

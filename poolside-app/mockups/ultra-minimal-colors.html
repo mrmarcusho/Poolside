@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultra Minimal - Color Variations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700&family=Syne:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #0a0a0f;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .page-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .page-subtitle {
+      color: rgba(255, 255, 255, 0.5);
+      text-align: center;
+      margin-bottom: 50px;
+      font-size: 14px;
+    }
+
+    .designs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 40px;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    .design-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .color-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .color-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    /* Phone Frame */
+    .phone {
+      width: 340px;
+      height: 700px;
+      border-radius: 44px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 40px 80px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+
+    .phone::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 130px;
+      height: 30px;
+      background: #000;
+      border-radius: 0 0 18px 18px;
+      z-index: 100;
+    }
+
+    .screen {
+      width: 100%;
+      height: 100%;
+      background: #09090d;
+      padding: 55px 22px 35px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .top-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .header {
+      margin-bottom: 40px;
+    }
+
+    .header h2 {
+      font-size: 16px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 8px;
+    }
+
+    .header .main-text {
+      font-family: 'Syne', sans-serif;
+      font-size: 30px;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    .now-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 22px;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 100px;
+      margin-bottom: 40px;
+    }
+
+    .now-pill span {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .now-pill .indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.2); }
+    }
+
+    .datetime-display {
+      text-align: center;
+    }
+
+    .date-text {
+      font-size: 48px;
+      font-weight: 200;
+      color: #fff;
+      letter-spacing: -2px;
+      margin-bottom: 6px;
+    }
+
+    .time-text {
+      font-family: 'Space Mono', monospace;
+      font-size: 18px;
+      letter-spacing: 4px;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 32px;
+    }
+
+    .control-btn {
+      padding: 12px 22px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .next-btn {
+      background: transparent;
+      border: 2px solid;
+      border-radius: 16px;
+      padding: 18px;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    /* ============================================
+       COLOR 1: Soft Lavender
+       ============================================ */
+    .color-lavender .color-label { color: #a78bfa; }
+    .color-lavender .now-pill { background: rgba(167, 139, 250, 0.1); border-color: #a78bfa; }
+    .color-lavender .indicator { background: #a78bfa; }
+    .color-lavender .time-text { color: #a78bfa; }
+    .color-lavender .control-btn.primary { background: rgba(167, 139, 250, 0.1); border-color: rgba(167, 139, 250, 0.2); color: #a78bfa; }
+    .color-lavender .header .accent { color: #a78bfa; }
+    .color-lavender .next-btn { border-color: #a78bfa; color: #a78bfa; }
+
+    /* ============================================
+       COLOR 2: Rose Pink
+       ============================================ */
+    .color-rose .color-label { color: #f472b6; }
+    .color-rose .now-pill { background: rgba(244, 114, 182, 0.1); border-color: #f472b6; }
+    .color-rose .indicator { background: #f472b6; }
+    .color-rose .time-text { color: #f472b6; }
+    .color-rose .control-btn.primary { background: rgba(244, 114, 182, 0.1); border-color: rgba(244, 114, 182, 0.2); color: #f472b6; }
+    .color-rose .header .accent { color: #f472b6; }
+    .color-rose .next-btn { border-color: #f472b6; color: #f472b6; }
+
+    /* ============================================
+       COLOR 3: Electric Blue
+       ============================================ */
+    .color-blue .color-label { color: #60a5fa; }
+    .color-blue .now-pill { background: rgba(96, 165, 250, 0.1); border-color: #60a5fa; }
+    .color-blue .indicator { background: #60a5fa; }
+    .color-blue .time-text { color: #60a5fa; }
+    .color-blue .control-btn.primary { background: rgba(96, 165, 250, 0.1); border-color: rgba(96, 165, 250, 0.2); color: #60a5fa; }
+    .color-blue .header .accent { color: #60a5fa; }
+    .color-blue .next-btn { border-color: #60a5fa; color: #60a5fa; }
+
+    /* ============================================
+       COLOR 4: Mint Green
+       ============================================ */
+    .color-mint .color-label { color: #34d399; }
+    .color-mint .now-pill { background: rgba(52, 211, 153, 0.1); border-color: #34d399; }
+    .color-mint .indicator { background: #34d399; }
+    .color-mint .time-text { color: #34d399; }
+    .color-mint .control-btn.primary { background: rgba(52, 211, 153, 0.1); border-color: rgba(52, 211, 153, 0.2); color: #34d399; }
+    .color-mint .header .accent { color: #34d399; }
+    .color-mint .next-btn { border-color: #34d399; color: #34d399; }
+
+    /* ============================================
+       COLOR 5: Golden Amber
+       ============================================ */
+    .color-amber .color-label { color: #fbbf24; }
+    .color-amber .now-pill { background: rgba(251, 191, 36, 0.1); border-color: #fbbf24; }
+    .color-amber .indicator { background: #fbbf24; }
+    .color-amber .time-text { color: #fbbf24; }
+    .color-amber .control-btn.primary { background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+    .color-amber .header .accent { color: #fbbf24; }
+    .color-amber .next-btn { border-color: #fbbf24; color: #fbbf24; }
+
+    /* ============================================
+       COLOR 6: Pure White (Monochrome)
+       ============================================ */
+    .color-white .color-label { color: #ffffff; }
+    .color-white .now-pill { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.4); }
+    .color-white .indicator { background: #ffffff; }
+    .color-white .time-text { color: rgba(255, 255, 255, 0.7); }
+    .color-white .control-btn.primary { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.2); color: #fff; }
+    .color-white .header .accent { color: #ffffff; }
+    .color-white .next-btn { border-color: #ffffff; color: #ffffff; }
+
+    /* ============================================
+       COLOR 7: Coral Red
+       ============================================ */
+    .color-coral .color-label { color: #ff6b6b; }
+    .color-coral .now-pill { background: rgba(255, 107, 107, 0.1); border-color: #ff6b6b; }
+    .color-coral .indicator { background: #ff6b6b; }
+    .color-coral .time-text { color: #ff6b6b; }
+    .color-coral .control-btn.primary { background: rgba(255, 107, 107, 0.1); border-color: rgba(255, 107, 107, 0.2); color: #ff6b6b; }
+    .color-coral .header .accent { color: #ff6b6b; }
+    .color-coral .next-btn { border-color: #ff6b6b; color: #ff6b6b; }
+
+    /* ============================================
+       COLOR 8: Cyan
+       ============================================ */
+    .color-cyan .color-label { color: #22d3ee; }
+    .color-cyan .now-pill { background: rgba(34, 211, 238, 0.1); border-color: #22d3ee; }
+    .color-cyan .indicator { background: #22d3ee; }
+    .color-cyan .time-text { color: #22d3ee; }
+    .color-cyan .control-btn.primary { background: rgba(34, 211, 238, 0.1); border-color: rgba(34, 211, 238, 0.2); color: #22d3ee; }
+    .color-cyan .header .accent { color: #22d3ee; }
+    .color-cyan .next-btn { border-color: #22d3ee; color: #22d3ee; }
+  </style>
+</head>
+<body>
+  <h1 class="page-title">Ultra Minimal - Color Options</h1>
+  <p class="page-subtitle">Same UI, different accent colors. Pick your favorite!</p>
+
+  <div class="designs-grid">
+    <!-- Lavender -->
+    <div class="design-card color-lavender">
+      <span class="color-label">Option 1</span>
+      <span class="color-name">Soft Lavender</span>
+      <div class="phone">
+        <div class="screen">
+          <div class="top-section">
+            <div class="header">
+              <h2>Step 2 of 5</h2>
+              <div class="main-text">When is your<br>event <span class="accent">happening</span>?</div>
+            </div>
+            <div class="now-pill">
+              <div class="indicator"></div>
+              <span>Starting right now</span>
+            </div>
+            <div class="datetime-display">
+              <div class="date-text">Jan 7</div>
+              <div class="time-text">8:00 PM</div>
+            </div>
+            <div class="controls">
+              <button class="control-btn">Change Date</button>
+              <button class="control-btn primary">Change Time</button>
+            </div>
+          </div>
+          <button class="next-btn">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rose -->
+    <div class="design-card color-rose">
+      <span class="color-label">Option 2</span>
+      <span class="color-name">Rose Pink</span>
+      <div class="phone">
+        <div class="screen">
+          <div class="top-section">
+            <div class="header">
+              <h2>Step 2 of 5</h2>
+              <div class="main-text">When is your<br>event <span class="accent">happening</span>?</div>
+            </div>
+            <div class="now-pill">
+              <div class="indicator"></div>
+              <span>Starting right now</span>
+            </div>
+            <div class="datetime-display">
+              <div class="date-text">Jan 7</div>
+              <div class="time-text">8:00 PM</div>
+            </div>
+            <div class="controls">
+              <button class="control-btn">Change Date</button>
+              <button class="control-btn primary">Change Time</button>
+            </div>
+          </div>
+          <button class="next-btn">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Blue -->
+    <div class="design-card color-blue">
+      <span class="color-label">Option 3</span>
+      <span class="color-name">Electric Blue</span>
+      <div class="phone">
+        <div class="screen">
+          <div class="top-section">
+            <div class="header">
+              <h2>Step 2 of 5</h2>
+              <div class="main-text">When is your<br>event <span class="accent">happening</span>?</div>
+            </div>
+            <div class="now-pill">
+              <div class="indicator"></div>
+              <span>Starting right now</span>
+            </div>
+            <div class="datetime-display">
+              <div class="date-text">Jan 7</div>
+              <div class="time-text">8:00 PM</div>
+            </div>
+            <div class="controls">
+              <button class="control-btn">Change Date</button>
+              <button class="control-btn primary">Change Time</button>
+            </div>
+          </div>
+          <button class="next-btn">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mint -->
+    <div class="design-card color-mint">
+      <span class="color-label">Option 4</span>
+      <span class="color-name">Mint Green</span>
+      <div class="phone">
+        <div class="screen">
+          <div class="top-section">
+            <div class="header">
+              <h2>Step 2 of 5</h2>
+              <div class="main-text">When is your<br>event <span class="accent">happening</span>?</div>
+            </div>
+            <div class="now-pill">
+              <div class="indicator"></div>
+              <span>Starting right now</span>
+            </div>
+            <div class="datetime-display">
+              <div class="date-text">Jan 7</div>
+              <div class="time-text">8:00 PM</div>
+            </div>
+            <div class="controls">
+              <button class="control-btn">Change Date</button>
+              <button class="control-btn primary">Change Time</button>
+            </div>
+          </div>
+          <button class="next-btn">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Amber -->
+    <div class="design-card color-amber">
+      <span class="color-label">Option 5</span>
+      <span class="color-name">Golden Amber</span>
+      <div class="phone">
+        <div class="screen">
+          <div class="top-section">
+            <div class="header">
+              <h2>Step 2 of 5</h2>
+              <div class="main-text">When is your<br>event <span class="accent">happening</span>?</div>
+            </div>
+            <div class="now-pill">
+              <div class="indicator"></div>
+              <span>Starting right now</span>
+            </div>
+            <div class="datetime-display">
+              <div class="date-text">Jan 7</div>
+              <div class="time-text">8:00 PM</div>
+            </div>
+            <div class="controls">
+              <button class="control-btn">Change Date</button>
+              <button class="control-btn primary">Change Time</button>
+            </div>
+          </div>
+          <button class="next-btn">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- White -->
+    <div class="design-card color-white">
+      <span class="color-label">Option 6</span>
+      <span class="color-name">Pure White</span>
+      <div class="phone">
+        <div class="screen">
+          <div class="top-section">
+            <div class="header">
+              <h2>Step 2 of 5</h2>
+              <div class="main-text">When is your<br>event <span class="accent">happening</span>?</div>
+            </div>
+            <div class="now-pill">
+              <div class="indicator"></div>
+              <span>Starting right now</span>
+            </div>
+            <div class="datetime-display">
+              <div class="date-text">Jan 7</div>
+              <div class="time-text">8:00 PM</div>
+            </div>
+            <div class="controls">
+              <button class="control-btn">Change Date</button>
+              <button class="control-btn primary">Change Time</button>
+            </div>
+          </div>
+          <button class="next-btn">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coral -->
+    <div class="design-card color-coral">
+      <span class="color-label">Option 7</span>
+      <span class="color-name">Coral Red</span>
+      <div class="phone">
+        <div class="screen">
+          <div class="top-section">
+            <div class="header">
+              <h2>Step 2 of 5</h2>
+              <div class="main-text">When is your<br>event <span class="accent">happening</span>?</div>
+            </div>
+            <div class="now-pill">
+              <div class="indicator"></div>
+              <span>Starting right now</span>
+            </div>
+            <div class="datetime-display">
+              <div class="date-text">Jan 7</div>
+              <div class="time-text">8:00 PM</div>
+            </div>
+            <div class="controls">
+              <button class="control-btn">Change Date</button>
+              <button class="control-btn primary">Change Time</button>
+            </div>
+          </div>
+          <button class="next-btn">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cyan -->
+    <div class="design-card color-cyan">
+      <span class="color-label">Option 8</span>
+      <span class="color-name">Cyan</span>
+      <div class="phone">
+        <div class="screen">
+          <div class="top-section">
+            <div class="header">
+              <h2>Step 2 of 5</h2>
+              <div class="main-text">When is your<br>event <span class="accent">happening</span>?</div>
+            </div>
+            <div class="now-pill">
+              <div class="indicator"></div>
+              <span>Starting right now</span>
+            </div>
+            <div class="datetime-display">
+              <div class="date-text">Jan 7</div>
+              <div class="time-text">8:00 PM</div>
+            </div>
+            <div class="controls">
+              <button class="control-btn">Change Date</button>
+              <button class="control-btn primary">Change Time</button>
+            </div>
+          </div>
+          <button class="next-btn">Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

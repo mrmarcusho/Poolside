@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hide Details When Full - Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      color: white;
+      font-size: 24px;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .section-title {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .mockup-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 60px;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .mockup-section {
+      width: 100%;
+    }
+
+    /* ==================== */
+    /* CREATE EVENT SETTINGS */
+    /* ==================== */
+    .settings-card {
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .settings-title {
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .setting-row:last-child {
+      border-bottom: none;
+    }
+
+    .setting-info {
+      flex: 1;
+      padding-right: 16px;
+    }
+
+    .setting-label {
+      color: white;
+      font-size: 15px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .setting-description {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    /* Toggle switch */
+    .toggle {
+      width: 50px;
+      height: 28px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 2px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .toggle.active {
+      background: #22c55e;
+    }
+
+    .toggle-knob {
+      width: 24px;
+      height: 24px;
+      border-radius: 12px;
+      background: white;
+      transition: transform 0.3s ease;
+    }
+
+    .toggle.active .toggle-knob {
+      transform: translateX(22px);
+    }
+
+    /* New setting highlight */
+    .setting-row.new {
+      background: rgba(139, 92, 246, 0.1);
+      margin: 0 -24px;
+      padding: 16px 24px;
+      border-radius: 12px;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .new-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+      color: white;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-left: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ==================== */
+    /* EVENT CARDS */
+    /* ==================== */
+    .cards-row {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card-label {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .event-card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .event-image {
+      height: 140px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      position: relative;
+    }
+
+    .event-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .full-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(239, 68, 68, 0.9);
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .event-content {
+      padding: 16px 20px 20px;
+    }
+
+    .event-title {
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .event-details {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .detail-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+    }
+
+    .detail-icon {
+      width: 18px;
+      text-align: center;
+      opacity: 0.7;
+    }
+
+    /* Hidden details state */
+    .hidden-details {
+      background: rgba(139, 92, 246, 0.1);
+      border: 1px dashed rgba(139, 92, 246, 0.4);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .hidden-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .hidden-text {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .hidden-text strong {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .event-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .attendees {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .avatar-stack {
+      display: flex;
+    }
+
+    .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border: 2px solid #1a1a2e;
+      margin-left: -8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .avatar:first-child {
+      margin-left: 0;
+    }
+
+    .attendee-count {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 13px;
+    }
+
+    /* Waitlist button */
+    .waitlist-btn {
+      min-width: 120px;
+      height: 40px;
+      border-radius: 50px;
+      border: none;
+      background: #1a1a2e;
+      color: white;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(26, 26, 46, 0.4);
+    }
+
+    /* Full button (disabled) */
+    .full-btn {
+      min-width: 100px;
+      height: 40px;
+      border-radius: 50px;
+      border: none;
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.4);
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      cursor: not-allowed;
+    }
+
+    /* Comparison arrow */
+    .comparison-arrow {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 20px;
+      padding: 10px 0;
+    }
+
+    /* Info callout */
+    .info-callout {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 20px;
+    }
+
+    .info-callout-title {
+      color: #60a5fa;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .info-callout-text {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <h1>Hide Details When Full</h1>
+
+  <div class="mockup-container">
+    <!-- CREATE EVENT SETTINGS -->
+    <div class="mockup-section">
+      <div class="section-title">Create Event - Final Details</div>
+      <div class="settings-card">
+        <div class="settings-title">Privacy Settings</div>
+
+        <!-- Existing: Enable waitlist -->
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Enable waitlist</div>
+            <div class="setting-description">Let people join a waitlist when full</div>
+          </div>
+          <div class="toggle active" onclick="this.classList.toggle('active')">
+            <div class="toggle-knob"></div>
+          </div>
+        </div>
+
+        <!-- NEW: Hide details when full -->
+        <div class="setting-row new">
+          <div class="setting-info">
+            <div class="setting-label">
+              Hide details when full
+              <span class="new-badge">New</span>
+            </div>
+            <div class="setting-description">Hide location & time from non-attendees when event fills up</div>
+          </div>
+          <div class="toggle active" onclick="this.classList.toggle('active')">
+            <div class="toggle-knob"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-callout">
+        <div class="info-callout-title">
+          <span>💡</span> Why hide details?
+        </div>
+        <div class="info-callout-text">
+          Prevents uninvited guests from showing up to your event. Only people who RSVP'd (or are on the waitlist) can see where and when.
+        </div>
+      </div>
+    </div>
+
+    <!-- EVENT CARD COMPARISON -->
+    <div class="mockup-section">
+      <div class="section-title">Event Card - When Full</div>
+
+      <div class="cards-row">
+        <!-- Normal full event (details visible) -->
+        <div>
+          <div class="card-label">Hide details: OFF</div>
+          <div class="event-card">
+            <div class="event-image">
+              <div class="full-badge">Full</div>
+            </div>
+            <div class="event-content">
+              <div class="event-title">Pool Party Vibes 🌊</div>
+              <div class="event-details">
+                <div class="detail-row">
+                  <span class="detail-icon">📍</span>
+                  <span>Carmichael Hall, Room 204</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-icon">🕐</span>
+                  <span>Today at 8:00 PM</span>
+                </div>
+              </div>
+              <div class="event-footer">
+                <div class="attendees">
+                  <div class="avatar-stack">
+                    <div class="avatar">🎉</div>
+                    <div class="avatar">🌊</div>
+                    <div class="avatar">✨</div>
+                  </div>
+                  <span class="attendee-count">12 going</span>
+                </div>
+                <button class="waitlist-btn">Join Waitlist</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="comparison-arrow">↓</div>
+
+        <!-- Full event with hidden details -->
+        <div>
+          <div class="card-label">Hide details: ON</div>
+          <div class="event-card">
+            <div class="event-image">
+              <div class="full-badge">Full</div>
+            </div>
+            <div class="event-content">
+              <div class="event-title">Pool Party Vibes 🌊</div>
+
+              <!-- Hidden details message -->
+              <div class="hidden-details">
+                <div class="hidden-icon">🔒</div>
+                <div class="hidden-text">
+                  <strong>Details hidden</strong><br>
+                  Host chose to hide location & time when full.<br>
+                  Join the waitlist to see if a spot opens up!
+                </div>
+              </div>
+
+              <div class="event-footer">
+                <div class="attendees">
+                  <div class="avatar-stack">
+                    <div class="avatar">🎉</div>
+                    <div class="avatar">🌊</div>
+                    <div class="avatar">✨</div>
+                  </div>
+                  <span class="attendee-count">12 going</span>
+                </div>
+                <button class="waitlist-btn">Join Waitlist</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EDGE CASE: No waitlist + hidden -->
+    <div class="mockup-section">
+      <div class="section-title">Edge Case - No Waitlist + Hidden</div>
+      <div class="card-label">Waitlist OFF, Hide details ON</div>
+      <div class="event-card">
+        <div class="event-image">
+          <div class="full-badge">Full</div>
+        </div>
+        <div class="event-content">
+          <div class="event-title">Private Dinner 🍽️</div>
+
+          <div class="hidden-details">
+            <div class="hidden-icon">🔒</div>
+            <div class="hidden-text">
+              <strong>This event is full</strong><br>
+              Details are hidden for non-attendees.
+            </div>
+          </div>
+
+          <div class="event-footer">
+            <div class="attendees">
+              <div class="avatar-stack">
+                <div class="avatar">🍷</div>
+                <div class="avatar">🍽️</div>
+              </div>
+              <span class="attendee-count">6 going</span>
+            </div>
+            <button class="full-btn">FULL</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
