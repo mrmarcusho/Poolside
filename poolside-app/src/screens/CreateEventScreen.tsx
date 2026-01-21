@@ -15,6 +15,7 @@ import {
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
   Platform,
+  ImageBackground,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProfileBackground, CurvedPickerWheel, VideoBackground } from '../components';
@@ -30,7 +31,7 @@ import { BlurView } from 'expo-blur';
 import ViewShot from 'react-native-view-shot';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const TOTAL_SLIDES = 6;
+const TOTAL_SLIDES = 5;
 
 const MONTHS = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -57,15 +58,6 @@ const LOCATION_SUGGESTIONS = [
   { emoji: '🎰', name: 'Casino' },
   { emoji: '🎭', name: 'Theater' },
   { emoji: '💆', name: 'Spa Deck' },
-];
-
-const DURATION_OPTIONS = [
-  '30 min',
-  '1 hour',
-  '1.5 hours',
-  '2 hours',
-  '2.5 hours',
-  '3 hours',
 ];
 
 const COVER_COLORS = [
@@ -122,29 +114,17 @@ export const CreateEventScreen: React.FC = () => {
 
   // Form state - Slide 2: Time
   const [isNow, setIsNow] = useState(false);
-  // Start date/time
-  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
-  const [selectedDay, setSelectedDay] = useState<number | null>(null);
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  // End date/time (optional)
-  const [endMonth, setEndMonth] = useState<number | null>(null);
-  const [endDay, setEndDay] = useState<number | null>(null);
-  const [endTime, setEndTime] = useState<string | null>(null);
-  // Duration selection
-  const [selectedDuration, setSelectedDuration] = useState<string>('3 hours');
-  // Date/time picker modal state
-  const [showDateTimePicker, setShowDateTimePicker] = useState(false);
-  const [editingDateType, setEditingDateType] = useState<'start' | 'end'>('start');
-  const [editingPickerType, setEditingPickerType] = useState<'date' | 'time'>('date');
-  // Calendar view state
-  const [viewMonth, setViewMonth] = useState(new Date().getMonth());
-  const [viewYear, setViewYear] = useState(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(0); // January
+  const [selectedDay, setSelectedDay] = useState(7);
+  const [selectedTime, setSelectedTime] = useState('8:00 PM');
 
   // Form state - Slide 3: Location
   const [location, setLocation] = useState('');
 
   // Form state - Slide 4: Cover
   const [coverText, setCoverText] = useState('');
+  const [coverTextEdited, setCoverTextEdited] = useState(false); // Track if user manually edited cover text
+  const [hasOpenedTextEditor, setHasOpenedTextEditor] = useState(false); // Track if user has seen the text editor
   const [coverColor, setCoverColor] = useState('#f8f8f8');
   const [coverColorDark, setCoverColorDark] = useState(false);
   const [coverFont, setCoverFont] = useState('Classic');
@@ -161,12 +141,68 @@ export const CreateEventScreen: React.FC = () => {
 
   // UI state
   const [isCreating, setIsCreating] = useState(false);
+  const [titleError, setTitleError] = useState(false);
+  const [locationError, setLocationError] = useState(false);
+  const [cursorVisible, setCursorVisible] = useState(true);
 
   // Animation values for toggle and picker
   const toggleAnim = useRef(new Animated.Value(0)).current;
   const pickerOpacityAnim = useRef(new Animated.Value(1)).current;
+  const titleShakeAnim = useRef(new Animated.Value(0)).current;
+  const locationShakeAnim = useRef(new Animated.Value(0)).current;
   const cursorOpacity = useRef(new Animated.Value(1)).current;
+  const titleCursorOpacity = useRef(new Animated.Value(1)).current;
+  const nowPillPulse = useRef(new Animated.Value(1)).current;
+  const pickerExpandAnim = useRef(new Animated.Value(0)).current;
   const coverCanvasRef = useRef<View>(null);
+  const dateButtonRef = useRef<TouchableOpacity>(null);
+  const timeButtonRef = useRef<TouchableOpacity>(null);
+  const [activePicker, setActivePicker] = useState<'date' | 'time' | null>(null);
+  const [buttonMeasurements, setButtonMeasurements] = useState({ x: 0, y: 0, width: 0, height: 0 });
+
+  // Pulsing animation for the "Starting right now" indicator
+  useEffect(() => {
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(nowPillPulse, {
+          toValue: 1.15,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(nowPillPulse, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    pulse.start();
+    return () => pulse.stop();
+  }, [nowPillPulse]);
+
+  // Blinking cursor animation for title preview (when empty)
+  useEffect(() => {
+    if (currentSlide === 0 && !title.trim()) {
+      const blink = Animated.loop(
+        Animated.sequence([
+          Animated.timing(titleCursorOpacity, {
+            toValue: 0,
+            duration: 500,
+            useNativeDriver: true,
+          }),
+          Animated.timing(titleCursorOpacity, {
+            toValue: 1,
+            duration: 500,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+      blink.start();
+      return () => blink.stop();
+    } else {
+      titleCursorOpacity.setValue(1);
+    }
+  }, [currentSlide, title, titleCursorOpacity]);
 
   // Blinking cursor animation for text editor
   useEffect(() => {
@@ -192,7 +228,20 @@ export const CreateEventScreen: React.FC = () => {
     }
   }, [showTextEditor, editingText, cursorOpacity]);
 
+  // Blinking cursor for cover canvas (only shows before user has opened text editor)
+  useEffect(() => {
+    if (currentSlide === 3 && coverText && !showTextEditor && !hasOpenedTextEditor) {
+      const interval = setInterval(() => {
+        setCursorVisible(v => !v);
+      }, 530);
+      return () => clearInterval(interval);
+    } else {
+      setCursorVisible(true);
+    }
+  }, [currentSlide, coverText, showTextEditor, hasOpenedTextEditor]);
+
   const handleToggleNow = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
     const newValue = !isNow;
     setIsNow(newValue);
 
@@ -212,7 +261,73 @@ export const CreateEventScreen: React.FC = () => {
     }).start();
   };
 
+  // Shake animation for title input validation
+  const shakeTitleInput = () => {
+    setTitleError(true);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+
+    // Quick jolt animation sequence
+    Animated.sequence([
+      Animated.timing(titleShakeAnim, {
+        toValue: -8,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+      Animated.timing(titleShakeAnim, {
+        toValue: 8,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+      Animated.timing(titleShakeAnim, {
+        toValue: -4,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+      Animated.timing(titleShakeAnim, {
+        toValue: 0,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  // Shake animation for location input validation
+  const shakeLocationInput = () => {
+    setLocationError(true);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+
+    // Quick jolt animation sequence
+    Animated.sequence([
+      Animated.timing(locationShakeAnim, {
+        toValue: -8,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+      Animated.timing(locationShakeAnim, {
+        toValue: 8,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+      Animated.timing(locationShakeAnim, {
+        toValue: -4,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+      Animated.timing(locationShakeAnim, {
+        toValue: 0,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
   const goToSlide = (index: number) => {
+    // When entering the cover slide (index 3), sync cover text with title if user hasn't manually edited it
+    if (index === 3 && !coverTextEdited && title.trim()) {
+      setCoverText(title.trim());
+      setEditingText(title.trim());
+    }
+
     Animated.spring(slideAnim, {
       toValue: index,
       useNativeDriver: true,
@@ -223,6 +338,18 @@ export const CreateEventScreen: React.FC = () => {
   };
 
   const nextSlide = () => {
+    // Validate title on slide 0
+    if (currentSlide === 0 && !title.trim()) {
+      shakeTitleInput();
+      return;
+    }
+
+    // Validate location on slide 2
+    if (currentSlide === 2 && !location.trim()) {
+      shakeLocationInput();
+      return;
+    }
+
     if (currentSlide < TOTAL_SLIDES - 1) {
       goToSlide(currentSlide + 1);
     } else {
@@ -253,31 +380,11 @@ export const CreateEventScreen: React.FC = () => {
   };
 
   const handleCreate = async () => {
-    if (!title.trim()) {
-      Alert.alert('Missing Title', 'Please enter a title for your event.');
-      goToSlide(0);
-      return;
-    }
-    if (!location.trim()) {
-      Alert.alert('Missing Location', 'Please enter a location for your event.');
-      goToSlide(2);
-      return;
-    }
-
     // Build date time
     let dateTime: Date;
-    let endDateTime: Date | undefined;
-
     if (isNow) {
       dateTime = new Date();
     } else {
-      // Validate date and time are selected
-      if (selectedMonth === null || selectedDay === null || selectedTime === null) {
-        Alert.alert('Missing Date/Time', 'Please select a start date and time for your event.');
-        goToSlide(1);
-        return;
-      }
-
       const now = new Date();
       dateTime = new Date(now.getFullYear(), selectedMonth, selectedDay);
       const [time, period] = selectedTime.split(' ');
@@ -292,26 +399,10 @@ export const CreateEventScreen: React.FC = () => {
         goToSlide(1);
         return;
       }
-
-      // Build end date time if provided
-      if (endMonth !== null && endDay !== null && endTime !== null) {
-        endDateTime = new Date(now.getFullYear(), endMonth, endDay);
-        const [endTimeStr, endPeriod] = endTime.split(' ');
-        const [endHours, endMinutes] = endTimeStr.split(':').map(Number);
-        let endHour24 = endHours;
-        if (endPeriod === 'PM' && endHours !== 12) endHour24 += 12;
-        if (endPeriod === 'AM' && endHours === 12) endHour24 = 0;
-        endDateTime.setHours(endHour24, endMinutes, 0, 0);
-
-        if (endDateTime.getTime() <= dateTime.getTime()) {
-          Alert.alert('Invalid End Time', 'End time must be after start time.');
-          goToSlide(1);
-          return;
-        }
-      }
     }
 
-    const eventDescription = description.trim() || `${title.trim()} event`;
+    // Description defaults to empty if not provided (will show nothing on event card)
+    const eventDescription = description.trim() || '';
 
     setIsCreating(true);
 
@@ -357,9 +448,10 @@ export const CreateEventScreen: React.FC = () => {
       setSelectedMonth(0);
       setSelectedDay(7);
       setSelectedTime('8:00 PM');
-      setSelectedDuration('3 hours');
       setLocation('');
       setCoverText('');
+      setCoverTextEdited(false);
+      setHasOpenedTextEditor(false);
       setCoverColor('#f8f8f8');
       setCoverColorDark(false);
       setCoverFont('Classic');
@@ -385,391 +477,367 @@ export const CreateEventScreen: React.FC = () => {
 
   const getTimeDisplayText = () => {
     if (isNow) return 'Starting right now ⚡';
-    if (selectedMonth === null || selectedDay === null || selectedTime === null) {
-      return 'Select date and time';
-    }
     return `${MONTHS[selectedMonth]} ${selectedDay} at ${selectedTime}`;
   };
 
-  const renderProgressBar = () => {
+  // Animated picker open/close functions - true morph from button
+  const openPickerWithAnimation = (type: 'date' | 'time') => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
+
+    const buttonRef = type === 'date' ? dateButtonRef : timeButtonRef;
+
+    // Measure button position
+    buttonRef.current?.measureInWindow((x, y, width, height) => {
+      setButtonMeasurements({ x, y, width, height });
+      setActivePicker(type);
+
+      // Reset and animate
+      pickerExpandAnim.setValue(0);
+      Animated.spring(pickerExpandAnim, {
+        toValue: 1,
+        useNativeDriver: false, // Need false for layout animations
+        tension: 50,
+        friction: 12,
+      }).start();
+    });
+  };
+
+  const closePickerWithAnimation = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    Animated.timing(pickerExpandAnim, {
+      toValue: 0,
+      duration: 250,
+      useNativeDriver: false,
+    }).start(() => {
+      setActivePicker(null);
+    });
+  };
+
+  const renderProgressDots = () => {
     return (
-      <View style={styles.progressContainer}>
-        <View style={styles.progressDots}>
-          {Array.from({ length: TOTAL_SLIDES }).map((_, i) => (
-            <View
-              key={i}
-              style={[
-                styles.progressDot,
-                i === currentSlide && styles.progressDotActive,
-                i < currentSlide && styles.progressDotCompleted,
-              ]}
-            />
-          ))}
-        </View>
+      <View style={styles.progressDotsInline}>
+        {Array.from({ length: TOTAL_SLIDES }).map((_, i) => (
+          <View
+            key={i}
+            style={[
+              styles.progressDot,
+              i === currentSlide && styles.progressDotActive,
+              i < currentSlide && styles.progressDotCompleted,
+            ]}
+          />
+        ))}
       </View>
     );
   };
 
-  // Slide 1: Title
+  // Slide 1: Title - New ultra-minimal purple glow design (matching When slide)
   const renderTitleSlide = () => (
-    <View style={styles.titleSlideContent}>
-      <Text style={styles.stepIndicator}>Step 1 of 6</Text>
-      <View style={styles.titleHeading}>
-        <Text style={styles.titleHeadingText}>What's your</Text>
-        <Text style={styles.titleHeadingText}>
-          event <Text style={styles.titleHeadingPink}>called</Text>?
-        </Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.slideContent}>
+        {/* Header with step indicator */}
+        <View style={styles.titleHeader}>
+          <Text style={styles.titleStepText}>Step 1 of 5</Text>
+          <Text style={styles.titleMainText}>
+            What's your event{'\n'}<Text style={styles.titleAccentText}>called</Text>?
+          </Text>
+        </View>
+
+        {/* Large Editable Title Display Area */}
+        <Animated.View
+          style={[
+            styles.titleDisplayArea,
+            { transform: [{ translateX: titleShakeAnim }] },
+          ]}
+        >
+          <TextInput
+            style={[
+              styles.titleDirectInput,
+              titleError && styles.titleDirectInputError,
+            ]}
+            value={title}
+            onChangeText={(text) => {
+              // Remove any newlines - text wraps automatically
+              const cleanText = text.replace(/\n/g, '');
+              setTitle(cleanText);
+              if (titleError) setTitleError(false);
+            }}
+            placeholder="Your title"
+            placeholderTextColor="rgba(255, 255, 255, 0.15)"
+            maxLength={50}
+            multiline
+            textAlign="center"
+            autoFocus={false}
+            returnKeyType="done"
+            blurOnSubmit={true}
+            onSubmitEditing={Keyboard.dismiss}
+          />
+          {/* Blinking cursor overlay when empty */}
+          {!title && (
+            <Animated.View
+              style={[
+                styles.titleCursorOverlay,
+                { opacity: titleCursorOpacity },
+              ]}
+              pointerEvents="none"
+            />
+          )}
+        </Animated.View>
+
+        {/* Character count and error */}
+        <View style={styles.titleFooter}>
+          {titleError && (
+            <Text style={styles.titleErrorText}>Please enter a title for your event</Text>
+          )}
+          <Text style={[styles.titleCharCount, title.length > 40 && styles.titleCharCountWarning]}>
+            {title.length}/50
+          </Text>
+        </View>
       </View>
-      <View style={styles.titleInputBox}>
-        <TextInput
-          style={styles.titleInputText}
-          value={title}
-          onChangeText={setTitle}
-          placeholder="Pool party at sunset..."
-          placeholderTextColor="rgba(255, 255, 255, 0.35)"
-          maxLength={50}
-          multiline={false}
-        />
-      </View>
-      <Text style={styles.charCountCentered}>{title.length}/50</Text>
-    </View>
+    </TouchableWithoutFeedback>
   );
 
-  // Slide 2: Time
+  // Slide 2: Time - New ultra-minimal purple glow design
   const renderTimeSlide = () => {
+    // Format date for display (e.g., "Jan 7")
     const getShortMonth = (monthIndex: number) => {
       const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       return shortMonths[monthIndex];
     };
 
-    const getFullMonth = (monthIndex: number) => MONTHS[monthIndex];
-
-    const hasStartDate = selectedMonth !== null && selectedDay !== null;
-    const hasStartTime = selectedTime !== null;
-    const today = new Date();
-
-    const openPicker = () => {
-      if (isNow) return;
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      if (selectedMonth === null) {
-        setSelectedMonth(today.getMonth());
-        setSelectedDay(today.getDate());
-      }
-      if (selectedTime === null) {
-        setSelectedTime('7:30 PM');
-      }
-      setViewMonth(selectedMonth ?? today.getMonth());
-      setShowDateTimePicker(true);
-    };
-
-    const openPickerEnd = () => {
-      if (isNow) return;
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      if (endMonth === null) {
-        setEndMonth(selectedMonth ?? today.getMonth());
-        setEndDay(selectedDay ?? today.getDate());
-      }
-      if (endTime === null) {
-        setEndTime('9:30 PM');
-      }
-      setViewMonth(endMonth ?? selectedMonth ?? today.getMonth());
-      setShowDateTimePicker(true);
-    };
-
-    const closePicker = () => {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      setShowDateTimePicker(false);
-    };
-
-    const handleSelectNow = () => {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      setIsNow(!isNow);
-    };
-
-    const prevMonth = () => {
-      if (viewMonth === 0) {
-        setViewMonth(11);
-        setViewYear(viewYear - 1);
-      } else {
-        setViewMonth(viewMonth - 1);
-      }
-    };
-
-    const nextMonth = () => {
-      if (viewMonth === 11) {
-        setViewMonth(0);
-        setViewYear(viewYear + 1);
-      } else {
-        setViewMonth(viewMonth + 1);
-      }
-    };
-
-    // Generate calendar days
-    const getCalendarDays = () => {
-      const firstDay = new Date(viewYear, viewMonth, 1).getDay();
-      const daysInMonth = DAYS_IN_MONTH[viewMonth];
-      const daysInPrevMonth = viewMonth === 0 ? DAYS_IN_MONTH[11] : DAYS_IN_MONTH[viewMonth - 1];
-
-      const days: { day: number; isCurrentMonth: boolean; isToday: boolean; isSelected: boolean }[] = [];
-
-      // Previous month days
-      for (let i = firstDay - 1; i >= 0; i--) {
-        days.push({ day: daysInPrevMonth - i, isCurrentMonth: false, isToday: false, isSelected: false });
-      }
-
-      // Current month days
-      for (let i = 1; i <= daysInMonth; i++) {
-        const isToday = i === today.getDate() && viewMonth === today.getMonth() && viewYear === today.getFullYear();
-        const isSelected = i === currentSelectedDay && viewMonth === currentSelectedMonth;
-        days.push({ day: i, isCurrentMonth: true, isToday, isSelected });
-      }
-
-      // Next month days
-      const remaining = 42 - days.length;
-      for (let i = 1; i <= remaining; i++) {
-        days.push({ day: i, isCurrentMonth: false, isToday: false, isSelected: false });
-      }
-
-      return days;
-    };
-
-    const selectDay = (day: number) => {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      if (editingDateType === 'start') {
-        setSelectedMonth(viewMonth);
-        setSelectedDay(day);
-      } else {
-        setEndMonth(viewMonth);
-        setEndDay(day);
-      }
-    };
-
-    const currentSelectedDay = editingDateType === 'start' ? selectedDay : endDay;
-    const currentSelectedMonth = editingDateType === 'start' ? selectedMonth : endMonth;
-    const currentSelectedTime = editingDateType === 'start' ? (selectedTime ?? '7:30 PM') : (endTime ?? '9:30 PM');
-
-    // Time options for picker (15 min intervals)
-    const timeSlots = ['7:00pm', '7:15pm', '7:30pm', '7:45pm', '8:00pm', '8:15pm', '8:30pm'];
+    const formattedDate = `${getShortMonth(selectedMonth)} ${selectedDay}`;
+    const formattedTime = selectedTime;
 
     return (
-      <View style={styles.timeSlideContent}>
-        <Text style={styles.stepIndicator}>Step 2 of 6</Text>
-        <View style={styles.titleHeading}>
-          <Text style={styles.titleHeadingText}>When is your</Text>
-          <Text style={styles.titleHeadingText}>
-            event <Text style={styles.titleHeadingPurple}>happening</Text>?
+      <View style={styles.slideContent}>
+        {/* Header with step indicator */}
+        <View style={styles.whenHeader}>
+          <Text style={styles.whenStepText}>Step 2 of 5</Text>
+          <Text style={styles.whenMainText}>
+            When is your{'\n'}event <Text style={styles.whenAccentText}>happening</Text>?
           </Text>
         </View>
 
-        {/* Starting right now option */}
-        <TouchableOpacity
-          style={[styles.startingNowOption, isNow && styles.startingNowOptionSelected]}
-          onPress={handleSelectNow}
-          activeOpacity={0.7}
-        >
-          {isNow && (
+          {/* Starting right now pill - glowing purple gradient */}
+          <TouchableOpacity
+            style={[styles.nowPill, isNow && styles.nowPillActive]}
+            onPress={handleToggleNow}
+            activeOpacity={0.85}
+          >
             <LinearGradient
-              colors={['#E8D5FF', '#B794F6']}
-              start={{ x: 0, y: 0.5 }}
-              end={{ x: 1, y: 0.5 }}
-              style={StyleSheet.absoluteFillObject}
-            />
-          )}
-          <View style={[styles.radioCircle, isNow && styles.radioCircleSelected]} />
-          <Text style={[styles.startingNowText, isNow && styles.startingNowTextSelected]}>Starting right now</Text>
-        </TouchableOpacity>
-
-        {/* Start / End date buttons */}
-        <View style={styles.chooseBtnContainer}>
-          <TouchableOpacity
-            style={[styles.chooseBtn, isNow && styles.chooseBtnDisabled]}
-            onPress={() => { setEditingDateType('start'); openPicker(); }}
-            activeOpacity={0.7}
-            disabled={isNow}
-          >
-            <Text style={styles.chooseBtnLabel}>STARTS</Text>
-            <Text style={styles.chooseBtnText}>
-              {hasStartDate && hasStartTime ? `${getShortMonth(selectedMonth!)} ${selectedDay}, ${selectedTime}` : 'Set start'}
-            </Text>
+              colors={
+                isNow
+                  ? ['rgba(99, 102, 241, 0.55)', 'rgba(139, 92, 246, 0.5)', 'rgba(168, 85, 247, 0.45)', 'rgba(192, 132, 252, 0.5)']
+                  : ['rgba(255, 255, 255, 0.06)', 'rgba(255, 255, 255, 0.04)']
+              }
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.nowPillGradient}
+            >
+              <Animated.View
+                style={[
+                  styles.nowPillIndicator,
+                  isNow && styles.nowPillIndicatorActive,
+                  { transform: [{ scale: isNow ? nowPillPulse : 1 }] },
+                ]}
+              />
+              <Text style={[styles.nowPillText, isNow && styles.nowPillTextActive]}>
+                Starting right now
+              </Text>
+            </LinearGradient>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.chooseBtn, isNow && styles.chooseBtnDisabled]}
-            onPress={() => { setEditingDateType('end'); openPickerEnd(); }}
-            activeOpacity={0.7}
-            disabled={isNow}
-          >
-            <Text style={styles.chooseBtnLabel}>ENDS</Text>
-            <Text style={styles.chooseBtnText}>
-              {endMonth !== null && endDay !== null && endTime ? `${getShortMonth(endMonth)} ${endDay}, ${endTime}` : 'Set end'}
-            </Text>
-          </TouchableOpacity>
-        </View>
 
-        {/* Show event for - Duration */}
-        <Text style={styles.showEventForLabel}>Show event for</Text>
-        <View style={styles.durationChipsContainer}>
-          {DURATION_OPTIONS.map((duration) => (
+          {/* Date/Time Display */}
+          <Animated.View style={[styles.whenDateTimeDisplay, { opacity: isNow ? 0.3 : 1 }]}>
+            <Text style={styles.whenDateText}>{formattedDate}</Text>
+            <Text style={styles.whenTimeText}>{formattedTime}</Text>
+          </Animated.View>
+
+          {/* Change Date / Change Time buttons */}
+          <View style={styles.whenControls}>
             <TouchableOpacity
-              key={duration}
-              style={[
-                styles.durationChip,
-                selectedDuration === duration && styles.durationChipSelected,
-              ]}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                setSelectedDuration(duration);
-              }}
+              ref={dateButtonRef}
+              style={[styles.whenControlBtn, activePicker === 'date' && styles.whenControlBtnHidden]}
+              onPress={() => !isNow && openPickerWithAnimation('date')}
+              disabled={isNow || activePicker !== null}
               activeOpacity={0.7}
             >
-              <Text
-                style={[
-                  styles.durationChipText,
-                  selectedDuration === duration && styles.durationChipTextSelected,
-                ]}
-              >
-                {duration}
+              <Text style={[styles.whenControlBtnText, isNow && styles.whenControlBtnTextDisabled]}>
+                Change Date
               </Text>
             </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* Calendar Date/Time Picker Modal */}
-        <Modal
-          visible={showDateTimePicker}
-          transparent
-          animationType="slide"
-          onRequestClose={closePicker}
-        >
-          <View style={styles.calendarPickerOverlay}>
-            <View style={styles.calendarPickerContainer}>
-              {/* Header with title */}
-              <Text style={styles.calendarTitle}>
-                {editingDateType === 'start' ? 'When does it start?' : 'When does it end?'}
+            <TouchableOpacity
+              ref={timeButtonRef}
+              style={[styles.whenControlBtn, styles.whenControlBtnPrimary, activePicker === 'time' && styles.whenControlBtnHidden]}
+              onPress={() => !isNow && openPickerWithAnimation('time')}
+              disabled={isNow || activePicker !== null}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.whenControlBtnPrimaryText, isNow && styles.whenControlBtnTextDisabled]}>
+                Change Time
               </Text>
-
-              {/* Month Header */}
-              <View style={styles.calendarHeader}>
-                <TouchableOpacity onPress={prevMonth} style={styles.calendarNavBtn}>
-                  <Text style={styles.calendarNavText}>‹</Text>
-                </TouchableOpacity>
-                <Text style={styles.calendarMonthTitle}>
-                  {getFullMonth(viewMonth)} {viewYear}
-                </Text>
-                <TouchableOpacity onPress={nextMonth} style={styles.calendarNavBtn}>
-                  <Text style={styles.calendarNavText}>›</Text>
-                </TouchableOpacity>
-              </View>
-
-              {/* Day Headers */}
-              <View style={styles.calendarDayHeaders}>
-                {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map((d) => (
-                  <Text key={d} style={styles.calendarDayHeader}>{d}</Text>
-                ))}
-              </View>
-
-              {/* Calendar Grid */}
-              <View style={styles.calendarGrid}>
-                {getCalendarDays().map((item, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={[
-                      styles.calendarDay,
-                      item.isSelected && styles.calendarDaySelected,
-                      item.isToday && !item.isSelected && styles.calendarDayToday,
-                    ]}
-                    onPress={() => item.isCurrentMonth && selectDay(item.day)}
-                    disabled={!item.isCurrentMonth}
-                  >
-                    <Text
-                      style={[
-                        styles.calendarDayText,
-                        !item.isCurrentMonth && styles.calendarDayTextDim,
-                        item.isToday && styles.calendarDayTextToday,
-                        item.isSelected && styles.calendarDayTextSelected,
-                      ]}
-                    >
-                      {item.day}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-
-              {/* Time Picker */}
-              <View style={styles.timePickerSection}>
-                <CurvedPickerWheel
-                  items={TIME_OPTIONS}
-                  selectedIndex={TIME_OPTIONS.indexOf(currentSelectedTime)}
-                  onSelect={(index) => {
-                    if (editingDateType === 'start') {
-                      setSelectedTime(TIME_OPTIONS[index]);
-                    } else {
-                      setEndTime(TIME_OPTIONS[index]);
-                    }
-                  }}
-                  label=""
-                  width={SCREEN_WIDTH - 80}
-                />
-              </View>
-
-              {/* Footer */}
-              <View style={styles.calendarFooter}>
-                <View style={styles.timezoneInfo}>
-                  <Text style={styles.timezoneIcon}>🌐</Text>
-                  <Text style={styles.timezoneText}>Eastern Time (ET)</Text>
-                </View>
-                <TouchableOpacity style={styles.calendarDoneBtn} onPress={closePicker}>
-                  <Text style={styles.calendarDoneText}>Done</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
+            </TouchableOpacity>
           </View>
-        </Modal>
+
+        {/* Morphing Picker Overlay */}
+        {activePicker && (
+          <Modal
+            visible={true}
+            transparent
+            animationType="none"
+            onRequestClose={closePickerWithAnimation}
+          >
+            <View style={styles.pickerMorphOverlay}>
+              {/* Tap outside to close */}
+              <TouchableOpacity
+                style={StyleSheet.absoluteFillObject}
+                activeOpacity={1}
+                onPress={closePickerWithAnimation}
+              />
+              <Animated.View
+                style={[
+                  styles.pickerMorphContainer,
+                  {
+                    // Animate from button position to center
+                    top: pickerExpandAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [buttonMeasurements.y, (Dimensions.get('window').height - 400) / 2],
+                    }),
+                    left: pickerExpandAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [buttonMeasurements.x, 24],
+                    }),
+                    width: pickerExpandAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [buttonMeasurements.width, Dimensions.get('window').width - 48],
+                    }),
+                    height: pickerExpandAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [buttonMeasurements.height, 400],
+                    }),
+                    borderRadius: pickerExpandAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [30, 28],
+                    }),
+                  },
+                ]}
+              >
+                <BlurView intensity={100} tint="dark" style={styles.pickerMorphBlur}>
+                  {/* Content fades in as it expands */}
+                  <Animated.View
+                    style={{
+                      opacity: pickerExpandAnim.interpolate({
+                        inputRange: [0, 0.5, 1],
+                        outputRange: [0, 0, 1],
+                      }),
+                      flex: 1,
+                    }}
+                  >
+                    <Text style={styles.pickerModalTitle}>
+                      {activePicker === 'date' ? 'Select Date' : 'Select Time'}
+                    </Text>
+                    <View style={styles.pickerModalContent}>
+                      {activePicker === 'date' ? (
+                        <>
+                          <CurvedPickerWheel
+                            items={MONTHS}
+                            selectedIndex={selectedMonth}
+                            onSelect={(index) => {
+                              setSelectedMonth(index);
+                              if (selectedDay > DAYS_IN_MONTH[index]) {
+                                setSelectedDay(DAYS_IN_MONTH[index]);
+                              }
+                            }}
+                            label="MONTH"
+                            width={140}
+                          />
+                          <CurvedPickerWheel
+                            items={Array.from({ length: DAYS_IN_MONTH[selectedMonth] }, (_, i) => String(i + 1))}
+                            selectedIndex={selectedDay - 1}
+                            onSelect={(index) => setSelectedDay(index + 1)}
+                            label="DAY"
+                            width={80}
+                          />
+                        </>
+                      ) : (
+                        <CurvedPickerWheel
+                          items={TIME_OPTIONS}
+                          selectedIndex={TIME_OPTIONS.indexOf(selectedTime)}
+                          onSelect={(index) => setSelectedTime(TIME_OPTIONS[index])}
+                          label="TIME"
+                          width={160}
+                        />
+                      )}
+                    </View>
+                    <TouchableOpacity
+                      style={styles.pickerMorphDoneBtn}
+                      onPress={closePickerWithAnimation}
+                    >
+                      <Text style={styles.pickerMorphDoneText}>Done</Text>
+                    </TouchableOpacity>
+                  </Animated.View>
+                </BlurView>
+              </Animated.View>
+            </View>
+          </Modal>
+        )}
       </View>
     );
   };
 
   // Slide 3: Location
   const renderLocationSlide = () => (
-    <View style={styles.slideContent}>
-      <View style={styles.slideHeaderCompact}>
-        <View style={styles.slideIconSmall}>
-          <Text style={styles.slideIconEmojiSmall}>📍</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.slideContent}>
+        <View style={styles.slideHeaderCompact}>
+          <View style={styles.slideIconSmall}>
+            <Text style={styles.slideIconEmojiSmall}>📍</Text>
+          </View>
+          <View style={styles.slideHeaderText}>
+            <Text style={styles.slideQuestionSmall}>Where?</Text>
+            <Text style={styles.slideHintSmall}>Enter the location</Text>
+          </View>
         </View>
-        <View style={styles.slideHeaderText}>
-          <Text style={styles.slideQuestionSmall}>Where?</Text>
-          <Text style={styles.slideHintSmall}>Enter the location</Text>
-        </View>
-      </View>
 
-      <View style={styles.locationInputContainer}>
-        <TextInput
-          style={styles.locationInput}
-          value={location}
-          onChangeText={setLocation}
-          placeholder="Pool Deck, Lido Bar, Cabin 7042..."
-          placeholderTextColor="rgba(255, 255, 255, 0.35)"
-        />
-        <View style={styles.locationInputIcon}>
-          <Ionicons name="location" size={24} color="rgba(255, 255, 255, 0.35)" />
-        </View>
-      </View>
+        <Animated.View style={[styles.locationInputContainer, { transform: [{ translateX: locationShakeAnim }] }]}>
+          <TextInput
+            style={[styles.locationInput, locationError && styles.locationInputError]}
+            value={location}
+            onChangeText={(text) => {
+              setLocation(text);
+              if (locationError) setLocationError(false);
+            }}
+            placeholder="Pool Deck, Lido Bar, Cabin 7042..."
+            placeholderTextColor="rgba(255, 255, 255, 0.35)"
+          />
+          <View style={styles.locationInputIcon}>
+            <Ionicons name="location" size={24} color={locationError ? '#ff6b6b' : 'rgba(255, 255, 255, 0.35)'} />
+          </View>
+        </Animated.View>
+        {locationError && (
+          <Text style={styles.locationErrorText}>Please enter a location for your event</Text>
+        )}
 
-      {/* Quick suggestions */}
-      <View style={styles.locationSuggestions}>
-        <Text style={styles.suggestionsLabel}>POPULAR SPOTS</Text>
-        <View style={styles.suggestionChips}>
-          {LOCATION_SUGGESTIONS.map((loc) => (
-            <TouchableOpacity
-              key={loc.name}
-              style={styles.suggestionChip}
-              onPress={() => setLocation(loc.name)}
-            >
-              <Text style={styles.suggestionChipText}>{loc.emoji} {loc.name}</Text>
-            </TouchableOpacity>
-          ))}
+        {/* Quick suggestions */}
+        <View style={styles.locationSuggestions}>
+          <Text style={styles.suggestionsLabel}>POPULAR SPOTS</Text>
+          <View style={styles.suggestionChips}>
+            {LOCATION_SUGGESTIONS.map((loc) => (
+              <TouchableOpacity
+                key={loc.name}
+                style={styles.suggestionChip}
+                onPress={() => {
+                  setLocation(loc.name);
+                  if (locationError) setLocationError(false);
+                }}
+              >
+                <Text style={styles.suggestionChipText}>{loc.emoji} {loc.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 
   // Handler for color picker completion
@@ -797,6 +865,7 @@ export const CreateEventScreen: React.FC = () => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           setEditingText(coverText);
           setShowTextEditor(true);
+          setHasOpenedTextEditor(true);
         }}
         style={styles.coverCanvasTouchable}
       >
@@ -813,17 +882,31 @@ export const CreateEventScreen: React.FC = () => {
             </>
           )}
           {coverText ? (
-            <Text
-              style={[
-                styles.coverDisplayText,
-                {
-                  color: coverImage || coverColorDark ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 0, 0, 0.85)',
-                  fontFamily: coverFontFamily,
-                },
-              ]}
-            >
-              {coverText}
-            </Text>
+            <View style={styles.coverTextContainer}>
+              <Text
+                style={[
+                  styles.coverDisplayText,
+                  {
+                    color: coverImage || coverColorDark ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 0, 0, 0.85)',
+                    fontFamily: coverFontFamily,
+                  },
+                ]}
+              >
+                {coverText}
+                {!hasOpenedTextEditor && (
+                  <Text
+                    style={[
+                      styles.coverEditCursorText,
+                      {
+                        color: coverImage || coverColorDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.6)',
+                      },
+                    ]}
+                  >
+                    {cursorVisible ? '|' : ' '}
+                  </Text>
+                )}
+              </Text>
+            </View>
           ) : (
             <Text style={[styles.coverPlaceholder, { color: coverImage || coverColorDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.25)' }]}>
               Tap to add text...
@@ -947,6 +1030,10 @@ export const CreateEventScreen: React.FC = () => {
                 onPress={() => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                   setCoverText(editingText);
+                  // Mark as edited if user changed it from the auto-filled title
+                  if (editingText.trim() !== title.trim()) {
+                    setCoverTextEdited(true);
+                  }
                   setShowTextEditor(false);
                 }}
                 style={styles.textEditorDoneBtn}
@@ -1037,50 +1124,52 @@ export const CreateEventScreen: React.FC = () => {
 
   // Slide 5: Final Touches
   const renderFinalSlide = () => (
-    <View style={styles.slideContent}>
-      <View style={styles.slideHeaderCompact}>
-        <View style={styles.slideIconSmall}>
-          <Text style={styles.slideIconEmojiSmall}>🎨</Text>
-        </View>
-        <View style={styles.slideHeaderText}>
-          <Text style={styles.slideQuestionSmall}>Final touches</Text>
-          <Text style={styles.slideHintSmall}>Add some extra details</Text>
-        </View>
-      </View>
-
-      <View style={styles.optionalSection}>
-        {/* Spots input */}
-        <View style={styles.optionalField}>
-          <Text style={styles.optionalLabel}>How many people can join?</Text>
-          <View style={styles.spotsInputContainer}>
-            <TextInput
-              style={styles.spotsInput}
-              value={spots}
-              onChangeText={setSpots}
-              placeholder="Unlimited"
-              placeholderTextColor="rgba(255, 255, 255, 0.35)"
-              keyboardType="number-pad"
-            />
-            <Text style={styles.spotsInputIcon}>👥</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.slideContent}>
+        <View style={styles.slideHeaderCompact}>
+          <View style={styles.slideIconSmall}>
+            <Text style={styles.slideIconEmojiSmall}>🎨</Text>
+          </View>
+          <View style={styles.slideHeaderText}>
+            <Text style={styles.slideQuestionSmall}>Final touches</Text>
+            <Text style={styles.slideHintSmall}>Add some extra details</Text>
           </View>
         </View>
 
-        {/* Description */}
-        <View style={styles.optionalField}>
-          <Text style={styles.optionalLabel}>Description</Text>
-          <TextInput
-            style={styles.optionalTextarea}
-            value={description}
-            onChangeText={setDescription}
-            placeholder="What should people know about this event?"
-            placeholderTextColor="rgba(255, 255, 255, 0.35)"
-            multiline
-            numberOfLines={5}
-            textAlignVertical="top"
-          />
+        <View style={styles.optionalSection}>
+          {/* Spots input */}
+          <View style={styles.optionalField}>
+            <Text style={styles.optionalLabel}>How many people can join?</Text>
+            <View style={styles.spotsInputContainer}>
+              <TextInput
+                style={styles.spotsInput}
+                value={spots}
+                onChangeText={setSpots}
+                placeholder="Unlimited"
+                placeholderTextColor="rgba(255, 255, 255, 0.35)"
+                keyboardType="number-pad"
+              />
+              <Text style={styles.spotsInputIcon}>👥</Text>
+            </View>
+          </View>
+
+          {/* Description */}
+          <View style={styles.optionalField}>
+            <Text style={styles.optionalLabel}>Description</Text>
+            <TextInput
+              style={styles.optionalTextarea}
+              value={description}
+              onChangeText={setDescription}
+              placeholder="What should people know about this event?"
+              placeholderTextColor="rgba(255, 255, 255, 0.35)"
+              multiline
+              numberOfLines={5}
+              textAlignVertical="top"
+            />
+          </View>
         </View>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 
   const renderSlide = (index: number) => {
@@ -1122,17 +1211,32 @@ export const CreateEventScreen: React.FC = () => {
     );
   }
 
-  return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={styles.container}>
-        <ProfileBackground />
+  // Render different background based on slide
+  const renderBackground = () => {
+    if (currentSlide === 0 || currentSlide === 1) {
+      // Title and When slides use feed background
+      return (
+        <ImageBackground
+          source={require('../assets/images/feed-background.png')}
+          style={StyleSheet.absoluteFillObject}
+          resizeMode="cover"
+        />
+      );
+    }
+    return <ProfileBackground />;
+  };
 
-        <View style={[styles.screenContent, { paddingTop: insets.top }]}>
-            {/* Header */}
+  return (
+    <View style={styles.container}>
+      {renderBackground()}
+
+      <View style={[styles.screenContent, { paddingTop: insets.top }]}>
+          {/* Header with dots */}
             <View style={styles.header}>
               <TouchableOpacity style={styles.backBtn} onPress={prevSlide}>
                 <Ionicons name="chevron-back" size={20} color="#fff" />
               </TouchableOpacity>
+              {renderProgressDots()}
               <TouchableOpacity
                 style={[styles.skipBtn, currentSlide === TOTAL_SLIDES - 1 && styles.skipBtnVisible]}
                 onPress={handleCreate}
@@ -1141,9 +1245,6 @@ export const CreateEventScreen: React.FC = () => {
                 <Text style={styles.skipBtnText}>Skip extras</Text>
               </TouchableOpacity>
             </View>
-
-            {/* Progress */}
-            {renderProgressBar()}
 
             {/* Slides */}
             <View style={styles.slidesContainer}>
@@ -1182,7 +1283,9 @@ export const CreateEventScreen: React.FC = () => {
             <View style={[styles.bottomActions, { paddingBottom: insets.bottom + 90 }]}>
               <TouchableOpacity
                 style={[
-                  styles.nextBtnWrapper,
+                  styles.nextBtn,
+                  (currentSlide === 0 || currentSlide === 1) && styles.nextBtnWhen,
+                  currentSlide === TOTAL_SLIDES - 1 && styles.nextBtnCreate,
                   isCreating && styles.nextBtnDisabled,
                 ]}
                 onPress={() => {
@@ -1190,27 +1293,18 @@ export const CreateEventScreen: React.FC = () => {
                   nextSlide();
                 }}
                 disabled={isCreating}
-                activeOpacity={0.85}
               >
-                <LinearGradient
-                  colors={currentSlide === TOTAL_SLIDES - 1 ? ['#fb7185', '#fb7185'] : ['#7C3AED', '#93C5FD']}
-                  start={{ x: 0, y: 0.5 }}
-                  end={{ x: 1, y: 0.5 }}
-                  style={styles.nextBtnGradient}
-                >
-                  {isCreating ? (
-                    <ActivityIndicator size="small" color="#fff" />
-                  ) : (
-                    <Text style={styles.nextBtnText}>
-                      {currentSlide === TOTAL_SLIDES - 1 ? 'Create Event 🎉' : 'Next'}
-                    </Text>
-                  )}
-                </LinearGradient>
+                {isCreating ? (
+                  <ActivityIndicator size="small" color="#0a0a12" />
+                ) : (
+                  <Text style={[styles.nextBtnText, currentSlide === TOTAL_SLIDES - 1 && styles.nextBtnTextCreate]}>
+                    {currentSlide === TOTAL_SLIDES - 1 ? 'Create Event 🎉' : 'Next'}
+                  </Text>
+                )}
               </TouchableOpacity>
             </View>
         </View>
       </View>
-    </TouchableWithoutFeedback>
   );
 };
 
@@ -1326,38 +1420,31 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255, 255, 255, 0.55)',
   },
-  // Progress
-  progressContainer: {
-    paddingHorizontal: 24,
-    marginBottom: 20,
-  },
-  progressBar: {
-    height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 2,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#2dd4bf',
-    borderRadius: 2,
-  },
-  progressDots: {
+  // Progress dots (centered absolutely in header)
+  progressDotsInline: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 12,
+    alignItems: 'center',
+    gap: 8,
   },
   progressDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
   },
   progressDotActive: {
-    backgroundColor: '#fff',
+    backgroundColor: '#a78bfa',
+    shadowColor: '#a78bfa',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 8,
   },
   progressDotCompleted: {
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    backgroundColor: '#a78bfa',
   },
   // Slides
   slidesContainer: {
@@ -1376,219 +1463,81 @@ const styles = StyleSheet.create({
   slideContent: {
     flex: 1,
   },
-  // Slide 1: Title - New Design
-  titleSlideContent: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingBottom: 100,
-  },
-  stepIndicator: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.5)',
-    marginBottom: 8,
-  },
-  titleHeading: {
+  // Slide 1: Title - New ultra-minimal purple glow design
+  titleHeader: {
     marginBottom: 48,
   },
-  titleHeadingText: {
-    fontSize: 36,
-    fontFamily: 'ClashDisplay-Semibold',
-    color: '#fff',
-    letterSpacing: -0.5,
-    lineHeight: 44,
-  },
-  titleHeadingPink: {
-    color: '#D76B9D',
-  },
-  titleHeadingPurple: {
-    color: '#9C7BF4',
-  },
-  titleInputBox: {
-    backgroundColor: 'rgba(30, 30, 45, 0.6)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: 20,
-    paddingHorizontal: 24,
-    paddingVertical: 0,
-    height: 130,
-    justifyContent: 'center',
-  },
-  titleInputText: {
-    fontSize: 20,
-    fontWeight: '400',
-    color: '#fff',
-  },
-  charCountCentered: {
+  titleStepText: {
     fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.35)',
-    marginTop: 16,
-    textAlign: 'center',
-  },
-  // Slide 2: Time - New Design
-  timeSlideContent: {
-    flex: 1,
-    paddingTop: 0,
-  },
-  startingNowOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(30, 30, 45, 0.6)',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-    borderRadius: 24,
-    paddingHorizontal: 20,
-    paddingVertical: 18,
-    marginBottom: 32,
-    overflow: 'hidden',
-  },
-  startingNowOptionSelected: {
-    borderColor: 'rgba(255, 255, 255, 0.5)',
-  },
-  radioCircle: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
-    marginRight: 14,
-    backgroundColor: 'transparent',
-  },
-  radioCircleSelected: {
-    borderWidth: 0,
-    backgroundColor: '#1a1a2e',
-  },
-  startingNowText: {
-    fontSize: 17,
-    color: 'rgba(255, 255, 255, 0.5)',
     fontWeight: '400',
-  },
-  startingNowTextSelected: {
-    color: '#1a1a2e',
-  },
-  selectLabelsContainer: {
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  selectLabel: {
-    fontSize: 28,
-    fontFamily: 'Outfit_400Regular',
-    color: 'rgba(255, 255, 255, 0.25)',
-    marginBottom: 6,
-  },
-  selectLabelActive: {
-    color: 'rgba(255, 255, 255, 0.35)',
-  },
-  selectLabelTime: {
-    fontSize: 16,
-    fontFamily: 'SpaceMono_400Regular',
-    color: '#9C7BF4',
-    letterSpacing: 4,
-  },
-  selectLabelTimeActive: {
-    color: '#9C7BF4',
-  },
-  chooseBtnContainer: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 32,
-  },
-  chooseBtn: {
-    flex: 1,
-    backgroundColor: 'rgba(30, 30, 45, 0.6)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: 20,
-    paddingVertical: 14,
-    alignItems: 'center',
-  },
-  chooseBtnLabel: {
-    fontSize: 11,
-    fontWeight: '600',
     color: 'rgba(255, 255, 255, 0.4)',
-    letterSpacing: 0.5,
-    marginBottom: 4,
+    marginBottom: 12,
+    letterSpacing: 0.3,
   },
-  chooseBtnDisabled: {
-    opacity: 0.4,
-  },
-  chooseBtnText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  chooseBtnTextSelected: {
-    color: '#fff',
-  },
-  showEventForLabel: {
-    fontSize: 15,
-    color: 'rgba(255, 255, 255, 0.5)',
-    textAlign: 'center',
-    marginBottom: 16,
-  },
-  durationChipsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: 10,
-  },
-  durationChip: {
-    backgroundColor: 'rgba(30, 30, 45, 0.6)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
-    borderRadius: 20,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-  },
-  durationChipSelected: {
-    backgroundColor: 'rgba(156, 123, 244, 0.3)',
-    borderColor: '#9C7BF4',
-  },
-  durationChipText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: 'rgba(255, 255, 255, 0.7)',
-  },
-  durationChipTextSelected: {
-    color: '#fff',
-  },
-  // Legacy title styles (kept for backwards compatibility)
-  slideIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: 24,
-    backgroundColor: 'rgba(45, 212, 191, 0.15)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 24,
-  },
-  slideIconEmoji: {
-    fontSize: 36,
-  },
-  slideQuestion: {
+  titleMainText: {
+    fontFamily: 'Syne_700Bold',
     fontSize: 32,
     fontWeight: '700',
     color: '#fff',
-    marginBottom: 8,
+    lineHeight: 40,
     letterSpacing: -0.5,
   },
-  slideHint: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.55)',
-    marginBottom: 32,
+  titleAccentText: {
+    color: '#a78bfa',
+    textShadowColor: 'rgba(167, 139, 250, 0.4)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 20,
   },
-  titleInput: {
-    fontSize: 24,
-    fontWeight: '500',
+  titleDisplayArea: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: 40,
+    paddingHorizontal: 8,
+    position: 'relative',
+  },
+  titleDirectInput: {
+    fontFamily: 'Inter_200ExtraLight',
+    fontSize: 44,
+    fontWeight: '200',
     color: '#fff',
-    borderBottomWidth: 2,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
-    paddingVertical: 16,
+    textAlign: 'center',
+    letterSpacing: -1.5,
+    lineHeight: 52,
+    width: '100%',
+    padding: 16,
   },
-  charCount: {
+  titleDirectInputError: {
+    color: '#fb7185',
+  },
+  titleCursorOverlay: {
+    position: 'absolute',
+    top: 56,
+    width: 2,
+    height: 48,
+    backgroundColor: '#a78bfa',
+    borderRadius: 1,
+    shadowColor: '#a78bfa',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 8,
+  },
+  titleFooter: {
+    paddingBottom: 20,
+  },
+  titleErrorText: {
+    fontSize: 14,
+    color: '#fb7185',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  titleCharCount: {
     fontSize: 13,
     color: 'rgba(255, 255, 255, 0.35)',
-    marginTop: 12,
-    textAlign: 'right',
+    textAlign: 'center',
+  },
+  titleCharCountWarning: {
+    color: '#fb7185',
   },
   // Compact header (slides 2-5)
   slideHeaderCompact: {
@@ -1622,68 +1571,166 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255, 255, 255, 0.55)',
   },
-  // Slide 2: Time
-  nowToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+  // Slide 2: When - New ultra-minimal purple glow design
+  whenHeader: {
+    marginBottom: 32,
+  },
+  whenStepText: {
+    fontSize: 14,
+    fontWeight: '400',
+    color: 'rgba(255, 255, 255, 0.4)',
+    marginBottom: 8,
+  },
+  whenMainText: {
+    fontFamily: 'Syne_700Bold',
+    fontSize: 32,
+    fontWeight: '600',
+    color: '#fff',
+    lineHeight: 40,
+  },
+  whenAccentText: {
+    color: '#a78bfa',
+  },
+  nowPill: {
     borderRadius: 16,
-    padding: 18,
-    marginBottom: 20,
+    marginBottom: 40,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
-  nowToggleActive: {
-    backgroundColor: 'rgba(45, 212, 191, 0.12)',
-    borderColor: '#2dd4bf',
+  nowPillActive: {
+    borderColor: 'rgba(167, 139, 250, 0.5)',
+    shadowColor: '#8b5cf6',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.4,
+    shadowRadius: 20,
+    elevation: 8,
   },
-  nowToggleLeft: {
+  nowPillGradient: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+    paddingVertical: 18,
+    paddingHorizontal: 24,
   },
-  nowIcon: {
-    fontSize: 24,
+  nowPillIndicator: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
   },
-  nowLabel: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  nowSwitch: {
-    width: 52,
-    height: 30,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 15,
-    padding: 3,
-  },
-  nowSwitchActive: {
-    backgroundColor: '#2dd4bf',
-  },
-  nowSwitchKnob: {
-    width: 24,
-    height: 24,
+  nowPillIndicatorActive: {
     backgroundColor: '#fff',
-    borderRadius: 12,
+    shadowColor: '#fff',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 8,
   },
-  datetimePicker: {
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    borderRadius: 20,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
+  nowPillText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: 'rgba(255, 255, 255, 0.6)',
   },
-  pickerRow: {
+  nowPillTextActive: {
+    color: '#fff',
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  whenDateTimeDisplay: {
+    alignItems: 'center',
+    marginBottom: 40,
+    marginTop: 20,
+  },
+  whenDateText: {
+    fontSize: 80,
+    fontWeight: '200',
+    color: '#fff',
+    letterSpacing: -3,
+    marginBottom: 12,
+  },
+  whenTimeText: {
+    fontFamily: 'SpaceMono_700Bold',
+    fontSize: 20,
+    letterSpacing: 4,
+    color: '#a78bfa',
+  },
+  whenControls: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 4,
+    gap: 12,
   },
-  selectedTimeText: {
+  whenControlBtn: {
+    flex: 1,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 30,
+    alignItems: 'center',
+  },
+  whenControlBtnPrimary: {
+    // Same style as regular button
+  },
+  whenControlBtnText: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#fff',
+  },
+  whenControlBtnPrimaryText: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#fff',
+  },
+  whenControlBtnTextDisabled: {
+    color: 'rgba(255, 255, 255, 0.3)',
+  },
+  whenControlBtnHidden: {
+    opacity: 0,
+  },
+  // Picker Morph Animation styles - matches button style for seamless morph
+  pickerMorphOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+  },
+  pickerMorphContainer: {
+    position: 'absolute',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    overflow: 'hidden',
+  },
+  pickerMorphBlur: {
+    flex: 1,
+    padding: 24,
+    backgroundColor: 'rgba(20, 20, 30, 0.2)',
+  },
+  pickerModalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  pickerModalContent: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
+    flex: 1,
+  },
+  pickerMorphDoneBtn: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 30,
+    paddingVertical: 16,
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  pickerMorphDoneText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#2dd4bf',
-    textAlign: 'center',
-    marginTop: 12,
+    color: '#fff',
   },
   // Slide 3: Location
   locationInputContainer: {
@@ -1699,6 +1746,15 @@ const styles = StyleSheet.create({
     paddingRight: 56,
     fontSize: 18,
     color: '#fff',
+  },
+  locationInputError: {
+    borderColor: '#ff6b6b',
+  },
+  locationErrorText: {
+    fontSize: 14,
+    color: '#ff6b6b',
+    marginTop: -16,
+    marginBottom: 16,
   },
   locationInputIcon: {
     position: 'absolute',
@@ -1855,12 +1911,20 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   // Cover display text (static, not TextInput)
+  coverTextContainer: {
+    zIndex: 3,
+    padding: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   coverDisplayText: {
     fontSize: 28,
     textAlign: 'center',
-    padding: 30,
-    maxWidth: '100%',
-    zIndex: 3,
+    maxWidth: '90%',
+  },
+  coverEditCursorText: {
+    fontSize: 28,
+    fontWeight: '300',
   },
   coverPlaceholder: {
     fontSize: 18,
@@ -2014,17 +2078,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 20,
   },
-  nextBtnWrapper: {
-    borderRadius: 28,
-    overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-  },
-  nextBtnGradient: {
-    paddingVertical: 18,
-    paddingHorizontal: 32,
+  nextBtn: {
+    backgroundColor: '#2dd4bf',
+    borderRadius: 20,
+    padding: 20,
     alignItems: 'center',
-    justifyContent: 'center',
+  },
+  nextBtnWhen: {
+    backgroundColor: '#fff',
+  },
+  nextBtnCreate: {
+    backgroundColor: '#fb7185',
   },
   nextBtnDisabled: {
     opacity: 0.6,
@@ -2032,17 +2096,7 @@ const styles = StyleSheet.create({
   nextBtnText: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#fff',
-  },
-  // Legacy button styles (kept for backwards compatibility)
-  nextBtn: {
-    backgroundColor: '#2dd4bf',
-    borderRadius: 20,
-    padding: 20,
-    alignItems: 'center',
-  },
-  nextBtnCreate: {
-    backgroundColor: '#fb7185',
+    color: '#0a0a12',
   },
   nextBtnTextCreate: {
     color: '#fff',
@@ -2126,207 +2180,5 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: '#0a0a12',
-  },
-  // Dual Pills - Start & End Date/Time
-  dualPillsContainer: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  datePill: {
-    flex: 1,
-    backgroundColor: 'rgba(60, 60, 80, 0.4)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 16,
-    padding: 16,
-    alignItems: 'center',
-  },
-  datePillLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.5)',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 6,
-  },
-  datePillValue: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#fff',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  datePillPlaceholder: {
-    fontSize: 15,
-    fontWeight: '400',
-    color: 'rgba(255, 255, 255, 0.35)',
-  },
-  // Date & Time Picker Modal
-  dateTimePickerOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  dateTimePickerContainer: {
-    width: '100%',
-    maxWidth: 380,
-    borderRadius: 24,
-    overflow: 'hidden',
-    backgroundColor: 'rgba(30, 30, 50, 0.95)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  dateTimePickerHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
-  },
-  dateTimePickerClear: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.6)',
-  },
-  dateTimePickerTitle: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  dateTimePickerContent: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 20,
-    paddingHorizontal: 12,
-    gap: 8,
-  },
-  dateTimePickerDoneBtn: {
-    marginHorizontal: 16,
-    marginBottom: 20,
-    backgroundColor: '#fff',
-    borderRadius: 14,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  dateTimePickerDoneText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#000',
-  },
-  // Calendar Picker
-  calendarPickerOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  calendarPickerContainer: {
-    backgroundColor: '#1a1a2e',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingTop: 20,
-    paddingBottom: 40,
-    paddingHorizontal: 20,
-  },
-  calendarHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  calendarMonthTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#4ADE80',
-  },
-  calendarNavBtn: {
-    padding: 10,
-  },
-  calendarNavText: {
-    fontSize: 24,
-    color: '#4ADE80',
-  },
-  calendarDayHeaders: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 10,
-  },
-  calendarDayHeader: {
-    width: 40,
-    textAlign: 'center',
-    fontSize: 12,
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.5)',
-  },
-  calendarGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-around',
-  },
-  calendarDay: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 4,
-    borderRadius: 20,
-  },
-  calendarDaySelected: {
-    backgroundColor: '#4ADE80',
-  },
-  calendarDayToday: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  calendarDayText: {
-    fontSize: 16,
-    color: '#fff',
-  },
-  calendarDayTextDim: {
-    color: 'rgba(255, 255, 255, 0.25)',
-  },
-  calendarDayTextToday: {
-    color: '#4ADE80',
-  },
-  calendarDayTextSelected: {
-    color: '#1a1a2e',
-    fontWeight: '600',
-  },
-  timePickerSection: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  calendarFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 20,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  timezoneInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  timezoneIcon: {
-    fontSize: 20,
-  },
-  timezoneText: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.7)',
-  },
-  calendarDoneBtn: {
-    backgroundColor: '#fff',
-    paddingVertical: 14,
-    paddingHorizontal: 40,
-    borderRadius: 12,
-  },
-  calendarDoneText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#000',
   },
 });

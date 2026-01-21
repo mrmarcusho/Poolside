@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Event - Title | Poolside</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@200;300;400;500&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --purple-accent: #a78bfa;
+      --purple-glow: rgba(167, 139, 250, 0.4);
+      --bg-dark: #0a0a12;
+      --bg-lighter: #1a1a2e;
+      --text-muted: rgba(255, 255, 255, 0.4);
+      --text-secondary: rgba(255, 255, 255, 0.6);
+      --border-subtle: rgba(255, 255, 255, 0.1);
+      --glass-bg: rgba(0, 0, 0, 0.25);
+      --glass-border: rgba(255, 255, 255, 0.15);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg-dark);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .phone-frame {
+      width: 390px;
+      height: 844px;
+      background: linear-gradient(165deg, var(--bg-lighter) 0%, var(--bg-dark) 40%, #0d0d18 100%);
+      border-radius: 44px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.1),
+        0 25px 80px rgba(0, 0, 0, 0.6),
+        0 0 120px rgba(167, 139, 250, 0.08);
+    }
+
+    /* Subtle background texture */
+    .phone-frame::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% 0%, rgba(167, 139, 250, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(99, 102, 241, 0.04) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    /* Noise texture overlay */
+    .phone-frame::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+
+    .screen-content {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 60px 24px 40px;
+    }
+
+    /* Header with back button and dots */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 48px;
+    }
+
+    .back-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .back-btn svg {
+      width: 20px;
+      height: 20px;
+      color: #fff;
+    }
+
+    .progress-dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.15);
+      transition: all 0.3s ease;
+    }
+
+    .dot.active {
+      background: var(--purple-accent);
+      box-shadow: 0 0 12px var(--purple-glow);
+    }
+
+    .spacer {
+      width: 44px;
+    }
+
+    /* Main content area */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Step indicator and question */
+    .step-header {
+      margin-bottom: 48px;
+    }
+
+    .step-indicator {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      letter-spacing: 0.02em;
+    }
+
+    .main-question {
+      font-family: 'Syne', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+    }
+
+    .accent {
+      color: var(--purple-accent);
+      text-shadow: 0 0 30px var(--purple-glow);
+    }
+
+    /* Large title display area */
+    .title-display-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 0;
+      min-height: 180px;
+    }
+
+    .title-preview {
+      font-family: 'Inter', sans-serif;
+      font-size: 48px;
+      font-weight: 200;
+      color: #fff;
+      text-align: center;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      max-width: 100%;
+      word-wrap: break-word;
+      transition: all 0.3s ease;
+    }
+
+    .title-preview.empty {
+      color: rgba(255, 255, 255, 0.15);
+    }
+
+    .title-preview.has-content {
+      animation: fadeInUp 0.4s ease;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Blinking cursor */
+    .cursor {
+      display: inline-block;
+      width: 2px;
+      height: 52px;
+      background: var(--purple-accent);
+      margin-left: 4px;
+      vertical-align: middle;
+      animation: blink 1s ease-in-out infinite;
+      box-shadow: 0 0 10px var(--purple-glow);
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    /* Input area */
+    .input-section {
+      margin-top: auto;
+      padding-top: 32px;
+    }
+
+    .input-wrapper {
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .title-input {
+      width: 100%;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 20px 24px;
+      font-family: 'Inter', sans-serif;
+      font-size: 17px;
+      font-weight: 400;
+      color: #fff;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .title-input::placeholder {
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    .title-input:focus {
+      border-color: rgba(167, 139, 250, 0.5);
+      box-shadow:
+        0 0 0 4px rgba(167, 139, 250, 0.1),
+        0 0 30px rgba(167, 139, 250, 0.15);
+    }
+
+    .char-count {
+      text-align: right;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+      padding-right: 4px;
+      transition: color 0.3s ease;
+    }
+
+    .char-count.warning {
+      color: #fb7185;
+    }
+
+    /* CTA Button */
+    .next-btn {
+      width: 100%;
+      background: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 20px;
+      font-family: 'Inter', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--bg-dark);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .next-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent 0%, rgba(167, 139, 250, 0.1) 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .next-btn:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 10px 40px rgba(255, 255, 255, 0.15),
+        0 0 60px rgba(167, 139, 250, 0.2);
+    }
+
+    .next-btn:hover::before {
+      opacity: 1;
+    }
+
+    .next-btn:active {
+      transform: translateY(0);
+    }
+
+    .next-btn span {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Safe area indicator (notch simulation) */
+    .notch {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 32px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 10;
+    }
+
+    /* Home indicator */
+    .home-indicator {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 134px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="notch"></div>
+
+    <div class="screen-content">
+      <!-- Header -->
+      <div class="header">
+        <div class="back-btn">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+        </div>
+        <div class="progress-dots">
+          <div class="dot active"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+        <div class="spacer"></div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <!-- Step Header -->
+        <div class="step-header">
+          <div class="step-indicator">Step 1 of 5</div>
+          <h1 class="main-question">
+            What's your event<br><span class="accent">called</span>?
+          </h1>
+        </div>
+
+        <!-- Large Title Display -->
+        <div class="title-display-area">
+          <div class="title-preview empty" id="titlePreview">
+            Your title<span class="cursor"></span>
+          </div>
+        </div>
+
+        <!-- Input Section -->
+        <div class="input-section">
+          <div class="input-wrapper">
+            <input
+              type="text"
+              class="title-input"
+              id="titleInput"
+              placeholder="Pool party at sunset..."
+              maxlength="50"
+              autocomplete="off"
+            >
+          </div>
+          <div class="char-count" id="charCount">0/50</div>
+          <button class="next-btn" id="nextBtn">
+            <span>Next</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="home-indicator"></div>
+  </div>
+
+  <script>
+    const titleInput = document.getElementById('titleInput');
+    const titlePreview = document.getElementById('titlePreview');
+    const charCount = document.getElementById('charCount');
+    const nextBtn = document.getElementById('nextBtn');
+
+    titleInput.addEventListener('input', (e) => {
+      const value = e.target.value;
+      const length = value.length;
+
+      // Update character count
+      charCount.textContent = `${length}/50`;
+      charCount.classList.toggle('warning', length > 40);
+
+      // Update preview
+      if (value.trim()) {
+        titlePreview.innerHTML = value;
+        titlePreview.classList.remove('empty');
+        titlePreview.classList.add('has-content');
+      } else {
+        titlePreview.innerHTML = 'Your title<span class="cursor"></span>';
+        titlePreview.classList.add('empty');
+        titlePreview.classList.remove('has-content');
+      }
+    });
+
+    // Focus input on page load
+    setTimeout(() => titleInput.focus(), 300);
+
+    // Button interaction feedback
+    nextBtn.addEventListener('click', () => {
+      if (!titleInput.value.trim()) {
+        titleInput.style.animation = 'shake 0.4s ease';
+        titleInput.style.borderColor = '#fb7185';
+        setTimeout(() => {
+          titleInput.style.animation = '';
+          titleInput.style.borderColor = '';
+        }, 400);
+      }
+    });
+
+    // Add shake animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        20% { transform: translateX(-8px); }
+        40% { transform: translateX(8px); }
+        60% { transform: translateX(-4px); }
+        80% { transform: translateX(4px); }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>

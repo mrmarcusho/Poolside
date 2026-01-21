@@ -44,6 +44,7 @@ import { Oswald_600SemiBold } from '@expo-google-fonts/oswald';
 import { Lobster_400Regular } from '@expo-google-fonts/lobster';
 import { Outfit_400Regular, Outfit_600SemiBold } from '@expo-google-fonts/outfit';
 import { Syne_700Bold } from '@expo-google-fonts/syne';
+import { Inter_200ExtraLight, Inter_300Light } from '@expo-google-fonts/inter';
 import {
   Poppins_400Regular,
   Poppins_500Medium,
@@ -230,6 +231,8 @@ export default function App() {
     Outfit_400Regular,
     Outfit_600SemiBold,
     Syne_700Bold,
+    Inter_200ExtraLight,
+    Inter_300Light,
     // Satoshi fonts
     'Satoshi-Light': SatoshiLight,
     'Satoshi-Regular': SatoshiRegular,
