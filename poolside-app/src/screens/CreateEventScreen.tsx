@@ -16,6 +16,9 @@ import {
   KeyboardAvoidingView,
   Platform,
   ImageBackground,
+  ScrollView,
+  Switch,
+  InputAccessoryView,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProfileBackground, CurvedPickerWheel, VideoBackground } from '../components';
@@ -23,12 +26,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { eventsService } from '../api/services/events';
 import { uploadsService } from '../api/services/uploads';
+import { TUFTS_LOCATIONS, LOCATION_CATEGORIES, TuftsLocation, LocationCategory, searchLocations } from '../data/tuftsLocations';
 import { useEventCreationAnimation } from '../context/EventCreationAnimationContext';
 import ColorPicker, { Panel1, HueSlider, Preview } from 'reanimated-color-picker';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import ViewShot from 'react-native-view-shot';
+import * as ImagePicker from 'expo-image-picker';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const TOTAL_SLIDES = 5;
@@ -51,14 +56,6 @@ const TIME_OPTIONS = [
   '9:00 PM', '9:30 PM', '10:00 PM', '10:30 PM', '11:00 PM', '11:30 PM',
 ];
 
-const LOCATION_SUGGESTIONS = [
-  { emoji: '🏊', name: 'Pool Deck' },
-  { emoji: '🍹', name: 'Lido Bar' },
-  { emoji: '🍽️', name: 'Main Dining' },
-  { emoji: '🎰', name: 'Casino' },
-  { emoji: '🎭', name: 'Theater' },
-  { emoji: '💆', name: 'Spa Deck' },
-];
 
 const COVER_COLORS = [
   { name: 'white', color: '#f8f8f8', dark: false },
@@ -120,6 +117,13 @@ export const CreateEventScreen: React.FC = () => {
 
   // Form state - Slide 3: Location
   const [location, setLocation] = useState('');
+  const [selectedVenue, setSelectedVenue] = useState<TuftsLocation | null>(null);
+  const [locationDetails, setLocationDetails] = useState('');
+  const [locationSearchQuery, setLocationSearchQuery] = useState('');
+  const [selectedLocationCategory, setSelectedLocationCategory] = useState<'all' | LocationCategory>('all');
+  const [showLocationSearchModal, setShowLocationSearchModal] = useState(false);
+  const [showDetailsInModal, setShowDetailsInModal] = useState(false);
+  const [customLocation, setCustomLocation] = useState('');
 
   // Form state - Slide 4: Cover
   const [coverText, setCoverText] = useState('');
@@ -138,6 +142,14 @@ export const CreateEventScreen: React.FC = () => {
   // Form state - Slide 5: Final touches
   const [spots, setSpots] = useState('');
   const [description, setDescription] = useState('');
+  const [enableWaitlist, setEnableWaitlist] = useState(true);
+  const [hideDetailsWhenFull, setHideDetailsWhenFull] = useState(false);
+  const [spotsFocused, setSpotsFocused] = useState(false);
+  const [descFocused, setDescFocused] = useState(false);
+  const spotsBorderAnim = useRef(new Animated.Value(0)).current;
+  const descBorderAnim = useRef(new Animated.Value(0)).current;
+  const spotsInputRef = useRef<TextInput>(null);
+  const descInputRef = useRef<TextInput>(null);
 
   // UI state
   const [isCreating, setIsCreating] = useState(false);
@@ -159,6 +171,8 @@ export const CreateEventScreen: React.FC = () => {
   const timeButtonRef = useRef<TouchableOpacity>(null);
   const [activePicker, setActivePicker] = useState<'date' | 'time' | null>(null);
   const [buttonMeasurements, setButtonMeasurements] = useState({ x: 0, y: 0, width: 0, height: 0 });
+  const locationDetailsExpandAnim = useRef(new Animated.Value(0)).current;
+  const [venueCardMeasurements, setVenueCardMeasurements] = useState({ x: 0, y: 0, width: 0, height: 0 });
 
   // Pulsing animation for the "Starting right now" indicator
   useEffect(() => {
@@ -344,8 +358,8 @@ export const CreateEventScreen: React.FC = () => {
       return;
     }
 
-    // Validate location on slide 2
-    if (currentSlide === 2 && !location.trim()) {
+    // Validate location on slide 2 - must have a venue selected OR custom location
+    if (currentSlide === 2 && !selectedVenue && !customLocation.trim()) {
       shakeLocationInput();
       return;
     }
@@ -366,7 +380,6 @@ export const CreateEventScreen: React.FC = () => {
   };
 
   const handlePickImage = async () => {
-    const ImagePicker = await import('expo-image-picker');
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -432,10 +445,20 @@ export const CreateEventScreen: React.FC = () => {
         }
       }
 
+      // Combine venue name and details for final location, or use custom location
+      let finalLocation: string;
+      if (selectedVenue) {
+        finalLocation = locationDetails.trim()
+          ? `${selectedVenue.name} · ${locationDetails.trim()}`
+          : selectedVenue.name;
+      } else {
+        finalLocation = customLocation.trim();
+      }
+
       const eventData = {
         title: title.trim(),
         description: eventDescription,
-        locationName: location.trim(),
+        locationName: finalLocation,
         dateTime: dateTime.toISOString(),
         eventImage: uploadedImageUrl,
       };
@@ -449,6 +472,14 @@ export const CreateEventScreen: React.FC = () => {
       setSelectedDay(7);
       setSelectedTime('8:00 PM');
       setLocation('');
+      setSelectedVenue(null);
+      setLocationDetails('');
+      setLocationSearchQuery('');
+      setSelectedLocationCategory('all');
+      setShowLocationDetails(false);
+      setShowLocationSearchModal(false);
+      setShowDetailsInModal(false);
+      setCustomLocation('');
       setCoverText('');
       setCoverTextEdited(false);
       setHasOpenedTextEditor(false);
@@ -785,60 +816,428 @@ export const CreateEventScreen: React.FC = () => {
     );
   };
 
-  // Slide 3: Location
-  const renderLocationSlide = () => (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.slideContent}>
-        <View style={styles.slideHeaderCompact}>
-          <View style={styles.slideIconSmall}>
-            <Text style={styles.slideIconEmojiSmall}>📍</Text>
-          </View>
-          <View style={styles.slideHeaderText}>
-            <Text style={styles.slideQuestionSmall}>Where?</Text>
-            <Text style={styles.slideHintSmall}>Enter the location</Text>
-          </View>
-        </View>
+  // Filter locations based on search and category
+  const getFilteredLocations = () => {
+    let filtered = locationSearchQuery ? searchLocations(locationSearchQuery) : TUFTS_LOCATIONS;
+    if (selectedLocationCategory !== 'all') {
+      filtered = filtered.filter(loc => loc.category === selectedLocationCategory);
+    }
+    return filtered;
+  };
 
-        <Animated.View style={[styles.locationInputContainer, { transform: [{ translateX: locationShakeAnim }] }]}>
-          <TextInput
-            style={[styles.locationInput, locationError && styles.locationInputError]}
-            value={location}
-            onChangeText={(text) => {
-              setLocation(text);
-              if (locationError) setLocationError(false);
-            }}
-            placeholder="Pool Deck, Lido Bar, Cabin 7042..."
-            placeholderTextColor="rgba(255, 255, 255, 0.35)"
-          />
-          <View style={styles.locationInputIcon}>
-            <Ionicons name="location" size={24} color={locationError ? '#ff6b6b' : 'rgba(255, 255, 255, 0.35)'} />
-          </View>
-        </Animated.View>
-        {locationError && (
-          <Text style={styles.locationErrorText}>Please enter a location for your event</Text>
-        )}
+  // Store refs for each location card to measure position for morph animation
+  const locationCardRefs = useRef<{ [key: string]: TouchableOpacity | null }>({});
 
-        {/* Quick suggestions */}
-        <View style={styles.locationSuggestions}>
-          <Text style={styles.suggestionsLabel}>POPULAR SPOTS</Text>
-          <View style={styles.suggestionChips}>
-            {LOCATION_SUGGESTIONS.map((loc) => (
+  // Slide 3: Location - New design matching mockup
+  const renderLocationSlide = () => {
+    const filteredLocations = getFilteredLocations();
+    const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+    // Handle selecting a venue - measure card and trigger morph animation
+    const handleVenueSelect = (venue: TuftsLocation) => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+      // Clear details if selecting a different venue
+      const isNewVenue = !selectedVenue || selectedVenue.id !== venue.id;
+      if (isNewVenue) {
+        setLocationDetails('');
+      }
+
+      const cardRef = locationCardRefs.current[venue.id];
+      if (cardRef) {
+        cardRef.measureInWindow((x, y, width, height) => {
+          setVenueCardMeasurements({ x, y, width, height });
+          setSelectedVenue(venue);
+          setLocation(venue.name);
+          setCustomLocation(''); // Clear custom location when venue selected
+          setLocationSearchQuery('');
+          if (locationError) setLocationError(false);
+          setShowDetailsInModal(true);
+
+          // Start morph animation from card to center
+          locationDetailsExpandAnim.setValue(0);
+          Animated.spring(locationDetailsExpandAnim, {
+            toValue: 1,
+            useNativeDriver: false,
+            tension: 65,
+            friction: 12,
+          }).start();
+        });
+      } else {
+        // Fallback if ref not found
+        setSelectedVenue(venue);
+        setLocation(venue.name);
+        setCustomLocation('');
+        setLocationSearchQuery('');
+        if (locationError) setLocationError(false);
+        setShowDetailsInModal(true);
+        locationDetailsExpandAnim.setValue(1);
+      }
+    };
+
+    // Confirm selection - morph back to card (stays in modal)
+    const handleConfirmVenue = () => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      Keyboard.dismiss();
+
+      Animated.timing(locationDetailsExpandAnim, {
+        toValue: 0,
+        duration: 220,
+        useNativeDriver: false,
+      }).start(() => {
+        setShowDetailsInModal(false);
+        // Modal stays open - user presses checkmark to confirm and close
+      });
+    };
+
+    // Confirm and close modal (checkmark button)
+    const handleConfirmAndClose = () => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      setShowDetailsInModal(false);
+      setShowLocationSearchModal(false);
+    };
+
+    // Go back to grid to choose different location
+    const handleBackToGrid = () => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      Keyboard.dismiss();
+
+      Animated.timing(locationDetailsExpandAnim, {
+        toValue: 0,
+        duration: 180,
+        useNativeDriver: false,
+      }).start(() => {
+        setShowDetailsInModal(false);
+        setSelectedVenue(null);
+        setLocationDetails('');
+      });
+    };
+
+    // Close modal entirely
+    const handleCloseModal = () => {
+      if (showDetailsInModal) {
+        Animated.timing(locationDetailsExpandAnim, {
+          toValue: 0,
+          duration: 180,
+          useNativeDriver: false,
+        }).start(() => {
+          setShowDetailsInModal(false);
+          setShowLocationSearchModal(false);
+        });
+      } else {
+        setShowLocationSearchModal(false);
+      }
+    };
+
+    // Calculate popup position/size interpolations for morph effect
+    const popupWidth = SCREEN_WIDTH - 40;
+    const popupHeight = 340;
+    const centerX = 20;
+    const centerY = (SCREEN_HEIGHT - popupHeight) / 2 - 40;
+
+    const morphLeft = locationDetailsExpandAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [venueCardMeasurements.x, centerX],
+    });
+    const morphTop = locationDetailsExpandAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [venueCardMeasurements.y, centerY],
+    });
+    const morphWidth = locationDetailsExpandAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [venueCardMeasurements.width || 150, popupWidth],
+    });
+    const morphHeight = locationDetailsExpandAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [venueCardMeasurements.height || 110, popupHeight],
+    });
+    const morphOpacity = locationDetailsExpandAnim.interpolate({
+      inputRange: [0, 0.3, 1],
+      outputRange: [0, 0.8, 1],
+    });
+    const morphScale = locationDetailsExpandAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0.95, 1],
+    });
+    const gridDimOpacity = locationDetailsExpandAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [1, 0.25],
+    });
+
+    return (
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.slideContent}>
+          {/* Header matching other slides */}
+          <View style={styles.locationHeader}>
+            <Text style={styles.locationStepText}>Step 3 of 5</Text>
+            <Text style={styles.locationMainText}>
+              Where is it <Text style={styles.locationAccentText}>happening</Text>?
+            </Text>
+          </View>
+
+          {/* Search bar OR Selected location preview - same position */}
+          {!selectedVenue ? (
+            <Animated.View style={[{ transform: [{ translateX: locationShakeAnim }] }]}>
               <TouchableOpacity
-                key={loc.name}
-                style={styles.suggestionChip}
+                style={[styles.locationSearchBarTappable, locationError && styles.locationSearchBarError]}
                 onPress={() => {
-                  setLocation(loc.name);
-                  if (locationError) setLocationError(false);
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  setShowLocationSearchModal(true);
                 }}
+                activeOpacity={0.7}
               >
-                <Text style={styles.suggestionChipText}>{loc.emoji} {loc.name}</Text>
+                <Ionicons name="search" size={20} color="rgba(255, 255, 255, 0.4)" />
+                <Text style={styles.locationSearchPlaceholder}>Search Tufts locations...</Text>
               </TouchableOpacity>
-            ))}
+            </Animated.View>
+          ) : (
+            <TouchableOpacity
+              onPress={() => setShowLocationSearchModal(true)}
+              activeOpacity={0.8}
+              style={styles.selectedLocationPreviewWrapper}
+            >
+              <LinearGradient
+                colors={['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#ff6b6b']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.selectedLocationPreviewBorder}
+              >
+                <View style={styles.selectedLocationPreviewInner}>
+                  <Text style={styles.selectedLocationPreviewEmoji}>{selectedVenue.emoji}</Text>
+                  <View style={styles.selectedLocationPreviewInfo}>
+                    <Text style={styles.selectedLocationPreviewName}>{selectedVenue.name}</Text>
+                    {locationDetails ? (
+                      <Text style={styles.selectedLocationPreviewDetails}>{locationDetails}</Text>
+                    ) : null}
+                  </View>
+                  <Text style={styles.selectedLocationPreviewEdit}>Edit</Text>
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
+          )}
+
+          {/* Divider with "or" */}
+          <View style={styles.locationDivider}>
+            <View style={styles.locationDividerLine} />
+            <Text style={styles.locationDividerText}>OR</Text>
+            <View style={styles.locationDividerLine} />
           </View>
+
+          {/* Custom location input section */}
+          <View style={styles.customLocationSection}>
+            <Text style={styles.customLocationLabel}>Enter a custom location</Text>
+            <TextInput
+              style={[styles.customLocationInput, locationError && !selectedVenue && styles.customLocationInputError]}
+              value={customLocation}
+              onChangeText={(text) => {
+                setCustomLocation(text);
+                if (text.trim()) {
+                  setSelectedVenue(null);
+                  setLocationDetails('');
+                }
+                if (locationError) setLocationError(false);
+              }}
+              placeholder="e.g. My dorm room, Off-campus house..."
+              placeholderTextColor="rgba(255, 255, 255, 0.3)"
+            />
+            <Text style={styles.customLocationHelper}>
+              Use this for locations not in our directory, like dorm rooms, apartments, or off-campus spots.
+            </Text>
+          </View>
+
+          {/* Error message */}
+          {locationError && (
+            <Text style={styles.locationErrorText}>Please select or enter a location</Text>
+          )}
+
+          {/* Search Modal */}
+          <Modal
+            visible={showLocationSearchModal}
+            animationType="slide"
+            transparent
+            onRequestClose={handleCloseModal}
+          >
+            <KeyboardAvoidingView
+              style={styles.locationSearchModal}
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            >
+              <BlurView intensity={100} tint="dark" style={StyleSheet.absoluteFillObject} />
+              <View style={styles.locationSearchModalContent}>
+                {/* Modal header with close button and search input */}
+                <View style={styles.locationModalHeader}>
+                      <TouchableOpacity
+                        style={styles.locationModalCloseBtn}
+                        onPress={selectedVenue ? handleConfirmAndClose : handleCloseModal}
+                      >
+                        <Ionicons
+                          name={selectedVenue ? "checkmark" : "close"}
+                          size={20}
+                          color={selectedVenue ? "#2dd4bf" : "#fff"}
+                        />
+                      </TouchableOpacity>
+                      <View style={styles.locationModalSearchWrapper}>
+                        <Ionicons name="search" size={18} color="rgba(255, 255, 255, 0.4)" />
+                        <TextInput
+                          style={styles.locationModalSearchInput}
+                          value={locationSearchQuery}
+                          onChangeText={setLocationSearchQuery}
+                          placeholder="Search locations..."
+                          placeholderTextColor="rgba(255, 255, 255, 0.35)"
+                        />
+                      </View>
+                    </View>
+
+                    {/* Category pills */}
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      style={styles.locationModalCategoryScroll}
+                      contentContainerStyle={styles.locationModalCategoryContent}
+                    >
+                      <TouchableOpacity
+                        style={[
+                          styles.locationModalPill,
+                          selectedLocationCategory === 'all' && styles.locationModalPillActive,
+                        ]}
+                        onPress={() => {
+                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                          setSelectedLocationCategory('all');
+                        }}
+                      >
+                        <Text style={[
+                          styles.locationModalPillText,
+                          selectedLocationCategory === 'all' && styles.locationModalPillTextActive,
+                        ]}>All</Text>
+                      </TouchableOpacity>
+                      {LOCATION_CATEGORIES.map((category) => (
+                        <TouchableOpacity
+                          key={category.id}
+                          style={[
+                            styles.locationModalPill,
+                            selectedLocationCategory === category.id && styles.locationModalPillActive,
+                          ]}
+                          onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            setSelectedLocationCategory(category.id);
+                          }}
+                        >
+                          <Text style={[
+                            styles.locationModalPillText,
+                            selectedLocationCategory === category.id && styles.locationModalPillTextActive,
+                          ]}>{category.name}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+
+                    {/* Locations grid - stays visible but dims when popup shown */}
+                    <Animated.View style={{ flex: 1, opacity: showDetailsInModal ? gridDimOpacity : 1 }}>
+                      <ScrollView
+                        style={styles.locationModalGrid}
+                        contentContainerStyle={styles.locationModalGridContent}
+                        showsVerticalScrollIndicator={false}
+                        scrollEnabled={!showDetailsInModal}
+                      >
+                        {filteredLocations.map((loc) => {
+                          const isSelected = selectedVenue?.id === loc.id;
+                          const hasDetails = isSelected && locationDetails;
+                          return (
+                            <TouchableOpacity
+                              key={loc.id}
+                              ref={(ref) => { locationCardRefs.current[loc.id] = ref; }}
+                              style={[
+                                styles.locationModalCard,
+                                isSelected && styles.locationModalCardSelected,
+                              ]}
+                              onPress={() => handleVenueSelect(loc)}
+                              activeOpacity={0.7}
+                              disabled={showDetailsInModal}
+                            >
+                              {isSelected && (
+                                <View style={styles.locationModalCardCheck}>
+                                  <Ionicons name="checkmark" size={12} color="#fff" strokeWidth={3} />
+                                </View>
+                              )}
+                              <Text style={styles.locationModalCardEmoji}>{loc.emoji}</Text>
+                              <Text style={styles.locationModalCardName}>{loc.shortName || loc.name}</Text>
+                              {hasDetails ? (
+                                <Text style={styles.locationModalCardDetails} numberOfLines={1}>{locationDetails}</Text>
+                              ) : (
+                                <Text style={styles.locationModalCardType}>
+                                  {LOCATION_CATEGORIES.find(c => c.id === loc.category)?.name}
+                                </Text>
+                              )}
+                            </TouchableOpacity>
+                          );
+                        })}
+                      </ScrollView>
+                    </Animated.View>
+
+                {/* Morph Popup - Animated overlay that expands from card */}
+                {showDetailsInModal && selectedVenue && (
+                  <Animated.View
+                    style={[
+                      styles.locationMorphPopup,
+                      {
+                        position: 'absolute',
+                        left: morphLeft,
+                        top: morphTop,
+                        width: morphWidth,
+                        height: morphHeight,
+                        opacity: morphOpacity,
+                        transform: [{ scale: morphScale }],
+                      },
+                    ]}
+                  >
+                    {/* Venue header in popup */}
+                    <View style={styles.morphPopupHeader}>
+                      <Text style={styles.morphPopupEmoji}>{selectedVenue.emoji}</Text>
+                      <View style={styles.morphPopupVenueInfo}>
+                        <Text style={styles.morphPopupVenueName}>{selectedVenue.name}</Text>
+                        <Text style={styles.morphPopupVenueCategory}>
+                          {LOCATION_CATEGORIES.find(c => c.id === selectedVenue.category)?.name}
+                        </Text>
+                      </View>
+                    </View>
+
+                    {/* Details input */}
+                    <View style={styles.morphPopupInputSection}>
+                      <Text style={styles.morphPopupLabel}>Where exactly? (optional)</Text>
+                      <TextInput
+                        style={styles.morphPopupInput}
+                        value={locationDetails}
+                        onChangeText={setLocationDetails}
+                        placeholder="Room 302, 3rd floor, near the windows..."
+                        placeholderTextColor="rgba(255, 255, 255, 0.35)"
+                      />
+                      <Text style={styles.morphPopupHint}>
+                        Help people find you — add room number, floor, or landmark
+                      </Text>
+                    </View>
+
+                    {/* Action buttons */}
+                    <View style={styles.morphPopupActions}>
+                      <TouchableOpacity
+                        style={styles.morphPopupChangeBtn}
+                        onPress={handleBackToGrid}
+                      >
+                        <Text style={styles.morphPopupChangeBtnText}>Different location</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.morphPopupDoneBtn}
+                        onPress={handleConfirmVenue}
+                      >
+                        <Text style={styles.morphPopupDoneBtnText}>Done</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </Animated.View>
+                )}
+              </View>
+            </KeyboardAvoidingView>
+          </Modal>
         </View>
-      </View>
-    </TouchableWithoutFeedback>
-  );
+      </TouchableWithoutFeedback>
+    );
+  };
 
   // Handler for color picker completion
   const handleColorPickerComplete = ({ hex }: { hex: string }) => {
@@ -855,8 +1254,13 @@ export const CreateEventScreen: React.FC = () => {
   // Slide 4: Cover Image
   const renderCoverSlide = () => (
     <View style={styles.slideContent}>
-      {/* Upload Label */}
-      <Text style={styles.coverUploadLabel}>Upload a photo</Text>
+      {/* Header matching other slides */}
+      <View style={styles.locationHeader}>
+        <Text style={styles.locationStepText}>Step 4 of 5</Text>
+        <Text style={styles.locationMainText}>
+          Design your event{'\n'}<Text style={styles.locationAccentText}>cover</Text>
+        </Text>
+      </View>
 
       {/* Large Canvas Preview */}
       <TouchableOpacity
@@ -893,18 +1297,6 @@ export const CreateEventScreen: React.FC = () => {
                 ]}
               >
                 {coverText}
-                {!hasOpenedTextEditor && (
-                  <Text
-                    style={[
-                      styles.coverEditCursorText,
-                      {
-                        color: coverImage || coverColorDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.6)',
-                      },
-                    ]}
-                  >
-                    {cursorVisible ? '|' : ' '}
-                  </Text>
-                )}
               </Text>
             </View>
           ) : (
@@ -912,6 +1304,11 @@ export const CreateEventScreen: React.FC = () => {
               Tap to add text...
             </Text>
           )}
+        </View>
+        {/* Tap to edit hint - bottom left of canvas */}
+        <View style={styles.coverEditHint}>
+          <Ionicons name="pencil" size={12} color="rgba(255, 255, 255, 0.5)" />
+          <Text style={styles.coverEditHintText}>Tap to edit text</Text>
         </View>
         <TouchableOpacity
           style={styles.coverUploadBtn}
@@ -1124,52 +1521,142 @@ export const CreateEventScreen: React.FC = () => {
 
   // Slide 5: Final Touches
   const renderFinalSlide = () => (
+    <>
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.slideContent}>
-        <View style={styles.slideHeaderCompact}>
-          <View style={styles.slideIconSmall}>
-            <Text style={styles.slideIconEmojiSmall}>🎨</Text>
-          </View>
-          <View style={styles.slideHeaderText}>
-            <Text style={styles.slideQuestionSmall}>Final touches</Text>
-            <Text style={styles.slideHintSmall}>Add some extra details</Text>
-          </View>
+      <ScrollView style={styles.slideContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+        {/* Header */}
+        <View style={styles.finalHeader}>
+          <Text style={styles.finalStepText}>Step {currentSlide + 1} of {TOTAL_SLIDES}</Text>
+          <Text style={styles.finalMainText}>
+            Any final{'\n'}<Text style={styles.finalAccentText}>details</Text>?
+          </Text>
+          <Text style={styles.finalSubtitle}>These are optional but helpful</Text>
         </View>
 
-        <View style={styles.optionalSection}>
-          {/* Spots input */}
-          <View style={styles.optionalField}>
-            <Text style={styles.optionalLabel}>How many people can join?</Text>
-            <View style={styles.spotsInputContainer}>
-              <TextInput
-                style={styles.spotsInput}
-                value={spots}
-                onChangeText={setSpots}
-                placeholder="Unlimited"
-                placeholderTextColor="rgba(255, 255, 255, 0.35)"
-                keyboardType="number-pad"
+        {/* Guest limit */}
+        <View style={styles.finalField}>
+          <Text style={styles.finalLabel}>Guest limit</Text>
+          <View style={[styles.finalGradientBorder, spotsFocused && styles.finalGradientBorderActive]}>
+            <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFillObject, { opacity: spotsBorderAnim }]}>
+              <LinearGradient
+                colors={['#f472b6', '#fb923c', '#facc15', '#4ade80', '#38bdf8', '#a78bfa', '#e879f9', '#f472b6']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={StyleSheet.absoluteFillObject}
               />
-              <Text style={styles.spotsInputIcon}>👥</Text>
-            </View>
-          </View>
-
-          {/* Description */}
-          <View style={styles.optionalField}>
-            <Text style={styles.optionalLabel}>Description</Text>
-            <TextInput
-              style={styles.optionalTextarea}
-              value={description}
-              onChangeText={setDescription}
-              placeholder="What should people know about this event?"
-              placeholderTextColor="rgba(255, 255, 255, 0.35)"
-              multiline
-              numberOfLines={5}
-              textAlignVertical="top"
-            />
+            </Animated.View>
+            <TouchableWithoutFeedback onPress={() => spotsInputRef.current?.focus()}>
+              <View style={[styles.finalInputContainer, spotsFocused && styles.finalInputContainerFocused]}>
+                <Text style={styles.finalInputIcon}>👥</Text>
+                <TextInput
+                  ref={spotsInputRef}
+                  style={styles.finalInput}
+                  value={spots}
+                  onChangeText={setSpots}
+                  placeholder="Unlimited"
+                  placeholderTextColor="rgba(255, 255, 255, 0.35)"
+                  keyboardType="number-pad"
+                  inputAccessoryViewID="spotsDoneBtn"
+                  onFocus={() => {
+                    setSpotsFocused(true);
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
+                    Animated.timing(spotsBorderAnim, { toValue: 1, duration: 250, useNativeDriver: true }).start();
+                  }}
+                  onBlur={() => {
+                    Animated.timing(spotsBorderAnim, { toValue: 0, duration: 200, useNativeDriver: true }).start(() => {
+                      setSpotsFocused(false);
+                    });
+                  }}
+                />
+              </View>
+            </TouchableWithoutFeedback>
           </View>
         </View>
-      </View>
+
+        {/* Description */}
+        <View style={styles.finalField}>
+          <Text style={styles.finalLabel}>Description</Text>
+          <View style={[styles.finalGradientBorder, descFocused && styles.finalGradientBorderActive]}>
+            <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFillObject, { opacity: descBorderAnim }]}>
+              <LinearGradient
+                colors={['#f472b6', '#fb923c', '#facc15', '#4ade80', '#38bdf8', '#a78bfa', '#e879f9', '#f472b6']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={StyleSheet.absoluteFillObject}
+              />
+            </Animated.View>
+            <TouchableWithoutFeedback onPress={() => descInputRef.current?.focus()}>
+              <View style={[styles.finalTextareaInner, descFocused && styles.finalTextareaInnerFocused]}>
+                <TextInput
+                  ref={descInputRef}
+                  style={styles.finalTextarea}
+                  value={description}
+                  onChangeText={setDescription}
+                  placeholder="What should people know about this event?"
+                  placeholderTextColor="rgba(255, 255, 255, 0.35)"
+                  multiline
+                  numberOfLines={4}
+                  textAlignVertical="top"
+                  returnKeyType="done"
+                  blurOnSubmit={true}
+                  onFocus={() => {
+                    setDescFocused(true);
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
+                    Animated.timing(descBorderAnim, { toValue: 1, duration: 250, useNativeDriver: true }).start();
+                  }}
+                  onBlur={() => {
+                    Animated.timing(descBorderAnim, { toValue: 0, duration: 200, useNativeDriver: true }).start(() => {
+                      setDescFocused(false);
+                    });
+                  }}
+                />
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </View>
+
+        {/* Enable waitlist toggle */}
+        <View style={styles.finalToggleRow}>
+          <View style={styles.finalToggleInfo}>
+            <Text style={styles.finalToggleLabel}>Enable waitlist</Text>
+            <Text style={styles.finalToggleHint}>Let people join a waitlist when full</Text>
+          </View>
+          <Switch
+            value={enableWaitlist}
+            onValueChange={setEnableWaitlist}
+            trackColor={{ false: 'rgba(255, 255, 255, 0.15)', true: '#34D399' }}
+            thumbColor="#fff"
+            ios_backgroundColor="rgba(255, 255, 255, 0.15)"
+          />
+        </View>
+
+        {/* Hide details when full toggle */}
+        <View style={styles.finalToggleRow}>
+          <View style={styles.finalToggleInfo}>
+            <Text style={styles.finalToggleLabel}>Hide details when full</Text>
+            <Text style={styles.finalToggleHint}>Only show basics & keep lineup private</Text>
+          </View>
+          <Switch
+            value={hideDetailsWhenFull}
+            onValueChange={setHideDetailsWhenFull}
+            trackColor={{ false: 'rgba(255, 255, 255, 0.15)', true: '#34D399' }}
+            thumbColor="#fff"
+            ios_backgroundColor="rgba(255, 255, 255, 0.15)"
+          />
+        </View>
+      </ScrollView>
     </TouchableWithoutFeedback>
+    {Platform.OS === 'ios' && (
+      <InputAccessoryView nativeID="spotsDoneBtn">
+        <View style={styles.keyboardAccessory}>
+          <View style={{ flex: 1 }} />
+          <TouchableOpacity onPress={Keyboard.dismiss} style={styles.keyboardDoneBtn}>
+            <Text style={styles.keyboardDoneBtnText}>Done</Text>
+          </TouchableOpacity>
+        </View>
+      </InputAccessoryView>
+    )}
+    </>
   );
 
   const renderSlide = (index: number) => {
@@ -1213,8 +1700,8 @@ export const CreateEventScreen: React.FC = () => {
 
   // Render different background based on slide
   const renderBackground = () => {
-    if (currentSlide === 0 || currentSlide === 1) {
-      // Title and When slides use feed background
+    if (currentSlide === 0 || currentSlide === 1 || currentSlide === 2) {
+      // Title, When, and Location slides use feed background
       return (
         <ImageBackground
           source={require('../assets/images/feed-background.png')}
@@ -1237,13 +1724,7 @@ export const CreateEventScreen: React.FC = () => {
                 <Ionicons name="chevron-back" size={20} color="#fff" />
               </TouchableOpacity>
               {renderProgressDots()}
-              <TouchableOpacity
-                style={[styles.skipBtn, currentSlide === TOTAL_SLIDES - 1 && styles.skipBtnVisible]}
-                onPress={handleCreate}
-                disabled={currentSlide !== TOTAL_SLIDES - 1}
-              >
-                <Text style={styles.skipBtnText}>Skip extras</Text>
-              </TouchableOpacity>
+              <View style={styles.skipBtn} />
             </View>
 
             {/* Slides */}
@@ -1279,7 +1760,7 @@ export const CreateEventScreen: React.FC = () => {
               })}
             </View>
 
-            {/* Bottom actions */}
+            {/* Bottom actions - floating over content */}
             <View style={[styles.bottomActions, { paddingBottom: insets.bottom + 90 }]}>
               <TouchableOpacity
                 style={[
@@ -1405,20 +1886,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   skipBtn: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 14,
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-    opacity: 0,
-  },
-  skipBtnVisible: {
-    opacity: 1,
-  },
-  skipBtnText: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.55)',
+    width: 36,
   },
   // Progress dots (centered absolutely in header)
   progressDotsInline: {
@@ -1489,12 +1957,12 @@ const styles = StyleSheet.create({
     textShadowRadius: 20,
   },
   titleDisplayArea: {
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-start',
     paddingTop: 40,
     paddingHorizontal: 8,
     position: 'relative',
+    minHeight: 120,
   },
   titleDirectInput: {
     fontFamily: 'Inter_200ExtraLight',
@@ -1732,75 +2200,717 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
   },
-  // Slide 3: Location
-  locationInputContainer: {
-    position: 'relative',
+  // Slide 3: Location - New Tufts picker styles
+  locationHeader: {
     marginBottom: 24,
   },
-  locationInput: {
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: 18,
-    padding: 20,
-    paddingRight: 56,
-    fontSize: 18,
+  locationStepText: {
+    fontSize: 14,
+    fontWeight: '400',
+    color: 'rgba(255, 255, 255, 0.4)',
+    marginBottom: 8,
+  },
+  locationMainText: {
+    fontFamily: 'Syne_700Bold',
+    fontSize: 32,
+    fontWeight: '600',
+    color: '#fff',
+    lineHeight: 40,
+  },
+  locationAccentText: {
+    color: '#a78bfa',
+    textShadowColor: 'rgba(167, 139, 250, 0.4)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 20,
+  },
+  // Selected location preview - Rainbow gradient border
+  selectedLocationPreviewWrapper: {
+    marginBottom: 24,
+    shadowColor: '#ff6b6b',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    elevation: 5,
+  },
+  selectedLocationPreviewBorder: {
+    borderRadius: 16,
+    padding: 2,
+  },
+  selectedLocationPreviewInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(15, 15, 25, 0.95)',
+    borderRadius: 14,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    gap: 14,
+  },
+  selectedLocationPreviewEmoji: {
+    fontSize: 28,
+  },
+  selectedLocationPreviewInfo: {
+    flex: 1,
+  },
+  selectedLocationPreviewName: {
+    fontSize: 16,
+    fontWeight: '600',
     color: '#fff',
   },
-  locationInputError: {
-    borderColor: '#ff6b6b',
+  selectedLocationPreviewDetails: {
+    fontSize: 13,
+    color: 'rgba(255, 255, 255, 0.5)',
+    marginTop: 2,
   },
-  locationErrorText: {
-    fontSize: 14,
-    color: '#ff6b6b',
-    marginTop: -16,
-    marginBottom: 16,
-  },
-  locationInputIcon: {
-    position: 'absolute',
-    right: 18,
-    top: '50%',
-    transform: [{ translateY: -12 }],
-  },
-  locationSuggestions: {},
-  suggestionsLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.35)',
-    letterSpacing: 0.5,
-    marginBottom: 12,
-  },
-  suggestionChips: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-  },
-  suggestionChip: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: 24,
-  },
-  suggestionChipText: {
+  selectedLocationPreviewEdit: {
     fontSize: 14,
     fontWeight: '500',
-    color: 'rgba(255, 255, 255, 0.55)',
+    color: '#48dbfb',
   },
-  // Slide 4: Cover
-  coverUploadLabel: {
+  // Tappable search bar - mockup exact
+  locationSearchBarTappable: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    gap: 12,
+    marginBottom: 16,
+  },
+  locationSearchBarError: {
+    borderColor: '#fb7185',
+  },
+  locationSearchPlaceholder: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.35)',
+  },
+  // Divider with "or" - mockup exact
+  locationDivider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    marginVertical: 24,
+  },
+  locationDividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  locationDividerText: {
+    fontSize: 13,
+    color: 'rgba(255, 255, 255, 0.4)',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  // Custom location input section - mockup exact
+  customLocationSection: {
+    marginTop: 8,
+  },
+  customLocationLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: 'rgba(255, 255, 255, 0.6)',
+    marginBottom: 12,
+  },
+  customLocationInput: {
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 16,
+    paddingVertical: 18,
+    paddingHorizontal: 20,
+    fontSize: 16,
+    color: '#fff',
+  },
+  customLocationInputError: {
+    borderColor: '#fb7185',
+  },
+  customLocationHelper: {
+    fontSize: 13,
+    color: 'rgba(255, 255, 255, 0.4)',
+    marginTop: 12,
+    lineHeight: 20,
+  },
+  // Location error text
+  locationErrorText: {
+    fontSize: 14,
+    color: '#fb7185',
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  // Search Modal - mockup exact
+  locationSearchModal: {
+    flex: 1,
+    backgroundColor: 'rgba(10, 10, 18, 0.95)',
+  },
+  locationSearchModalContent: {
+    flex: 1,
+    paddingTop: 60,
+    paddingHorizontal: 24,
+    paddingBottom: 24,
+  },
+  locationModalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    marginBottom: 20,
+  },
+  locationModalCloseBtn: {
+    width: 40,
+    height: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  locationModalSearchWrapper: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderRadius: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    gap: 10,
+  },
+  locationModalSearchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: '#fff',
+  },
+  // Category pills in modal - mockup exact
+  locationModalCategoryScroll: {
+    maxHeight: 44,
+    marginBottom: 20,
+  },
+  locationModalCategoryContent: {
+    flexDirection: 'row',
+    gap: 10,
+    paddingBottom: 8,
+  },
+  locationModalPill: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 50,
+    backgroundColor: 'rgba(30, 30, 35, 0.8)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  locationModalPillActive: {
+    borderColor: 'rgba(255, 255, 255, 0.6)',
+  },
+  locationModalPillText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.5)',
+  },
+  locationModalPillTextActive: {
+    color: '#fff',
+  },
+  // Location cards grid in modal - mockup exact
+  locationModalGrid: {
+    flex: 1,
+  },
+  locationModalGridContent: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    paddingBottom: 20,
+  },
+  locationModalCard: {
+    width: '47%',
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 16,
+    padding: 16,
+    position: 'relative',
+  },
+  locationModalCardSelected: {
+    backgroundColor: 'rgba(139, 92, 246, 0.15)',
+    borderColor: 'rgba(139, 92, 246, 0.5)',
+  },
+  locationModalCardCheck: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 22,
+    height: 22,
+    backgroundColor: '#8b5cf6',
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  locationModalCardEmoji: {
+    fontSize: 28,
+    marginBottom: 10,
+  },
+  locationModalCardName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#fff',
+    marginBottom: 4,
+  },
+  locationModalCardType: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.4)',
+  },
+  locationModalCardDetails: {
+    fontSize: 11,
+    color: '#a78bfa',
+    fontStyle: 'italic',
+  },
+  // Morph Popup styles - the card that expands from grid
+  locationMorphPopup: {
+    backgroundColor: 'rgba(20, 20, 35, 0.98)',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.4)',
+    padding: 20,
+    shadowColor: '#8b5cf6',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 24,
+    elevation: 10,
+  },
+  morphPopupHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
+    gap: 14,
+  },
+  morphPopupEmoji: {
+    fontSize: 40,
+  },
+  morphPopupVenueInfo: {
+    flex: 1,
+  },
+  morphPopupVenueName: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#fff',
+    marginBottom: 4,
+  },
+  morphPopupVenueCategory: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.5)',
+  },
+  morphPopupInputSection: {
+    marginBottom: 24,
+  },
+  morphPopupLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: 'rgba(255, 255, 255, 0.6)',
+    marginBottom: 10,
+  },
+  morphPopupInput: {
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.35)',
+    borderRadius: 14,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    color: '#fff',
+    marginBottom: 10,
+  },
+  morphPopupHint: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.35)',
+    fontStyle: 'italic',
+  },
+  morphPopupActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 'auto',
+  },
+  morphPopupChangeBtn: {
+    flex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  morphPopupChangeBtnText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: 'rgba(255, 255, 255, 0.7)',
+  },
+  morphPopupDoneBtn: {
+    flex: 1,
+    backgroundColor: '#2dd4bf',
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  morphPopupDoneBtnText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#0a0a12',
+  },
+  // Location Details View styles (shown after selecting a venue)
+  locationDetailsView: {
+    flex: 1,
+  },
+  locationDetailsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 32,
+  },
+  locationDetailsTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: '#fff',
-    marginBottom: 16,
-    textAlign: 'center',
   },
+  locationDetailsVenueCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(139, 92, 246, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.4)',
+    borderRadius: 16,
+    padding: 16,
+    gap: 14,
+    marginBottom: 32,
+  },
+  locationDetailsEmoji: {
+    fontSize: 32,
+  },
+  locationDetailsVenueInfo: {
+    flex: 1,
+  },
+  locationDetailsVenueName: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#fff',
+    marginBottom: 4,
+  },
+  locationDetailsVenueCategory: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.5)',
+  },
+  locationDetailsLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: 'rgba(255, 255, 255, 0.6)',
+    marginBottom: 12,
+  },
+  locationDetailsInput: {
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.35)',
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 18,
+    fontSize: 16,
+    color: '#fff',
+    marginBottom: 24,
+  },
+  locationDetailsActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 'auto',
+  },
+  locationDetailsChangeBtn: {
+    flex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 16,
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  locationDetailsChangeBtnText: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: 'rgba(255, 255, 255, 0.7)',
+  },
+  locationDetailsDoneBtn: {
+    flex: 1,
+    backgroundColor: '#2dd4bf',
+    borderRadius: 16,
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  locationDetailsDoneBtnText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#0a0a12',
+  },
+  // Keep old styles for backward compatibility (can be removed later)
+  locationSearchBar: {
+    position: 'relative',
+    marginBottom: 16,
+  },
+  locationSearchIcon: {
+    position: 'absolute',
+    left: 18,
+    top: 18,
+    zIndex: 1,
+  },
+  locationSearchInput: {
+    width: '100%',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    paddingLeft: 48,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 16,
+    fontSize: 16,
+    color: '#fff',
+  },
+  categoryPillsScroll: {
+    maxHeight: 44,
+    marginBottom: 12,
+    marginHorizontal: -24,
+  },
+  categoryPillsContent: {
+    gap: 10,
+    paddingHorizontal: 24,
+    paddingVertical: 4,
+  },
+  categoryPill: {
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingHorizontal: 10,
+    borderRadius: 50,
+    backgroundColor: 'rgba(30, 30, 35, 0.8)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  categoryPillActive: {
+    borderColor: 'rgba(255, 255, 255, 0.6)',
+  },
+  categoryPillText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.5)',
+    lineHeight: 16,
+  },
+  categoryPillTextActive: {
+    color: '#ffffff',
+  },
+  locationErrorTextNew: {
+    fontSize: 14,
+    color: '#fb7185',
+    marginBottom: 12,
+  },
+  locationsGridScroll: {
+    flex: 1,
+  },
+  locationsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    paddingBottom: 140,
+  },
+  locationCard: {
+    width: '47%',
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 16,
+    padding: 16,
+    gap: 8,
+    position: 'relative',
+  },
+  locationCardSelected: {
+    backgroundColor: 'rgba(139, 92, 246, 0.15)',
+    borderColor: 'rgba(139, 92, 246, 0.5)',
+  },
+  locationCardIcon: {
+    fontSize: 28,
+    marginBottom: 4,
+  },
+  locationCardName: {
+    fontWeight: '600',
+    fontSize: 15,
+    color: '#fff',
+  },
+  locationCardNameSelected: {
+    color: '#c4b5fd',
+  },
+  locationCardType: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.4)',
+  },
+  locationCardCheck: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#8b5cf6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  // Selected location summary (shown at top when a location is selected)
+  selectedLocationSummary: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(139, 92, 246, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.4)',
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 16,
+    gap: 12,
+  },
+  selectedLocationEmoji: {
+    fontSize: 24,
+  },
+  selectedLocationInfo: {
+    flex: 1,
+  },
+  selectedLocationName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  selectedLocationDetails: {
+    fontSize: 13,
+    color: 'rgba(255, 255, 255, 0.6)',
+    marginTop: 2,
+  },
+  selectedLocationEdit: {
+    fontSize: 13,
+    color: '#a78bfa',
+    fontWeight: '500',
+  },
+  // Location details morph modal styles
+  locationDetailsMorphOverlay: {
+    flex: 1,
+  },
+  locationDetailsMorphContainer: {
+    position: 'absolute',
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.4)',
+    overflow: 'hidden',
+    shadowColor: '#8b5cf6',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: 30,
+  },
+  locationDetailsMorphBlur: {
+    flex: 1,
+    padding: 24,
+    backgroundColor: 'rgba(20, 20, 30, 0.4)',
+  },
+  modalVenueHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    marginBottom: 24,
+  },
+  modalVenueIcon: {
+    width: 56,
+    height: 56,
+    backgroundColor: 'rgba(139, 92, 246, 0.25)',
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalVenueEmoji: {
+    fontSize: 28,
+  },
+  modalVenueInfo: {
+    flex: 1,
+  },
+  modalVenueName: {
+    fontWeight: '600',
+    fontSize: 20,
+    color: '#fff',
+    marginBottom: 4,
+  },
+  modalVenueCategory: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.5)',
+  },
+  modalDetailsLabel: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: 'rgba(255, 255, 255, 0.7)',
+    marginBottom: 12,
+  },
+  modalDetailsInput: {
+    width: '100%',
+    paddingVertical: 16,
+    paddingHorizontal: 18,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.35)',
+    borderRadius: 14,
+    fontSize: 16,
+    color: '#fff',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 'auto',
+  },
+  modalChangeBtn: {
+    flex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 16,
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  modalChangeBtnText: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: 'rgba(255, 255, 255, 0.7)',
+  },
+  modalDoneBtn: {
+    flex: 1,
+    backgroundColor: 'rgba(139, 92, 246, 0.4)',
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.6)',
+    borderRadius: 16,
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  modalDoneBtnText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  // Slide 4: Cover
   coverCanvasTouchable: {
     flex: 1,
     minHeight: 240,
     maxHeight: 280,
     position: 'relative',
+  },
+  coverEditHint: {
+    position: 'absolute',
+    bottom: 12,
+    left: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 12,
+  },
+  coverEditHintText: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: 'rgba(255, 255, 255, 0.6)',
   },
   coverCanvas: {
     flex: 1,
@@ -2032,51 +3142,140 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   // Slide 5: Final touches
-  optionalSection: {},
-  optionalField: {
+  finalHeader: {
+    marginBottom: 28,
+  },
+  finalStepText: {
+    fontSize: 14,
+    fontWeight: '400',
+    color: 'rgba(255, 255, 255, 0.4)',
+    marginBottom: 8,
+  },
+  finalMainText: {
+    fontFamily: 'Syne_700Bold',
+    fontSize: 32,
+    fontWeight: '600',
+    color: '#fff',
+    lineHeight: 40,
+    marginBottom: 8,
+  },
+  finalAccentText: {
+    color: '#a78bfa',
+  },
+  finalSubtitle: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.45)',
+  },
+  finalField: {
     marginBottom: 20,
   },
-  optionalLabel: {
+  finalLabel: {
     fontSize: 13,
     fontWeight: '500',
     color: 'rgba(255, 255, 255, 0.55)',
     marginBottom: 10,
   },
-  spotsInputContainer: {
-    position: 'relative',
-  },
-  spotsInput: {
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+  finalGradientBorder: {
     borderRadius: 16,
-    padding: 18,
-    paddingRight: 56,
+    overflow: 'hidden',
+  },
+  finalGradientBorderActive: {
+    shadowColor: '#a78bfa',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  finalInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#0a0a14',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  finalInputContainerFocused: {
+    margin: 2,
+    borderWidth: 0,
+    borderRadius: 14,
+  },
+  finalInputIcon: {
     fontSize: 18,
-    color: '#fff',
+    marginRight: 10,
   },
-  spotsInputIcon: {
-    position: 'absolute',
-    right: 18,
-    top: '50%',
-    transform: [{ translateY: -12 }],
-    fontSize: 20,
-  },
-  optionalTextarea: {
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: 16,
-    padding: 18,
+  finalInput: {
+    flex: 1,
     fontSize: 16,
     color: '#fff',
-    minHeight: 120,
-    lineHeight: 24,
   },
-  // Bottom actions
+  finalTextareaInner: {
+    backgroundColor: '#0a0a14',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
+    borderRadius: 16,
+  },
+  finalTextareaInnerFocused: {
+    margin: 2,
+    borderWidth: 0,
+    borderRadius: 14,
+  },
+  finalTextarea: {
+    padding: 16,
+    fontSize: 15,
+    color: '#fff',
+    minHeight: 100,
+    lineHeight: 22,
+  },
+  finalToggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  finalToggleInfo: {
+    flex: 1,
+    marginRight: 12,
+  },
+  finalToggleLabel: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#fff',
+    marginBottom: 3,
+  },
+  finalToggleHint: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.4)',
+  },
+  keyboardAccessory: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: '#1c1c1e',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  keyboardDoneBtn: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: 'rgba(167, 139, 250, 0.2)',
+  },
+  keyboardDoneBtnText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#a78bfa',
+  },
+  // Bottom actions - floating over content
   bottomActions: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     paddingHorizontal: 24,
-    paddingTop: 20,
+    zIndex: 10,
   },
   nextBtn: {
     backgroundColor: '#2dd4bf',
